@@ -1,0 +1,415 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Mixins
+            </h1>
+        </section>
+        <section>
+        </section>
+        <section id="basics">
+            <h2>basics</h2>
+            <p>Mixins are a flexible way to distribute reusable functionalities for Vue components. A mixin object can contain any component options. When a component uses a mixin, all options in the mixin will be "mixed" into the component's own options.</p>
+            <p class="note">mixin = mix + in; </p>
+            <p>Example:</p>
+            <pre><code>
+// define a mixin object
+const myMixin = {
+  created() {
+    this.hello()
+  },
+  methods: {
+    hello() {
+      console.log('hello from mixin!')
+    }
+  }
+}
+
+// define an app that uses this mixin
+const app = Vue.createApp({
+  mixins: [myMixin]
+})
+
+app.mount('#mixins-basic') // => "hello from mixin!"
+
+            </code></pre>
+        </section>
+        <section id="option-merging">
+            <h2>option-merging</h2>
+            <p>When a mixin and the component itself contain overlapping options, they will be "merged" using appropriate strategies.</p>
+            <p>For example, data objects undergo a recursive merge, with the component's data taking priority in cases of conflicts.</p>
+            <pre><code>
+const myMixin = {
+    data() {
+        return {
+        message: &apos;hello&apos;,
+        foo: &apos;abc&apos;
+        }
+    }
+    }
+    
+    const app = Vue.createApp({
+    mixins: [myMixin],
+    data() {
+        return {
+        message: &apos;goodbye&apos;,
+        bar: &apos;def&apos;
+        }
+    },
+    created() {
+        console.log(this.$data) // =&gt; { message: &quot;goodbye&quot;, foo: &quot;abc&quot;, bar: &quot;def&quot; }
+    }
+})
+                  
+            </code></pre>
+            <p>Hook functions with the same name are merged into an array so that all of them will be called. Mixin hooks will be called before the component's own hooks.</p>
+            <pre><code>
+const myMixin = {
+    created() {
+        console.log(&apos;mixin hook called&apos;)
+    }
+    }
+    
+    const app = Vue.createApp({
+    mixins: [myMixin],
+    created() {
+        console.log(&apos;component hook called&apos;)
+    }
+    })
+    
+    // =&gt; &quot;mixin hook called&quot;
+    // =&gt; &quot;component hook called&quot;
+                  
+            </code></pre>
+            <p>Options that expect object values, for example methods, components and directives, will be merged into the same object. The component's options will take priority when there are conflicting keys in these objects:</p>
+            <pre><code>
+const myMixin = {
+    methods: {
+        foo() {
+        console.log(&apos;foo&apos;)
+        },
+        conflicting() {
+        console.log(&apos;from mixin&apos;)
+        }
+    }
+    }
+    
+    const app = Vue.createApp({
+    mixins: [myMixin],
+    methods: {
+        bar() {
+        console.log(&apos;bar&apos;)
+        },
+        conflicting() {
+        console.log(&apos;from self&apos;)
+        }
+    }
+    })
+    
+    const vm = app.mount(&apos;#mixins-basic&apos;)
+    
+    vm.foo() // =&gt; &quot;foo&quot;
+    vm.bar() // =&gt; &quot;bar&quot;
+    vm.conflicting() // =&gt; &quot;from self&quot;
+                  
+            </code></pre>
+        </section>
+        <section id="global-mixin">
+            <h2>global-mixin</h2>
+            <p>You can also apply a mixin globally for a Vue application:</p>
+            <pre><code>
+const app = Vue.createApp({
+    myOption: &apos;hello!&apos;
+    })
+    
+    // inject a handler for &grave;myOption&grave; custom option
+    app.mixin({
+    created() {
+        const myOption = this.$options.myOption
+        if (myOption) {
+        console.log(myOption)
+        }
+    }
+    })
+    
+    app.mount(&apos;#mixins-global&apos;) // =&gt; &quot;hello!&quot;
+                  
+            </code></pre>
+            <p>Use with caution! Once you apply a mixin globally, it will affect every component instance created afterwards in the given app (for example, child components):</p>
+            <pre><code>
+const app = Vue.createApp({
+    myOption: &apos;hello!&apos;
+    })
+    
+    // inject a handler for &grave;myOption&grave; custom option
+    app.mixin({
+    created() {
+        const myOption = this.$options.myOption
+        if (myOption) {
+        console.log(myOption)
+        }
+    }
+    })
+    
+    // add myOption also to child component
+    app.component(&apos;test-component&apos;, {
+    myOption: &apos;hello from component!&apos;
+    })
+    
+    app.mount(&apos;#mixins-global&apos;)
+    
+    // =&gt; &quot;hello!&quot;
+    // =&gt; &quot;hello from component!&quot;
+                  
+            </code></pre>
+            <p>In most cases, you should only use it for custom option handling like demonstrated in the example above. It's also a good idea to ship them as Plugins to avoid duplicate application.</p>
+        </section>
+        <section id="custom-option-merge-strategies">
+            <h2>custom-option-merge-strategies</h2>
+            <p>When custom options are merged, they use the default strategy which overwrites the existing value. If you want a custom option to be merged using custom logic, you need to attach a function to app.config.optionMergeStrategies:</p>
+            <pre><code>
+const app = Vue.createApp({})
+
+app.config.optionMergeStrategies.customOption = (toVal, fromVal) =&gt; {
+  // return mergedVal
+}
+
+            </code></pre>
+            <p>The merge strategy receives the value of that option defined on the parent and child instances as the first and second arguments, respectively. Let's try to check what do we have in these parameters when we use a mixin:</p>
+            <pre><code>
+const app = Vue.createApp({
+    custom: &apos;hello!&apos;
+    })
+    
+    app.config.optionMergeStrategies.custom = (toVal, fromVal) =&gt; {
+    console.log(fromVal, toVal)
+    // =&gt; &quot;goodbye!&quot;, undefined
+    // =&gt; &quot;hello&quot;, &quot;goodbye!&quot;
+    return fromVal || toVal
+    }
+    
+    app.mixin({
+    custom: &apos;goodbye!&apos;,
+    created() {
+        console.log(this.$options.custom) // =&gt; &quot;hello!&quot;
+    }
+    })
+                  
+            </code></pre>
+            <p>As you can see, in the console we have toVal and fromVal printed first from the mixin and then from the app. We always return fromVal if it exists, that's why this.$options.custom is set to hello! in the end. Let's try to change a strategy to always return a value from the child instance:</p>
+            <pre><code>
+const app = Vue.createApp({
+    custom: &apos;hello!&apos;
+    })
+    
+    app.config.optionMergeStrategies.custom = (toVal, fromVal) =&gt; toVal || fromVal
+    
+    app.mixin({
+    custom: &apos;goodbye!&apos;,
+    created() {
+        console.log(this.$options.custom) // =&gt; &quot;goodbye!&quot;
+    }
+    })
+                  
+            </code></pre>
+            <p>As you can see, in the console we have toVal and fromVal printed first from the mixin and then from the app. We always return fromVal if it exists, that's why this.$options.custom is set to hello! in the end. Let's try to change a strategy to always return a value from the child instance:</p>
+            <pre><code>
+const app = Vue.createApp({
+    custom: &apos;hello!&apos;
+    })
+    
+    app.config.optionMergeStrategies.custom = (toVal, fromVal) =&gt; toVal || fromVal
+    
+    app.mixin({
+    custom: &apos;goodbye!&apos;,
+    created() {
+        console.log(this.$options.custom) // =&gt; &quot;goodbye!&quot;
+    }
+    })
+                  
+            </code></pre>
+            <p>In Vue 2, mixins were the primary tool to abstract parts of component logic into reusable chunks. However, they have a few issues:</p>
+            <ul>
+                <li>Mixins are conflict-prone: Since properties from each feature are merged into the same component, you still have to know about every other feature to avoid property name conflicts and for debugging.</li>
+                <li>Reusability is limited: we cannot pass any parameters to the mixin to change its logic which reduces their flexibility in terms of abstracting logic</li>
+            </ul>
+            <p>To address these issues, we added a new way to organize code by logical concerns: the Composition API.</p>
+        </section>
+        <section id="">
+            <h3></h3>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [
+                    {
+                        text: '#basics',
+                        href: '#basics',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#option-merging',
+                        href: '#option-merging',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#global-mixin',
+                        href: '#global-mixin',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#custom-option-merge-strategies',
+                        href: '#custom-option-merge-strategies',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [
+            { id: 1, title: 'Learn React', content: 'React is sky blue!' },
+            { id: 2, title: 'Learn Vue', content: 'Vue is mood Green!' }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        props: {},
+        computed: {},
+        methods: {},
+        watch: {},
+        emits: {},
+        template: '',
+        // render(){}, // don't know what does this do
+        beforeCreate() { },
+        created() {
+            console.info(
+                "this.$data", this.$data,
+                "this.$props", this.$props,
+                "this.$el", this.$el,
+                "this.$options", this.$options,
+                "this.$parent", this.$parent,
+                "this.$root", this.$root,
+                "this.$slots", this.$slots,
+                "this.$refs", this.$refs,
+                "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() { },
+        mounted() { },
+        beforeUpdate() { },
+        updated() { },
+        activated(){},
+        deactivated(){},
+        beforeUnmount() { },
+        unmounted() { },
+        errorCaptured: (err, vm, info) => { },
+        renderTracked() { },
+        renderTriggered() { }
+    }
+    const vueInstance = Vue.createApp(options)
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

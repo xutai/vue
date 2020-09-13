@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+
+    <style>
+        div a {
+            display: grid;
+        }
+
+    </style>
+</head>
+<body>
+
+
+
+<div>
+    <a href="https://vuejs.org/v2/api/">
+        api v-bind
+    </a>
+    <a href="https://vuejs.org/v2/guide/class-and-style.html">
+        class and style bindings
+    </a>
+</div>
+
+<h3>code</h3>
+
+<pre><code>
+
+
+    &lt;!-- bind an attribute --&gt;
+&lt;img v-bind:src="imageSrc"&gt;
+
+    &lt;!-- shorthand --&gt;
+&lt;img :src="imageSrc"&gt;
+
+    &lt;!-- with inline string concatenation --&gt;
+&lt;img :src="'/path/to/images/' + fileName"&gt;
+
+    &lt;!-- class binding --&gt;
+&lt;div :class="{ red: isRed }"&gt;&lt;/div&gt;
+&lt;div :class="[classA, classB]"&gt;&lt;/div&gt;
+&lt;div :class="[classA, { classB: isB, classC: isC }]"&gt;
+
+&lt;!-- style binding --&gt;
+&lt;div :style="{ fontSize: size + 'px' }"&gt;&lt;/div&gt;
+&lt;div :style="[styleObjectA, styleObjectB]"&gt;&lt;/div&gt;
+
+    &lt;!-- binding an object of attributes --&gt;
+&lt;div v-bind="{ id: someProp, 'other-attr': otherProp }"&gt;&lt;/div&gt;
+
+    &lt;!-- DOM attribute binding with prop modifier --&gt;
+&lt;div v-bind:text-content.prop="text"&gt;&lt;/div&gt;
+
+    &lt;!-- prop binding. "prop" must be declared in my-component. --&gt;
+&lt;my-component :prop="someThing"&gt;&lt;/my-component&gt;
+
+    &lt;!-- pass down parent props in common with a child component --&gt;
+&lt;child-component v-bind="$props"&gt;&lt;/child-component&gt;
+
+    &lt;!-- XLink --&gt;
+&lt;svg&gt;&lt;a :xlink:special="foo"&gt;&lt;/a&gt;&lt;/svg&gt;
+
+
+</code></pre>
+
+
+
+</body>
+</html>

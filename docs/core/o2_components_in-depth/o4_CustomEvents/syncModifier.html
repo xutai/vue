@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> </title>
+
+    <style>
+        .code {
+            background: #f5d6bc;
+        }
+    </style>
+
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script></head>
+<body>
+
+<h4>
+    1. This is mainly for a prop, a prop && update, monitor the prop's change,  checkout the "update"
+2. while prop checked && event change,
+    3. prop value && event input;
+</h4>
+
+<h3>Instance:</h3>
+
+<h6>in the expression</h6>
+<section id="app" class="code">
+    <text-document
+            v-bind:title="doc.title"
+            v-on:update:title="doc.title = $event"
+    ></text-document>
+</section>
+
+<script>
+    Vue.component('text-document', {
+        props: {
+            title: String
+        },
+        template: `<p v-on:click="$emit('update:title', 'ok')">{{title}}</p>`
+    });
+    var app = new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                doc: {
+                    title: 'this is title'
+                }
+            }
+        }
+    })
+</script>
+
+<hr>
+<h6>in a methods</h6>
+<section id="app2" class="code">
+    <text-document2
+            v-bind:title="doc.title"
+            v-on:update:title="doc.title = $event"
+    ></text-document2>
+</section>
+
+<script>
+    Vue.component('text-document2', {
+        props: {
+            title: String
+        },
+        template: `<p v-on:click="clickSomething">{{title}}</p>`,
+        methods: {
+            clickSomething(){
+                //console.log(this);
+                this.$emit('update:title', 'ok')
+            }
+        }
+    });
+    var app2 = new Vue({
+        el: '#app2',
+        data: function() {
+            return {
+                doc: {
+                    title: 'this is title'
+                }
+            }
+        }
+    })
+</script>
+
+
+<hr>
+
+<h6>with .syn, single prop</h6>
+<section id="app3" class="code">
+    <text-document3
+            v-bind:title.sync="doc.title"
+    ></text-document3>
+</section>
+
+<script>
+    Vue.component('text-document3', {
+        props: {
+            title: String
+        },
+        template: `<p v-on:click="clickSomething">{{title}}</p>`,
+        methods: {
+            clickSomething(){
+                //console.log(this);
+                this.$emit('update:title', 'ok')
+            }
+        }
+    });
+    var app3 = new Vue({
+        el: '#app3',
+        data: function() {
+            return {
+                doc: {
+                    title: 'this is title'
+                }
+            }
+        }
+    })
+</script>
+
+
+<hr>
+
+<h6>with .sync, an object with multiple props, the most redundant!</h6>
+<section id="app4" class="code">
+    <text-document4
+            v-bind:title.sync="doc.title"
+            v-bind:name.sync="doc.name"
+    ></text-document4>
+</section>
+
+<script>
+    Vue.component('text-document4', {
+        props: {
+            title: String,
+            name: String
+        },
+        template: `<p v-on:click="clickSomething">{{title}} - {{name}}</p>`,
+        methods: {
+            clickSomething(){
+                //console.log(this);
+                this.$emit('update:title', 'ok');
+                this.$emit('update:name', 'tylerxu')
+            }
+        }
+    });
+    var app3 = new Vue({
+        el: '#app4',
+        data: function() {
+            return {
+                doc: {
+                    title: 'this is title',
+                    name: 'this is name'
+                }
+            }
+        }
+    })
+</script>
+
+
+<hr>
+
+<h6>with .sync, an object with multiple props, clean!</h6>
+<section id="app5" class="code">
+    <text-document5
+            v-bind.sync="doc"
+    ></text-document5>
+</section>
+
+<script>
+    Vue.component('text-document5', {
+        props: {
+            title: String,
+            name: String
+        },
+        template: `<p v-on:click="clickSomething">{{title}} - {{name}}</p>`,
+        methods: {
+            clickSomething(){
+                //console.log(this);
+                this.$emit('update:title', 'ok');
+                this.$emit('update:name', 'tylerxu')
+            }
+        }
+    });
+    var app3 = new Vue({
+        el: '#app5',
+        data: function() {
+            return {
+                doc: {
+                    title: 'this is title',
+                    name: 'this is name'
+                }
+            }
+        }
+    })
+</script>
+
+
+</body>
+</html>

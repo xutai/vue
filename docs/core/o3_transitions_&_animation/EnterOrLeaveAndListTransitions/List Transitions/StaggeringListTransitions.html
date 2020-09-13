@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../../vue.js"></script>
+    <script src="./velocity.min.js"></script>
+</head>
+<body>
+<div id="demo">
+    <input  v-model="query">
+    <transition-group
+
+            tag="ul"
+            v-bind:class="false"
+            v-on:before-enter="beforeEnter"
+            v-on:enter="enter"
+            v-on:leave="leave"
+    >
+        <li
+                v-for="(item, index) in computedList"
+                :key="item.msg"
+                v-bind:data-index="index"
+        >
+            {{ item.msg }}
+        </li>
+    </transition-group>
+</div>
+
+<script>
+
+    new Vue({
+        el: '#demo',
+        data: {
+            query: '',
+            list: [
+                {msg: 'Bruce Lee'},
+                {msg: 'Jackie Chan'},
+                {msg: 'Chuck Norris'},
+                {msg: 'Jet Li'},
+                {msg: 'Kung Fury'}
+            ]
+        },
+        computed: {
+            computedList() {
+                var vm = this
+                return  this.list.filter( function (item){
+                    return item.msg.toLowerCase().indexOf(vm.query.toLowerCase()) !== -1
+                    // if it does not exist , it return false, then it will be filtered
+                })
+                // filer() : https://vuejs.org/v2/guide/filters.html#ad
+                // api: https://vuejs.org/v2/api/#Vue-filter
+            }
+        },
+        methods: {
+            beforeEnter(el) {
+                el.style.opacity = 0
+                el.style.height = 0
+            },
+            enter(el, done) {
+                // console.log(el.index)
+                var delay = el.dataset.index * 150
+                setTimeout(function(){
+                    Velocity(el, {opacity: 1, height: '1.6em'}, { complete: done })
+                }, delay)
+
+            },
+             leave(el, done) {
+                 var delay = el.dataset.index * 150
+                setTimeout(function() {
+                    Velocity(el, { opacity: 0, height: 0 }, { complete: done })
+                }, delay)
+             }
+        }
+
+    })
+
+</script>
+</body>
+</html>

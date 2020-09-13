@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../../vue.js"></script>
+</head>
+<body>
+<div id="demo">
+
+    <h1>need an example. will check it in future!  </h1>
+    <my-special-transition></my-special-transition>
+</div>
+<script>
+    Vue.component('my-special-transition', {
+        template: '\
+        <transition\
+            name="very-special-transition"\
+            mode="out-in"\
+            v-on:before-enter="beforeEnter"\
+            v-on:before-leave="beforeLeave"\
+            >\
+            <slot></slot>\
+            </transition>\
+            ',
+        methods: {
+            beforeEnter: function (el) {
+
+            },
+            afterEnter: function (el) {
+
+            }
+        }
+    })
+    new Vue({
+        el: '#demo',
+        data: {
+
+        }
+
+    })
+
+</script>
+</body>
+</html>

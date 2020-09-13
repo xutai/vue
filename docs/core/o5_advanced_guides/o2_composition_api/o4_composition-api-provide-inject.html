@@ -1,0 +1,493 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Provide / Inject
+            </h1>
+        </section>
+        <section>
+            <ul>
+                <li>scenario-background</li>
+                <li>using-provide</li>
+                <li>using-inject</li>
+                <li>reactivity</li>
+                <ul>
+                    <li>adding-reactivity</li>
+                    <li>mutating-reactive-properties</li>
+                </ul>
+            </ul>
+        </section>
+        <section>
+            <blockquote>
+                <p>This guide assumes that you have already read Provide / Inject, Composition API Introduction, and Reactivity Fundamentals.</p>
+            </blockquote>
+            <p>We can use provide / inject with the Composition API as well. Both can only be called during setup() with a current active instance.</p>
+        </section>
+        <section id="scenario-background">
+            <h2>scenario-background</h2>
+            <p>Let's assume that we want to rewrite the following code, which contains a MyMap component that provides a MyMarker component with the user's location, using the Composition API.</p>
+            <pre><code>
+&lt;!-- src/components/MyMap.vue --&gt;
+&lt;template&gt;
+  &lt;MyMarker /&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import MyMarker from &apos;./MyMarker.vue&apos;
+
+export default {
+  components: {
+    MyMarker
+  },
+  provide: {
+    location: &apos;North Pole&apos;,
+    geolocation: {
+      longitude: 90,
+      latitude: 135
+    }
+  }
+}
+&lt;/script&gt;
+
+            </code></pre>
+            <pre><code>
+&lt;!-- src/components/MyMarker.vue --&gt;
+&lt;script&gt;
+export default {
+  inject: [&apos;location&apos;, &apos;longitude&apos;, &apos;latitude&apos;]
+}
+&lt;/script&gt;
+
+            </code></pre>
+        </section>
+        <section id="using-provide">
+            <h2>using-provide</h2>
+            <p>When using provide in setup(), we start by explicitly importing the method from vue. This allows us to define each property with its own invocation of provide.</p>
+            <p>The provide function allows you to define the property through two parameters:</p>
+            <ul>
+                <li>The property&apos;s name (&lt;String&gt; type)</li>
+                <li>The property's value</li>
+            </ul>
+            <p>Using our MyMap component, our provided values can be refactored as the following:</p>
+            <pre><code>
+&lt;!-- src/components/MyMap.vue --&gt;
+&lt;template&gt;
+  &lt;MyMarker /&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import { provide } from &apos;vue&apos;
+import MyMarker from &apos;./MyMarker.vue
+
+export default {
+  components: {
+    MyMarker
+  },
+  setup() {
+    provide(&apos;location&apos;, &apos;North Pole&apos;)
+    provide(&apos;geolocation&apos;, {
+      longitude: 90,
+      latitude: 135
+    })
+  }
+}
+&lt;/script&gt;
+
+            </code></pre>
+        </section>
+        <section id="using-inject">
+            <h2>using-inject</h2>
+            <p>When using inject in setup(), we also need to explicitly import it from vue. Once we do so, this allows us to invoke it to define how we want to expose it to our component.</p>
+            <p>The inject function takes two parameters:</p>
+            <ol>
+                <li>The name of the property to inject</li>
+                <li>A default value (Optional)</li>
+            </ol>
+            <p>Using our MyMarker component, we can refactor it with the following code:</p>
+            <pre><code>
+&lt;!-- src/components/MyMarker.vue --&gt;
+&lt;script&gt;
+import { inject } from &apos;vue&apos;
+
+export default {
+  setup() {
+    const userLocation = inject(&apos;location&apos;, &apos;The Universe&apos;)
+    const userGeolocation = inject(&apos;geolocation&apos;)
+
+    return {
+      userLocation,
+      userGeolocation
+    }
+  }
+}
+&lt;/script&gt;
+
+            </code></pre>
+        </section>
+        <section id="reactivity">
+            <h2>reactivity</h2>
+        </section>
+        <section id="adding-reactivity">
+            <h3>adding-reactivity</h3>
+            <p>To add reactivity between provided and injected values, we can use a ref or reactive when providing a value.</p>
+            <p>Using our MyMap component, our code can be updated as follows:</p>
+            <pre><code>
+&lt;!-- src/components/MyMap.vue --&gt;
+&lt;template&gt;
+  &lt;MyMarker /&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import { provide, reactive, ref } from &apos;vue&apos;
+import MyMarker from &apos;./MyMarker.vue
+
+export default {
+  components: {
+    MyMarker
+  },
+  setup() {
+    const location = ref(&apos;North Pole&apos;)
+    const geolocation = reactive({
+      longitude: 90,
+      latitude: 135
+    })
+
+    provide(&apos;location&apos;, location)
+    provide(&apos;geolocation&apos;, geolocation)
+  }
+}
+&lt;/script&gt;
+
+            </code></pre>
+            <p>Now, if anything changes in either property, the MyMarker component will automatically be updated as well!</p>
+        </section>
+        <section id="mutating-reactive-properties">
+            <h3>mutating-reactive-properties</h3>
+            <p>When using reactive provide / inject values, it is recommended to keep any mutations to reactive properties inside of the provider whenever possible.</p>
+            <p>For example, in the event we needed to change the user's location, we would ideally do this inside of our MyMap component.</p>
+            <pre><code>
+&lt;!-- src/components/MyMap.vue --&gt;
+&lt;template&gt;
+  &lt;MyMarker /&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import { provide, reactive, ref } from &apos;vue&apos;
+import MyMarker from &apos;./MyMarker.vue
+
+export default {
+  components: {
+    MyMarker
+  },
+  setup() {
+    const location = ref(&apos;North Pole&apos;)
+    const geolocation = reactive({
+      longitude: 90,
+      latitude: 135
+    })
+
+    provide(&apos;location&apos;, location)
+    provide(&apos;geolocation&apos;, geolocation)
+
+    return {
+      location
+    }
+  },
+<samp class="code-highlight">
+    methods: {
+        updateLocation() {
+          this.location = &apos;South Pole&apos;
+        }
+      }
+</samp>
+}
+&lt;/script&gt;
+
+            </code></pre>
+            <p>However, there are times where we need to update the data inside of the component where the data is injected. In this scenario, we recommend providing a method that is responsible for mutating the reactive property.</p>
+            <pre><code>
+&lt;!-- src/components/MyMap.vue --&gt;
+&lt;template&gt;
+  &lt;MyMarker /&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+import { provide, reactive, ref } from &apos;vue&apos;
+import MyMarker from &apos;./MyMarker.vue
+
+export default {
+  components: {
+    MyMarker
+  },
+  setup() {
+    const location = ref(&apos;North Pole&apos;)
+    const geolocation = reactive({
+      longitude: 90,
+      latitude: 135
+    })
+
+<samp class="code-highlight">
+    const updateLocation = () =&gt; {
+        location.value = &apos;South Pole&apos;
+    }
+</samp>
+
+    provide(&apos;location&apos;, location)
+    provide(&apos;geolocation&apos;, geolocation)
+    provide(&apos;updateLocation&apos;, updateLocation)
+  }
+}
+&lt;/script&gt;
+
+            </code></pre>
+            <pre><code>
+&lt;!-- src/components/MyMarker.vue --&gt;
+&lt;script&gt;
+import { inject } from &apos;vue&apos;
+
+export default {
+  setup() {
+    const userLocation = inject(&apos;location&apos;, &apos;The Universe&apos;)
+    const userGeolocation = inject(&apos;geolocation&apos;)
+<samp class="code-highlight">
+    const updateUserLocation = inject(&apos;updateLocation&apos;)
+    
+</samp>
+
+    return {
+      userLocation,
+      userGeolocation,
+<samp class="code-highlight">
+      updateUserLocation
+
+</samp>
+    }
+  }
+}
+&lt;/script&gt;
+
+            </code></pre>
+            <p>Finally, we recommend using readonly on provided property if you want to ensure that the data passed through provide cannot be mutated by the injected component.</p>
+            <pre><code>
+&lt;!-- src/components/MyMap.vue --&gt;
+&lt;template&gt;
+  &lt;MyMarker /&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+<samp class="code-highlight">
+    import { provide, reactive, readonly, ref } from &apos;vue&apos;
+</samp>
+import MyMarker from &apos;./MyMarker.vue
+
+export default {
+  components: {
+    MyMarker
+  },
+  setup() {
+    const location = ref(&apos;North Pole&apos;)
+    const geolocation = reactive({
+      longitude: 90,
+      latitude: 135
+    })
+
+    const updateLocation = () =&gt; {
+      location.value = &apos;South Pole&apos;
+    }
+
+<samp class="code-highlight">
+    provide(&apos;location&apos;, readonly(location))
+    provide(&apos;geolocation&apos;, readonly(geolocation))
+</samp>
+    provide(&apos;updateLocation&apos;, updateLocation)
+  }
+}
+&lt;/script&gt;
+
+            </code></pre>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [
+                    {
+                        text: '#scenario-background',
+                        href: '#scenario-background',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#using-provide',
+                        href: '#using-provide',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#using-inject',
+                        href: '#using-inject',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#reactivity',
+                        href: '#reactivity',
+                        subItems: [
+                            {
+                                text: '#adding-reactivity',
+                                href: '#adding-reactivity'
+                            },
+                            {
+                                text: '#mutating-reactive-properties',
+                                href: '#mutating-reactive-properties'
+                            },
+                        ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [
+            { id: 1, title: 'Learn React', content: 'React is sky blue!' },
+            { id: 2, title: 'Learn Vue', content: 'Vue is mood Green!' }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        props: {},
+        computed: {},
+        methods: {},
+        watch: {},
+        emits: {},
+        template: '',
+        directives: {
+
+        },
+        provide(){
+            return {}
+        },
+        // render(){}, // don't know what does this do
+        beforeCreate() { },
+        created() {
+            console.info(
+                "this.$data", this.$data,
+                "this.$props", this.$props,
+                "this.$el", this.$el,
+                "this.$options", this.$options,
+                "this.$parent", this.$parent,
+                "this.$root", this.$root,
+                "this.$slots", this.$slots,
+                "this.$refs", this.$refs,
+                "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() { },
+        mounted() { },
+        beforeUpdate() { },
+        updated() { },
+        activated(){},
+        deactivated(){},
+        beforeUnmount() { },
+        unmounted() { },
+        errorCaptured: (err, vm, info) => { },
+        renderTracked() { },
+        renderTriggered() { }
+    }
+    const vueInstance = Vue.createApp(options)
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

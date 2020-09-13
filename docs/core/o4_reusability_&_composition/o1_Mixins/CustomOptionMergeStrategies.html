@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../vue.js"></script>
+
+</head>
+<body>
+<div id="demo">
+    <h1><a href="https://www.vuemastery.com/courses/next-level-vue/mixins/">
+        https://www.vuemastery.com/courses/next-level-vue/mixins/
+    </a>
+        <a href="https://vuejs.org/v2/api/#vm-options">
+            https://vuejs.org/v2/api/#vm-options
+        </a></h1>
+    <h2><a href="https://vuejs.org/v2/api/#Global-Config">
+        https://vuejs.org/v2/api/#Global-Config
+    </a>, <a href="https://vuejs.org/v2/api/#optionMergeStrategies">
+        https://vuejs.org/v2/api/#optionMergeStrategies
+    </a></h2>
+
+    <h1>will check later!! </h1>
+
+
+</div>
+<script>
+
+
+    Vue.config.optionMergeStrategies.myOption = function (toVal, fromVal) {
+        // return mergeVal
+    }
+
+    Vue.mixin({
+        created: function() {
+        }
+    })
+
+    var vm = new Vue({
+        el: '#demo',
+       // myOption: '',
+        data : function() {
+            return {
+            }
+        },
+        created: function() {
+        },
+        watch: {
+
+        },
+        computed: {
+
+        },
+        methods: {
+        },
+
+    })
+
+
+</script>
+</body>
+</html>

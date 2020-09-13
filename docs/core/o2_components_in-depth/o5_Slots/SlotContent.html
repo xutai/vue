@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+
+    <link rel="stylesheet" href="../../../tools/font/fontawesome-free-5.8.2-web/css/all.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+<h4>Slot Content</h4>
+
+<div id="app">
+<navigation-link>
+    Your Profile
+</navigation-link>
+</div>
+<script>
+    Vue.component('navigation-link', {
+        template: `
+        <a>
+        <slot></slot>
+        </a>
+            `
+    });
+    new Vue({
+        el: '#app'
+    })
+
+</script>
+
+
+<hr>
+
+
+
+<div id="app2">
+    <navigation-link2 url="/profile">
+        Your Profile
+    </navigation-link2>
+</div>
+<script>
+    Vue.component('navigation-link2', {
+        props: {
+            url: String
+        },
+        template: `
+        <a
+        v-bind:href="url"
+        class="nav-link"
+        >
+        <slot></slot>
+        </a>
+            `
+    });
+    new Vue({
+        el: '#app2'
+    })
+
+</script>
+
+
+<hr>
+
+
+
+<div id="app3">
+    <navigation-link3 url="/profile">
+        <span class="fa fa-user"></span>
+    </navigation-link3>
+</div>
+<script>
+    Vue.component('navigation-link3', {
+        props: {
+            url: String
+        },
+        template: `
+        <a
+        v-bind:href="url"
+        class="nav-link"
+        >
+        <slot></slot>
+        </a>
+            `
+    });
+    new Vue({
+        el: '#app3'
+    })
+
+</script>
+
+
+<hr>
+
+
+
+<div id="app4">
+    <navigation-link4 url="/profile">
+        <font-awesome-icon name="user"></font-awesome-icon>
+    </navigation-link4>
+</div>
+<script>
+    Vue.component('font-awesome-icon', {
+        template: `
+        <span class="fa fa-user"></span>
+        `
+    });
+    Vue.component('navigation-link4', {
+        props: {
+            url: String
+        },
+        template: `
+        <a
+        v-bind:href="url"
+        class="nav-link"
+        >
+        <slot></slot>
+        </a>
+            `
+    });
+    new Vue({
+        el: '#app4'
+    })
+
+</script>
+</body>
+</html>

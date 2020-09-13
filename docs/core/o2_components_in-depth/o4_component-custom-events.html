@@ -1,0 +1,535 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Custom Events
+            </h1>
+        </section>
+        <section>
+        </section>
+        <section id="event-names">
+            <h2>event-names</h2>
+            <p><span class="key">Unlike components and props, event names don't provide any automatic case
+                    transformation.</span> Instead, the name of an emitted event must exactly match the name used to
+                listen to that event. For example, if emitting a camelCased event name:</p>
+            <pre><code>
+this.$emit('myEvent')
+            </code></pre>
+            <p>Listening to the kebab-cased version will have no effect:</p>
+            <pre><code>
+&lt;!-- Won&apos;t work --&gt;
+&lt;my-component @my-event=&quot;doSomething&quot;&gt;&lt;/my-component&gt;
+
+            </code></pre>
+            <p>Since event names will never be used as variable or property names in JavaScript, there is no reason to
+                use camelCase or PascalCase. Additionally, v-on event listeners inside DOM templates will be
+                automatically transformed to lowercase (due to HTML's case-insensitivity), so @myEvent would become
+                @myevent -- making myEvent impossible to listen to.</p>
+            <p>For these reasons, we recommend you always use kebab-case for event names.</p>
+        </section>
+        <section id="defining-custom-events">
+            <h2>defining-custom-events</h2>
+            <p>Emitted events can be defined on the component via the emits option.</p>
+            <pre><code>
+app.component('custom-form', {
+    emits: ['in-focus', 'submit']
+    })
+            </code></pre>
+            <p>In the event a native event (e.g., click) is defined in the emits option, it will be overwritten by the
+                event in the component instead of being treated as a native listener.</p>
+            <p class="info">It is recommended to define all emitted events in order to better document how a component
+                should work.</p>
+        </section>
+        <section id="validate-emitted-events">
+            <h3>validate-emitted-events</h3>
+            <p>Similar to prop type validation, an emitted event can be validated if it is defined with the Object
+                syntax instead of the Array syntax.</p>
+            <p>To add validation, the event is assigned a function that receives the arguments passed to the $emit call
+                and returns a boolean to indicate whether the event is valid or not.</p>
+            <pre><code>
+app.component('custom-form', {
+    emits: {
+        // No validation
+        click: null,
+    
+        // Validate submit event
+        submit: ({ email, password }) => {
+        if (email && password) {
+            return true
+        } else {
+            console.warn('Invalid submit event payload!')
+            return false
+        }
+        }
+    },
+    methods: {
+        submitForm() {
+        this.$emit('submit', { email, password })
+        }
+    }
+    })
+            </code></pre>
+        </section>
+        <section id="v-model-arguments">
+            <h2>v-model-arguments</h2>
+            <p>By default, v-model on a component uses <span class="keyword">modelValue</span> as the prop and <span class="keyword">update:modelValue</span> as the event. We can
+                modify these names passing an argument to v-model:</p>
+            <pre><code>
+&lt;my-component v-model:foo=&quot;bar&quot;&gt;&lt;/my-component&gt;
+            </code></pre>
+            <p>In this case, child component will expect a foo prop and emits update:foo event to sync:</p>
+            <pre><code>
+const app = Vue.createApp({})
+
+app.component(&apos;my-component&apos;, {
+    props: {
+    foo: String
+    },
+    template: &grave;
+    &lt;input 
+        type=&quot;text&quot;
+        :value=&quot;foo&quot;
+        @input=&quot;$emit(&apos;update:foo&apos;, $event.target.value)&quot;&gt;
+    &grave;
+})
+            </code></pre>
+            <pre><code>
+&lt;my-component v-model:foo=&quot;bar&quot;&gt;&lt;/my-component&gt;
+            </code></pre>
+        </section>
+        <section id="multiple-v-model-bindings">
+            <h2>multiple-v-model-bindings</h2>
+            <p>By leveraging n. 杠杆作用；v. 利用； the ability to target v. 把...作为目标； a particular prop and event as we learned
+                before with v-model
+                arguments, we can now create multiple v-model bindings on a single component instance.</p>
+            <p>Each v-model will sync to a different prop, without the need for extra options in the component:</p>
+            <pre><code>
+&lt;user-name
+  v-model:first-name=&quot;firstName&quot;
+  v-model:last-name=&quot;lastName&quot;
+&gt;&lt;/user-name&gt;
+            </code></pre>
+            <pre><code>
+const app = Vue.createApp({})
+
+app.component(&apos;user-name&apos;, {
+  props: {
+    firstName: String,
+    lastName: String
+  },
+  template: &grave;
+    &lt;input 
+      type=&quot;text&quot;
+      :value=&quot;firstName&quot;
+      @input=&quot;$emit(&apos;update:firstName&apos;, $event.target.value)&quot;&gt;
+
+    &lt;input
+      type=&quot;text&quot;
+      :value=&quot;lastName&quot;
+      @input=&quot;$emit(&apos;update:lastName&apos;, $event.target.value)&quot;&gt;
+  &grave;
+})
+            </code></pre>
+        </section>
+        <section id="handling-v-model-modifiers">
+            <h2>handling-v-model-modifiers</h2>
+            <p>When we were learning about form input bindings, we saw that v-model has built-in modifiers - .trim,
+                .number and .lazy. In some cases, however, you might also want to add your own custom modifiers.</p>
+            <p>Let's create an example custom modifier, capitalize, that capitalizes the first letter of the string
+                provided by the v-model binding.</p>
+            <p>Modifiers added to a component v-model will be provided to the component via the modelModifiers prop. In
+                the below example, we have created a component that contains a modelModifiers prop that defaults to an
+                empty object.</p>
+            <p>Notice that when the component's created lifecycle hook triggers, the modelModifiers prop contains
+                capitalize and its value is true - due to it being set on the v-model binding v-model.capitalize="bar".
+            </p>
+            <pre><code>
+&lt;my-component v-model.capitalize=&quot;bar&quot;&gt;&lt;/my-component&gt;
+            </code></pre>
+            <pre><code>
+app.component(&apos;my-component&apos;, {
+props: {
+    modelValue: String,
+    modelModifiers: {
+    default: () =&gt; ({})
+    }
+},
+template: &grave;
+    &lt;input type=&quot;text&quot; 
+    :value=&quot;modelValue&quot;
+    @input=&quot;$emit(&apos;update:modelValue&apos;, $event.target.value)&quot;&gt;
+&grave;,
+created() {
+    console.log(this.modelModifiers) // { capitalize: true }
+}
+})
+            </code></pre>
+            <p>Now that we have our prop set up, we can check the modelModifiers object keys and write a handler to
+                change the emitted value. In the code below we will capitalize the string whenever the &lt;input /&gt;
+                element fires an input event.</p>
+            <pre><code>
+&lt;div id=&quot;app&quot;&gt;
+  &lt;my-component v-model.capitalize=&quot;myText&quot;&gt;&lt;/my-component&gt;
+  {{ myText }}
+&lt;/div&gt;
+            </code></pre>
+            <pre><code>
+const app = Vue.createApp({
+    data() {
+        return {
+        myText: &apos;&apos;
+        }
+    }
+    })
+    
+    app.component(&apos;my-component&apos;, {
+    props: {
+        modelValue: String,
+        modelModifiers: {
+        default: () =&gt; ({})
+        }
+    },
+    methods: {
+        emitValue(e) {
+        let value = e.target.value
+        if (this.modelModifiers.capitalize) {
+            value = value.charAt(0).toUpperCase() + value.slice(1)
+        }
+        this.$emit(&apos;update:modelValue&apos;, value)
+        }
+    },
+    template: &grave;&lt;input
+        type=&quot;text&quot;
+        :value=&quot;modelValue&quot;
+        @input=&quot;emitValue&quot;&gt;&grave;
+    })
+    
+    app.mount(&apos;#app&apos;)
+            </code></pre>
+            <p>For v-model bindings with arguments, the generated prop name will be arg + "Modifiers":</p>
+            <pre><code>
+&lt;my-component v-model:foo.capitalize=&quot;bar&quot;&gt;&lt;/my-component&gt;
+            </code></pre>
+            <pre><code>
+app.component(&apos;my-component&apos;, {
+    props: [&apos;foo&apos;, &apos;fooModifiers&apos;],
+    template: &grave;
+        &lt;input type=&quot;text&quot; 
+        :value=&quot;foo&quot;
+        @input=&quot;$emit(&apos;update:foo&apos;, $event.target.value)&quot;&gt;
+    &grave;,
+    created() {
+        console.log(this.fooModifiers) // { capitalize: true }
+    }
+    })
+            </code></pre>
+        </section>
+
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [
+                    {
+                        text: '#event-names',
+                        href: '#event-names',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#defining-custom-events',
+                        href: '#defining-custom-events',
+                        subItems: [
+                            {
+                                text: '#validate-emitted-events',
+                                href: '#validate-emitted-events'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#validate-emitted-events',
+                        href: '#validate-emitted-events',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#multiple-v-model-bindings',
+                        href: '#multiple-v-model-bindings',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#handling-v-model-modifiers',
+                        href: '#handling-v-model-modifiers',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <custom-form @submit="handleSubmit"></custom-form>
+    <my-component v-model:mind="mind" v-model.capitalize="capitalize" v-model:human-nature.capitalize="humanity"></my-component>
+    {{capitalize}} - {{humanity}}
+    <user-name v-model:first-name="firstName" v-model:last-name="lastName"></user-name>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [
+            { id: 1, title: 'Learn React', content: 'React is sky blue!' },
+            { id: 2, title: 'Learn Vue', content: 'Vue is mood Green!' }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+                mind: 'good mind',
+                firstName: 'tai',
+                lastName: 'xu',
+                capitalize: false,
+                humanity: "evil selfish"
+            }
+        },
+        methods: {
+            handleSubmit(obj) {
+                // handleSubmit() {
+                // console.info("handleSubmit")
+                console.info("handleSubmit", obj)
+            }
+        },
+        computed: {
+        },
+        beforeCreate() { },
+        created() {
+            console.info(
+                // "this.$data", this.$data,
+                // "this.$props", this.$props,
+                // "this.$el", this.$el,
+                // "this.$options", this.$options,
+                // "this.$parent", this.$parent,
+                // "this.$root", this.$root,
+                // "this.$slots", this.$slots,
+                // "this.$refs", this.$refs,
+                // "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() { },
+        mounted() { },
+        beforeUpdate() { },
+        updated() { },
+        beforeUnmount() { },
+        unmounted() { },
+        errorCaptured: (err, vm, info) => { },
+        renderTracked() { },
+        renderTriggered() { }
+    }
+    const vueInstance = Vue.createApp(options)
+    vueInstance.component('custom-form', {
+        // inheritAttrs: false,
+        // emits: ['in-focus', 'submit']
+        data() {
+            return {
+                email: '',
+                passwood: ''
+            }
+        },
+        template: `
+            <form action="" @submit="submitForm">
+                <input type="email" :value="email" @input="handleInput" name="email" />
+                <input type="password" :value="password" @input="password = $event.target.value" name="password" />
+                <button type="submit">submit</button>      
+            </form>
+        `,
+        emits: {
+            // No validation
+            click: null,
+
+            // Validate submit event
+            submit: ({ email, password }) => {
+                if (email && password) {
+                    return true
+                } else {
+                    console.warn('Invalid submit event payload!')
+                    // [Vue warn]: Invalid event arguments: event validation failed for event "submit".
+                    return false
+                }
+            }
+        },
+        methods: {
+            handleInput(event) {
+                this.email = event.target.value
+            },
+            submitForm(event) {
+                event.preventDefault();
+                this.$emit('submit', { email: this.email, password: this.password })
+            }
+        }
+    })
+    // Uncaught ReferenceError: email is not defined
+    // [Vue warn]: Property "password" was accessed during render but is not defined on instance. 
+
+    vueInstance.component('my-component', {
+        props: {
+            mind: String,
+            modelValue: String,
+            modelModifiers: {
+                default: () => ({})
+            },
+            humanNature: String,
+            humanNatureModifiers: {
+                default: () => ({})
+            }
+        },
+        template: `
+    <input 
+        type="text"
+        :value="mind"
+        @input="$emit('update:mind', $event.target.value)">
+
+    <input type="text" 
+        :value="modelValue"
+        @input="emitValue">
+
+    <input type="text"
+            :value="humanNature"
+            @input="emitHumanNatureValue"
+            `,
+        created() {
+            console.log("this.modelModifiers", this.modelModifiers) // { capitalize: true }
+            console.log("this.humanNatureModifiers", this.humanNatureModifiers) // { capitalize: true }
+        },
+        methods: {
+            emitValue(event) {
+                // $emit('update:modelValue', $event.target.value)
+                let value = event.target.value
+                if (this.modelModifiers.capitalize) {
+                    value = value.charAt(0).toUpperCase() + value.slice(1)
+                }
+                this.$emit('update:modelValue', value)
+            },
+            emitHumanNatureValue(event) {
+                let value = event.target.value
+                if (this.humanNatureModifiers.capitalize) {
+                    value = value.charAt(0).toUpperCase() + value.slice(1)
+                }
+                // this.$emit('update:human-nature', value)  ok
+                this.$emit('update:humanNature', value)
+            }
+        }
+    })
+
+    vueInstance.component('user-name', {
+        props: {
+            firstName: String,
+            lastName: String
+        },
+        template: `
+            <input 
+      type="text"
+      : value="firstName"
+      @input="$emit('update:firstName', $event.target.value)" >
+
+        <input
+            type="text"
+      : value="lastName"
+      @input="$emit('update:lastName', $event.target.value)" >
+  `
+    })
+
+
+
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

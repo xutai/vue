@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <style>
+        .tab-button {
+            padding: 6px 10px;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            background: #f0f0f0;
+            margin-bottom: -1px;
+            margin-right: -1px;
+        }
+        .tab-button:hover {
+            background: #e0e0e0;
+        }
+        .tab-button.active {
+            background: #e0e0e0;
+        }
+        .tab {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .tab-button {
+            padding: 6px 10px;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            background: #f0f0f0;
+            margin-bottom: -1px;
+            margin-right: -1px;
+        }
+        .tab-button:hover {
+            background: #e0e0e0;
+        }
+        .tab-button.active {
+            background: #e0e0e0;
+        }
+        .tab {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .posts-tab {
+            display: flex;
+        }
+        .posts-sidebar {
+            max-width: 40vw;
+            margin: 0;
+            padding: 0 10px 0 0;
+            list-style-type: none;
+            border-right: 1px solid #ccc;
+        }
+        .posts-sidebar li {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .posts-sidebar li:hover {
+            background: #eee;
+        }
+        .posts-sidebar li.selected {
+            background: lightblue;
+        }
+        .selected-post-container {
+            padding-left: 10px;
+        }
+        .selected-post > :first-child {
+            margin-top: 0;
+            padding-top: 0;
+        }
+    </style>
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+
+<h4>Keep-alive with Dynamic Components</h4>
+<p>
+    1. create instance, frameworks
+    2. create buttons
+    3. create components
+    4. hook button with component (click event)
+</p>
+<div id="app">
+    <button
+    v-for="tab in tabs"
+    v-bind:key="tab"
+    v-bind:class="['tab-button',  { active: currentTab === tab } ]"
+    v-on:click="currentTab = tab"
+    >{{tab}}</button>
+     <component
+     v-bind:is="currentTabComponent"
+     class="tab"
+     ></component>
+</div>
+<script>
+    Vue.component('tab-tab1', {
+        template: `<div>tab1 content</div>`
+    });
+    Vue.component('tab-tab2', {
+        template: `<div>tab2 content</div>`
+    });
+    Vue.component('tab-tab3', {
+        template: `<div>tab3 content</div>`
+    });
+    new Vue({
+        el: '#app',
+        data: {
+            currentTab: 'tab1',
+            tabs: ['tab1', 'tab2', 'tab3']
+        },
+        computed: {
+            currentTabComponent(){
+                return 'tab-' + this.currentTab.toLowerCase()
+            }
+        }
+    })
+</script>
+
+
+
+<hr>
+
+
+<div id="app2">
+    <button
+    v-for="tab in tabs"
+    v-bind:key="tab"
+    v-bind:class="['tab-button', { active: currentTab === tab }]"
+    v-on:click="currentTab = tab"
+    >{{tab}}</button>
+
+
+    <component
+            v-bind:is="currentTabComponent"
+            class="tab"
+    ></component>
+
+
+</div>
+<script>
+    Vue.component('tab-tab1', {
+        template: `
+
+<div class="posts-tab">
+    <ul class="posts-sidebar">
+        <li
+            v-for="item in items"
+            v-bind:key="item.id"
+            v-bind:class="{ selected: item === selectedItem}"
+            v-on:click="selectedItem = item"
+        >
+            {{item.content}}
+        </li>
+    </ul>
+
+    <div class="selected-post-container">
+        <div
+            v-if="selectedItem"
+            class="selected-post"
+            >
+            <h6>{{selectedItem.title}}</h6>
+            <div v-html="selectedItem.content"></div>
+        </div>
+        <strong v-else>
+        This is default one
+        </strong>
+    </div>
+
+</div>
+`,
+        data(){
+            return {
+                items: [
+                    {id: 1, title: 'title1', content: 'content1'},
+                    {id: 2, title: 'title2', content: 'content2'},
+                    {id: 3, title: 'title3', content: 'content3'}
+                ],
+                selectedItem: null
+            }
+        }
+    });
+    Vue.component('tab-tab2', {
+        template: `<div>tab-tab2</div>`
+    });
+    new Vue({
+        el: '#app2',
+        data: {
+            currentTab: 'tab1',
+            tabs: ['tab1', 'tab2']
+        },
+        computed: {
+            currentTabComponent() {
+                return 'tab-' + this.currentTab.toLowerCase();
+            }
+        }
+    })
+</script>
+
+
+<hr>
+
+
+<div id="app3">
+    <button
+            v-for="tab in tabs"
+            v-bind:key="tab"
+            v-bind:class="['tab-button', { active: currentTab === tab }]"
+            v-on:click="currentTab = tab"
+    >{{tab}}</button>
+
+    <keep-alive>
+        <component
+                v-bind:is="currentTabComponent"
+                class="tab"
+        ></component>
+    </keep-alive>
+
+</div>
+<script>
+    Vue.component('tab-tab1', {
+        template: `
+
+<div class="posts-tab">
+    <ul class="posts-sidebar">
+        <li
+            v-for="item in items"
+            v-bind:key="item.id"
+            v-bind:class="{ selected: item === selectedItem}"
+            v-on:click="selectedItem = item"
+        >
+            {{item.content}}
+        </li>
+    </ul>
+
+    <div class="selected-post-container">
+        <div
+            v-if="selectedItem"
+            class="selected-post"
+            >
+            <h6>{{selectedItem.title}}</h6>
+            <div v-html="selectedItem.content"></div>
+        </div>
+        <strong v-else>
+        This is default one
+        </strong>
+    </div>
+
+</div>
+`,
+        data(){
+            return {
+                items: [
+                    {id: 1, title: 'title1', content: 'content1'},
+                    {id: 2, title: 'title2', content: 'content2'},
+                    {id: 3, title: 'title3', content: 'content3'}
+                ],
+                selectedItem: null
+            }
+        }
+    });
+    Vue.component('tab-tab2', {
+        template: `<div>tab-tab2</div>`
+    });
+    new Vue({
+        el: '#app3',
+        data: {
+            currentTab: 'tab1',
+            tabs: ['tab1', 'tab2']
+        },
+        computed: {
+            currentTabComponent() {
+                return 'tab-' + this.currentTab.toLowerCase();
+            }
+        }
+    })
+</script>
+
+</body>
+</html>

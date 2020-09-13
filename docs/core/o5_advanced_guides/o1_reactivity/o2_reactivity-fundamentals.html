@@ -1,0 +1,460 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Reactivity Fundamentals
+            </h1>
+        </section>
+        <section>
+            <ul>
+                <li>declaring-reactive-state</li>
+                <li>creating-standalone-reactive-values-as-refs</li>
+                <ul>
+                    <li>ref-unwrapping</li>
+                    <li>access-in-reactive-objects</li>
+                </ul>
+                <li>destructuring-reactive-state</li>
+                <li>prevent-mutating-reactive-objects-with-readonly</li>
+            </ul>
+        </section>
+        <section id="declaring-reactive-state">
+            <h2>Declaring Reactive State</h2>
+            <p>To create a reactive state from a JavaScript object, we can use a reactive method:</p>
+            <pre><code>
+import { reactive } from 'vue'
+
+// reactive state
+const state = reactive({
+count: 0
+})
+
+            </code></pre>
+            <p>reactive is the equivalent of the Vue.observable() API in Vue 2.x, renamed to avoid confusion with
+                RxJS
+                observables. Here, the returned state is a reactive object. The reactive conversion is "deep" - it
+                affects
+                all nested properties of the passed object.</p>
+            <p>The essential use case for reactive state in Vue is that we can use it during render. Thanks to
+                dependency
+                tracking, the view automatically updates when reactive state changes.</p>
+            <p>This is the very essence of Vue's reactivity system. When you return an object from data() in a
+                component, it
+                is internally made reactive by reactive(). The template is compiled into a render function that
+                makes use of
+                these reactive properties.</p>
+            <p>You can learn more about reactive in the Basic Reactivity API's section</p>
+        </section>
+        <section id="creating-standalone-reactive-values-as-refs">
+            <h2>Creating Standalone Reactive Values as refs</h2>
+            <p>Imagine the case where we have a standalone primitive value (for example, a string) and we want to
+                make it
+                reactive. Of course, we could make an object with a single property equal to our string, and pass it
+                to
+                reactive. Vue has a method that will do the same for us - it's a ref:</p>
+            <pre><code>
+import { ref } from 'vue'
+
+const count = ref(0)
+            </code></pre>
+            <p>ref will return a reactive and mutable object that serves as a reactive reference to the internal
+                value it is
+                holding - that's where the name comes from. This object contains the only one property named value:
+            </p>
+            <pre><code>
+import { ref } from 'vue'
+
+const count = ref(0)
+console.log(count.value) // 0
+
+count.value++
+console.log(count.value) // 1
+            </code></pre>
+            <section id="ref-unwrapping">
+                <h3>Ref Unwrapping</h3>
+                <p>When a ref is returned as a property on the render context (the object returned from setup()) and
+                    accessed in the template, it automatically unwraps to the inner value. There is no need to
+                    append .value
+                    in the template:</p>
+                <pre><code></code></pre>
+            </section>
+            <section id="access-in-reactive-objects">
+                <h3>Access in Reactive Objects</h3>
+                <p>When a ref is accessed or mutated as a property of a reactive object, it automatically unwraps to
+                    the
+                    inner value so it behaves like a normal property:</p>
+                <pre><code>
+const count = ref(0)
+const state = reactive({
+count
+})
+
+console.log(state.count) // 0
+
+state.count = 1
+console.log(count.value) // 1
+                </code></pre>
+            </section>
+            <p>If a new ref is assigned to a property linked to an existing ref, it will replace the old ref:</p>
+            <pre><code>
+const otherCount = ref(2)
+
+state.count = otherCount
+console.log(state.count) // 2
+console.log(count.value) // 1
+            </code></pre>
+            <p>Ref unwrapping only happens when nested inside a reactive Object. There is no unwrapping performed
+                when the
+                ref is accessed from an Array or a native collection type like Map</p>
+            <pre><code>
+const books = reactive([ref('Vue 3 Guide')])
+// need .value here
+console.log(books[0].value)
+
+const map = reactive(new Map([['count', ref(0)]]))
+// need .value here
+console.log(map.get('count').value)
+            </code></pre>
+        </section>
+        <section id="destructuring-reactive-state">
+            <h2>#Destructuring Reactive State</h2>
+            <p>When we want to use a few properties of the large reactive object, it could be tempting to use ES6
+                destructuring to get properties we want:</p>
+            <pre><code>
+import { reactive } from 'vue'
+
+const book = reactive({
+author: 'Vue Team',
+year: '2020',
+title: 'Vue 3 Guide',
+description: 'You are reading this book right now ;)',
+price: 'free'
+})
+
+let { author, title } = book
+            </code></pre>
+            <p>Unfortunately, with such a destructuring the reactivity for both properties would be lost. For such a
+                case,
+                we need to convert our reactive object to a set of refs. These refs will retain the reactive
+                connection to
+                the source object:</p>
+
+            <pre><code>
+import { reactive, toRefs } from 'vue'
+
+const book = reactive({
+author: 'Vue Team',
+year: '2020',
+title: 'Vue 3 Guide',
+description: 'You are reading this book right now ;)',
+price: 'free'
+})
+
+let { author, title } = toRefs(book)
+
+title.value = 'Vue 3 Detailed Guide' // we need to use .value as title is a ref now
+console.log(book.title) // 'Vue 3 Detailed Guide'
+            </code></pre>
+            <p>You can learn more about refs in the Refs API section</p>
+        </section>
+        <section id="prevent-mutating-reactive-objects-with-readonly">
+            <h2>Prevent Mutating Reactive Objects with readonly</h2>
+            <p>Sometimes we want to track changes of the reactive object (ref or reactive) but we also want prevent
+                changing
+                it from a certain place of the application. For example, when we have a provided reactive object, we
+                want to
+                prevent mutating it where it's injected. To do so, we can create a readonly proxy to the original
+                object:
+            </p>
+            <pre><code>
+const original = reactive({ count: 0 })
+
+const copy = readonly(original)
+
+// mutating original will trigger watchers relying on the copy
+original.count++
+
+// mutating the copy will fail and result in a warning
+copy.count++ // warning: "Set operation on key 'count' failed: target is readonly."
+            </code></pre>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [{
+                        text: '#declaring-reactive-state',
+                        href: '#declaring-reactive-state',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#creating-standalone-reactive-values-as-refs',
+                        href: '#creating-standalone-reactive-values-as-refs',
+                        subItems: [{
+                            text: '#ref-unwrapping',
+                            href: '#ref-unwrapping'
+                        }, {
+                            text: '#access-in-reactive-objects',
+                            href: '#access-in-reactive-objects'
+                        }, ]
+                    },
+                    {
+                        text: '#destructuring-reactive-state',
+                        href: '#destructuring-reactive-state',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#prevent-mutating-reactive-objects-with-readonly',
+                        href: '#prevent-mutating-reactive-objects-with-readonly',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <!-- Ref Unwrapping -->
+    <div>
+        <span>count: {{ count }}</span>
+        <button @click="count ++">Increment count</button>
+    </div>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [{
+                id: 1,
+                title: 'Learn React',
+                content: 'React is sky blue!'
+            },
+            {
+                id: 2,
+                title: 'Learn Vue',
+                content: 'Vue is mood Green!'
+            }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    // console.info("window.Vue",window.Vue)
+    // console.info("window.Vue.reactive",window.Vue.reactive)
+
+    // Creating Standalone Reactive Values as refs
+    console.info(
+        "window.Vue.ref", window.Vue.ref,
+        "window.Vue.ref(0)", window.Vue.ref(0),
+        "window.Vue.ref(0).value", window.Vue.ref(0).value,
+        "window.Vue.ref(0).value++", window.Vue.ref(0).value++,
+        "window.Vue.ref(0).value", window.Vue.ref(0).value
+    )
+    const count = window.Vue.ref(0)
+    console.info(
+        "count.value++", count.value++,
+        "count.value", count.value,
+    )
+
+    // Access in Reactive Objects
+    const count1 = window.Vue.ref(0)
+    const state = window.Vue.reactive({
+        count1
+    })
+    console.info("state.count1", state.count1) // 0
+    state.count1 = 1
+    console.info("count1.value", count1.value) // 0
+
+    const otherCount = window.Vue.ref(2)
+    state.count1 = otherCount
+    console.info("state.count1", state.count1) // 2
+    console.info("count1.value", count1.value) // 1
+
+    const books = window.Vue.reactive([window.Vue.ref('Vue 3 Guide')])
+    // need .value here
+    console.log("books", books)
+    console.log("books[0].value", books[0].value)
+
+    const map = window.Vue.reactive(new Map([
+        ['count', window.Vue.ref(0)]
+    ]))
+    // need .value here
+    console.log("map.get('count').value", map.get('count').value)
+
+
+
+    // Destructuring Reactive State
+
+    const book = window.Vue.reactive({
+        author: 'Vue Team',
+        year: '2020',
+        title: 'Vue 3 Guide',
+        description: 'You are reading this book right now ;)',
+        price: 'free'
+    })
+
+    // v1 reactivity lost
+    // let {
+    //     author,
+    //     title
+    // } = book
+    // v2
+    let {
+        author,
+        title
+    } = window.Vue.toRefs(book)
+
+    title.value = 'Vue 3 Detailed Guide' // we need to use .value as title is a ref now
+    console.log("book.title", book.title) // 'Vue 3 Detailed Guide'
+
+
+
+    // Prevent Mutating Reactive Objects with readonly
+
+    const original = window.Vue.reactive({
+        count: 0
+    })
+
+    const copy = window.Vue.readonly(original)
+
+    // mutating original will trigger watchers relying on the copy
+    original.count++
+
+    // mutating the copy will fail and result in a warning
+    copy.count++ // warning: "Set operation on key 'count' failed: target is readonly."
+
+
+
+    const options = {
+        data() {
+            return {
+                ...viewState,
+                // count
+            }
+        },
+        props: {},
+        computed: {},
+        methods: {},
+        watch: {},
+        emits: {},
+        template: '',
+        directives: {
+
+        },
+        // Ref Unwrapping
+        setup() {
+            const count = window.Vue.ref(0)
+            return {
+                count
+            }
+        },
+        provide() {
+            return {}
+        },
+        // render(){}, // don't know what does this do
+        beforeCreate() {},
+        created() {
+            console.info(
+                "this.$data", this.$data,
+                "this.$props", this.$props,
+                "this.$el", this.$el,
+                "this.$options", this.$options,
+                "this.$parent", this.$parent,
+                "this.$root", this.$root,
+                "this.$slots", this.$slots,
+                "this.$refs", this.$refs,
+                "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() {},
+        mounted() {},
+        beforeUpdate() {},
+        updated() {},
+        activated() {},
+        deactivated() {},
+        beforeUnmount() {},
+        unmounted() {},
+        errorCaptured: (err, vm, info) => {},
+        renderTracked() {},
+        renderTriggered() {}
+    }
+    const vueInstance = Vue.createApp(options)
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

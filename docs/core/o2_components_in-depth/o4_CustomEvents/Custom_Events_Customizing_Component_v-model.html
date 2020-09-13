@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> </title>
+
+    <style>
+        .code {
+            background: #f5d6bc;
+        }
+    </style>
+
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue.js_v2.5.16.js"></script>
+</head>
+<body>
+
+
+
+
+<h3>Code: </h3>
+<section id="app1"  class="code">
+    <pre><code>
+        {{rawhtml}}
+    </code></pre>
+</section>
+
+<script>
+    var app1 = new Vue({
+        el: '#app1',
+        data:  {
+            rawhtml:
+            `
+
+
+By default, v-model on a component uses value as the prop and input as the event,
+but some input types such as checkboxes and radio buttons may want to use the value attribute for a different purpose.
+Using the model option can avoid a conflict in such cases:
+
+
+Vue.component('base-checkbox', {
+  model: {
+    prop: 'checked',
+    event: 'change'
+  },
+  props: {
+    checked: Boolean
+  },
+  template: \`
+    <input
+      type="checkbox"
+      v-bind:checked="checked"
+      v-on:change="$emit('change', $event.target.checked)"
+    >
+  \`
+})
+
+Now when using v-model on this component:
+
+<base-checkbox v-model="lovingVue"><\/base-checkbox>
+
+
+the value of lovingVue will be passed to the checked prop.
+The lovingVue property will then be updated when <base-checkbox> emits a change event with a new value.
+
+
+            `
+        }
+    })
+</script>
+
+
+
+<h3>Instance:</h3>
+
+<section id="app" class="code">
+
+    <base-checkbox v-model="lovingVue"></base-checkbox>
+    {{lovingVue}}
+
+</section>
+
+
+<script>
+
+    Vue.component('base-checkbox', {
+        model: {
+            prop: 'checked',
+            event: 'change'
+        },
+        props: {
+            checked: Boolean
+        },
+        template: `
+    <input
+      type="checkbox"
+      v-bind:checked="checked"
+      v-on:change="$emit('change', $event.target.checked)"
+    >
+  `
+    });
+
+    var app = new Vue({
+        el: '#app'
+    })
+
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../../vue.js"></script>
+
+</head>
+<body>
+<div id="demo">
+
+    <div>
+        <p>Scroll down the page</p>
+        <p v-pin="200">Stick me 200px from the top of the page</p>
+    </div>
+
+</div>
+<script>
+
+    Vue.directive('pin', {
+        bind: function(el, binding, vnode) {
+            el.style.position = 'fixed'
+            el.style.top = binding.value + 'px'
+        }
+    })
+
+
+    var vm = new Vue({
+        el: '#demo',
+        data: {
+
+        },
+        created: function() {
+
+        },
+        watch: {
+
+        },
+        computed: {
+
+        },
+        methods: {
+
+        },
+        directives: {
+
+        }
+
+    })
+
+</script>
+</body>
+</html>

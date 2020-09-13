@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+<h4>Prop Validation</h4>
+
+<div id="app">
+    <my-component
+            :prop-a="100"
+            :prop-b="123"
+            :prop-c="'i like it'"
+            :prop-d="1000"
+            :prop-e="{
+            message: 'go fuck'
+            }"
+            :prop-f="'warning'"
+    ></my-component>
+</div>
+<script>
+    Vue.component('my-component', {
+        props: {
+            propA: Number,
+            propB: [String, Number],
+            propC: {
+                type: String,
+                required: true
+            },
+            propD: {
+                type: Number,
+                default: 100
+            },
+            propE: {
+                type: Object,
+                default: function(){
+                    return { message: 'hello'}
+                }
+            },
+            propF: {
+                validator: function(value){
+                    return ['success', 'warning', 'danger'].indexOf(value) !== -1
+                }
+            }
+        },
+        template: '<p>{{propA}} - {{propB}} - {{propC}} - {{propD}} - {{propE.message}} - {{propF}} </p>'
+    });
+    new Vue({
+        el: '#app'
+    })
+</script>
+
+<h4>Type Checks</h4>
+<div id="app2">
+<blog-post2 :author="myself"></blog-post2>
+</div>
+<script>
+    function Person (firstName, lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName
+    }
+
+    Vue.component('blog-post2', {
+        props: {
+            author: Person
+        },
+        template: '<p>{{author.firstName}} - {{author.lastName}}</p>'
+    });
+    new Vue({
+        el:'#app2',
+        data: {
+            myself: new Person('tyler', 'xu')
+        }
+
+    })
+</script>
+</body>
+</html>

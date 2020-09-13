@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+
+    </style>
+    <script src="../../vue.js"></script>
+</head>
+<body>
+<div id="demo">
+
+
+    <h2>Example 1: </h2>
+    <transition >
+        <table v-if="items.length > 0">
+            <!-- ... -->
+        </table>
+        <p v-else>Sorry, no item found.</p>
+    </transition>
+
+    <h2>Example 2-1: </h2>
+    <transition>
+        <button v-if="isEditing">Save</button>
+        <button v-else>Edit</button>
+    </transition>
+
+    <h2>Example 2-2: </h2>
+    <transition>
+        <button v-if="isEditing" key="key1">Save</button>
+        <button v-else key="key2">Edit</button>
+    </transition>
+
+    <h2>Example 2-3: </h2>
+    <transition>
+        <button v-bind:key="isEditing">
+            {{ isEditing ? 'Save' : 'Edit' }}
+        </button>
+    </transition>
+
+    <h2>Example 3-1:</h2>
+    <transition>
+        <button v-if="docState === 'saved'" key="saved">Edit</button>
+        <button v-if="docState === 'edited'" key="edited">Save</button>
+        <button v-if="docState === 'editing'" key="editing">Cancel</button>
+    </transition>
+
+    <h2>Example 3-2: </h2>
+    <transition>
+        <button v-bind:key="docState">
+            {{ buttonMessage }}
+        </button>
+    </transition>
+</div>
+<script>
+
+    new Vue({
+        el: '#demo',
+        data: {
+            items: [],
+            isEditing: true,
+            docState: 'edited'
+        },
+        computed: {
+            buttonMessage: function() {
+                switch ( this.docState) {
+                    case 'saved': return 'Edit'
+                    case 'edited': return 'Save'
+                    case 'editing': return 'Cancel'
+                }
+            }
+        }
+    })
+
+</script>
+</body>
+</html>

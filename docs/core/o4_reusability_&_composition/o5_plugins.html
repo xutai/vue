@@ -1,0 +1,297 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Plugins
+            </h1>
+        </section>
+        <section>
+            <ul>
+                <li>writing-a-plugin</li>
+                <li>using-a-plugin</li>
+            </ul>
+        </section>
+        <section>
+            <p>Plugins are self-contained code that usually add global-level functionality to Vue. It is either an object that exposes an install() method, or a function.</p>
+            <p>There is no strictly defined scope for a plugin, but common scenarios where plugins are useful include:</p>
+            <ol>
+                <li>Add some global methods or properties, e.g. vue-custom-element .</li>
+                <li>Add one or more global assets: directives/filters/transitions etc. (e.g. vue-touch ).</li>
+                <li>Add some component options by global mixin (e.g. vue-router ).</li>
+                <li>Add some global instance methods by attaching them to config.globalProperties.</li>
+                <li>A library that provides an API of its own, while at the same time injecting some combination of the above (e.g. vue-router ).</li>
+            </ol>
+        </section>
+        <section id="writing-a-plugin">
+            <h2>writing-a-plugin</h2>
+            <p>In order to better understand how to create your own Vue.js plugins, we will create a very simplified version of a plugin that displays i18n ready strings.</p>
+            <p>Whenever this plugin is added to an application, the install method will be called if it is an object. If it is a function, the function itself will be called. In both cases, it will receive two parameters - the app object resulting from Vue's createApp, and the options passed in by the user.</p>
+            <p>Let's begin by setting up the plugin object. It is recommended to create it in a separate file and export it, as shown below to keep the logic contained and separate.</p>
+            <pre><code>
+// plugins/i18n.js
+export default {
+  install: (app, options) =&gt; {
+    // Plugin code goes here
+  }
+}
+
+            </code></pre>
+            <p>We want to make a function to translate keys available to the whole application, so we will expose it using app.config.globalProperties.</p>
+            <p>This function will receive a key string, which we will use to look up the translated string in the user-provided options.</p>
+            <pre><code>
+// plugins/i18n.js
+export default {
+  install: (app, options) =&gt; {
+    app.config.globalProperties.$translate = key =&gt; {
+      return key.split(&apos;.&apos;).reduce((o, i) =&gt; {
+        if (o) return o[i]
+      }, i18n)
+    }
+  }
+}
+
+            </code></pre>
+            <p>We will assume that our users will pass in an object containing the translated keys in the options parameter when they use the plugin. Our $translate function will take a string such as greetings.hello, look inside the user provided configuration and return the translated value - in this case, Bonjour!</p>
+            <p>Ex:</p>
+            <pre><code>
+greetings: {
+    hello: 'Bonjour!',
+    }
+            </code></pre>
+            <p>Plugins also allow us to use inject to provide a function or attribute to the plugin's users. For example, we can allow the application to have access to the options parameter to be able to use the translations object.</p>
+            <pre><code>
+// plugins/i18n.js
+export default {
+  install: (app, options) =&gt; {
+    app.config.globalProperties.$translate = key =&gt; {
+      return key.split(&apos;.&apos;).reduce((o, i) =&gt; {
+        if (o) return o[i]
+      }, i18n)
+    }
+
+    app.provide(&apos;i18n&apos;, options)
+  }
+}
+
+            </code></pre>
+            <p>Plugin users will now be able to inject['i18n'] into their components and access the object.</p>
+            <p>Additionally, since we have access to the app object, all other capabilities like using mixin and directive are available to the plugin. To learn more about createApp and the application instance, check out the <a href="https://v3.vuejs.org/api/application-api.html">Application API documentation</a> .</p>
+            <pre><code>
+// plugins/i18n.js
+export default {
+  install: (app, options) =&gt; {
+    app.config.globalProperties.$translate = (key) =&gt; {
+      return key.split(&apos;.&apos;)
+        .reduce((o, i) =&gt; { if (o) return o[i] }, i18n)
+    }
+
+    app.provide(&apos;i18n&apos;, options)
+
+    app.directive(&apos;my-directive&apos;, {
+      bind (el, binding, vnode, oldVnode) {
+        // some logic ...
+      }
+      ...
+    })
+
+    app.mixin({
+      created() {
+        // some logic ...
+      }
+      ...
+    })
+  }
+}
+
+            </code></pre>
+        </section>
+        <section id="using-a-plugin">
+            <h2>using-a-plugin</h2>
+            <p>After a Vue app has been initialized with createApp(), you can add a plugin to your application by calling the use() method.</p>
+            <p>We will use the i18nPlugin we created in the Writing a Plugin section for demo purposes.</p>
+            <p>The use() method takes two parameters. The first one is the plugin to be installed, in this case i18nPlugin.</p>
+            <p>It also automatically prevents you from using the same plugin more than once, so calling it multiple times on the same plugin will install the plugin only once.</p>
+            <p>The second parameter is optional, and depends on each particular plugin. In the case of the demo i18nPlugin, it is an object with the translated strings.</p>
+            <p class="info">If you are using third party plugins such as Vuex or Vue Router, always check the documentation to know what that particular plugin expects to receive as a second paramete</p>
+            <pre><code>
+import { createApp } from 'vue'
+import Root from './App.vue'
+import i18nPlugin from './plugins/i18n'
+
+const app = createApp(Root)
+const i18nStrings = {
+  greetings: {
+    hi: 'Hallo!'
+  }
+}
+
+app.use(i18nPlugin, i18nStrings)
+app.mount('#app')
+
+            </code></pre>
+            <p>Checkout awesome-vue for a huge collection of community-contributed plugins and libraries.</p>
+        </section>
+        <section id="">
+            <h3></h3>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [
+                    {
+                        text: '#writing-a-plugin',
+                        href: '#writing-a-plugin',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#using-a-plugin',
+                        href: '#using-a-plugin',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [
+            { id: 1, title: 'Learn React', content: 'React is sky blue!' },
+            { id: 2, title: 'Learn Vue', content: 'Vue is mood Green!' }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        props: {},
+        computed: {},
+        methods: {},
+        watch: {},
+        emits: {},
+        template: '',
+        directives: {
+
+        },
+        provide(){
+            return {}
+        },
+        // render(){}, // don't know what does this do
+        beforeCreate() { },
+        created() {
+            console.info(
+                "this.$data", this.$data,
+                "this.$props", this.$props,
+                "this.$el", this.$el,
+                "this.$options", this.$options,
+                "this.$parent", this.$parent,
+                "this.$root", this.$root,
+                "this.$slots", this.$slots,
+                "this.$refs", this.$refs,
+                "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() { },
+        mounted() { },
+        beforeUpdate() { },
+        updated() { },
+        activated(){},
+        deactivated(){},
+        beforeUnmount() { },
+        unmounted() { },
+        errorCaptured: (err, vm, info) => { },
+        renderTracked() { },
+        renderTriggered() { }
+    }
+    const vueInstance = Vue.createApp(options)
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

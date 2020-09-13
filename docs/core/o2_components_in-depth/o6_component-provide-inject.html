@@ -1,0 +1,337 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Provide / inject
+            </h1>
+        </section>
+        <section>
+            <ul>
+                <li>Working with reactivity</li>
+            </ul>
+        </section>
+        <section>
+            <p>Usually, when we need to pass data from the parent to child component, we use props. Imagine the
+                structure where you have some deeply nested components and you only need something from the parent
+                component in the deep nested child. In this case, you still need to pass the prop down the whole
+                component chain which might be annoying.</p>
+            <p>For such cases, we can use the provide and inject pair. Parent components can serve as dependency
+                provider for all its children, regardless how deep the component hierarchy is. This feature works on two
+                parts: parent component has a provide option to provide data and child component has an inject option to
+                start using this data.</p>
+            <picture>
+                <source srcset="https://v3.vuejs.org/images/components_provide.png" media="(min-width:800px)"
+                    type="image/png">
+                <img src="https://v3.vuejs.org/images/components_provide.png"
+                    alt="https://v3.vuejs.org/images/components_provide.png" srcset="">
+            </picture>
+            <p>For example, if we have a hierarchy like this:</p>
+            <pre><code>
+Root
+└─ TodoList
+   ├─ TodoItem
+   └─ TodoListFooter
+      ├─ ClearTodosButton
+      └─ TodoListStatistics
+        </code></pre>
+            <p>If we want to pass the length of todo-items directly to TodoListStatistics, we would pass the prop down
+                the hierarchy: TodoList -&gt; TodoListFooter -&gt; TodoListStatistics. With provide/inject approach, we
+                can do this directly:</p>
+            <pre><code>
+const app = Vue.createApp({})
+
+app.component(&apos;todo-list&apos;, {
+  data() {
+    return {
+      todos: [&apos;Feed a cat&apos;, &apos;Buy tickets&apos;]
+    }
+  },
+  provide: {
+    user: &apos;John Doe&apos;
+  },
+  template: &grave;
+    &lt;div&gt;
+      {{ todos.length }}
+      &lt;!-- rest of the template --&gt;
+    &lt;/div&gt;
+  &grave;
+})
+
+app.component(&apos;todo-list-statistics&apos;, {
+  inject: [&apos;user&apos;],
+  created() {
+    console.log(&grave;Injected property: ${this.user}&grave;) // &gt; Injected property: John Doe
+  }
+})
+
+        </code></pre>
+            <p>However, this won't work if we try to provide some component instance property here:</p>
+            <pre><code>
+app.component('todo-list', {
+data() {
+    return {
+    todos: ['Feed a cat', 'Buy tickets']
+    }
+},
+provide: {
+    todoLength: this.todos.length // this will result in error 'Cannot read property 'length' of undefined`
+},
+template: `
+    ...
+`
+})
+        </code></pre>
+            <p>To access component instance properties, we need to convert provide to be a function returning an object
+            </p>
+            <pre><code>
+app.component('todo-list', {
+    data() {
+        return {
+        todos: ['Feed a cat', 'Buy tickets']
+        }
+    },
+    provide() {
+        return {
+        todoLength: this.todos.length
+        }
+    },
+    template: `
+        ...
+    `
+    })
+        </code></pre>
+            <p>This allows us to more safely keep developing that component, without fear that we might change/remove
+                something that a child component is relying on. The interface between these components remains clearly
+                defined, just as with props.</p>
+            <p>In fact, you can think of dependency injection as sort of “long-range props”, except:</p>
+            <ul>
+                <li>parent components don’t need to know which descendants use the properties it provides</li>
+                <li>child components don’t need to know where injected properties are coming from</li>
+            </ul>
+        </section>
+        <section>
+        </section>
+        <section id="">
+            <h2>Working with reactivity</h2>
+            <p>In the example above, if we change the list of todos, this change won't be reflected in the injected
+                todoLength property. This is because provide/inject bindings are not reactive by default. We can change
+                this behavior by passing a ref property or reactive object to provide. In our case, if we wanted to
+                react to changes in the ancestor component, we would need to assign a Composition API computed property
+                to our provided todoLength:</p>
+            <pre><code>
+app.component('todo-list', {
+    // ...
+    provide() {
+        return {
+        todoLength: Vue.computed(() => this.todos.length)
+        }
+    }
+})
+            </code></pre>
+            <p>In this, any change to todos.length will be reflected correctly in the components, where todoLength is
+                injected. Read more about reactive provide/inject in the Composition API section</p>
+        </section>
+        <section id="">
+            <h3></h3>
+        </section>
+        <section id="">
+            <h3></h3>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [{
+                    text: '#',
+                    href: '#',
+                    subItems: [{
+                        text: '#',
+                        href: '#'
+                    }, ]
+                }, ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <div>
+        <todo-list></todo-list>
+    </div>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [{
+                id: 1,
+                title: 'Learn React',
+                content: 'React is sky blue!'
+            },
+            {
+                id: 2,
+                title: 'Learn Vue',
+                content: 'Vue is mood Green!'
+            }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        props: {},
+        computed: {},
+        methods: {},
+        watch: {},
+        emits: {},
+        template: '',
+        // render() {},
+        beforeCreate() {},
+        created() {
+            console.info(
+                "this.$data", this.$data,
+                "this.$props", this.$props,
+                "this.$el", this.$el,
+                "this.$options", this.$options,
+                "this.$parent", this.$parent,
+                "this.$root", this.$root,
+                "this.$slots", this.$slots,
+                "this.$refs", this.$refs,
+                "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() {},
+        mounted() {},
+        beforeUpdate() {},
+        updated() {},
+        activated() {},
+        deactivated() {},
+        beforeUnmount() {},
+        unmounted() {},
+        errorCaptured: (err, vm, info) => {},
+        renderTracked() {},
+        renderTriggered() {}
+    }
+    const vueInstance = Vue.createApp(options)
+
+    vueInstance.component('todo-list', {
+        data() {
+            return {
+                todos: ['Feed a cat', 'Buy tickets']
+            }
+        },
+        // v1
+        // provide: {
+        //     user: 'John Doe',
+        //     todoLength: this.todos.length // this will result in error 'Cannot read property 'length' of undefined`
+        // },
+        // v2  not working!
+        // provide(){
+        //     return {
+        //         user: 'John Doe',
+        //         todoLength: this.todos.length
+        //     }
+        // },
+        // v3
+        provide(){
+            return {
+                todoLength: Vue.computed(() => this.todos.length)
+            }
+        },
+        template: `
+    <div>
+        todos.length: {{ todos.length }}
+      <!-- rest of the template -->
+     <todo-list-statistics></todo-list-statistics>
+    </div>
+  `
+    })
+
+    vueInstance.component('todo-list-statistics', {
+        // inject: ['user'],
+        inject: ['user', 'todoLength'],
+        created() {
+            console.log(`Injected property: ${this.user}`) // > Injected property: John Doe
+            console.log(`Injected property: ${this.todoLength}`) 
+            console.log(`Injected property: ${this.todoLength.value}`) 
+        },
+        template: `
+            <p>{{this.user}}</p>
+            <p>{{this.todoLength}}</p>
+            <p>{{this.todoLength.value}}</p>
+        `
+    })
+
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

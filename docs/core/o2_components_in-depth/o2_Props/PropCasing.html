@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+<div>
+    <h4>Note: </h4>
+    <h6>what is "in-DOM templates"?</h6>
+    <p>is that camelCase in JavaScript? or kebab-case in HTML?
+    i think it's the latter. by change  post-title="hello" to  postTitle="hello",
+    it will prompt error message</p>
+    <h6>what does that mean "if you're using string templates, this limitation does not apply?"</h6>
+    <p>does that mean the "postTitle" in the  "component template"
+    in the meantime, try to change {{postTitle}} to {{post-title}}, error!
+        add post-title="22" or postTitle="22" in the component template string,
+        check what will happen
+        or
+        :postTitle="postTitle"
+        postTitle="postTitle"
+        so only just bind an attribute? has nothing to do with the
+        postTitle passed through the attribute
+    </p>
+</div>
+<div id="app">
+    <blog-post post-title="hello!"></blog-post>
+</div>
+<script>
+    Vue.component('blog-post', {
+        props: ['postTitle'],
+        template: '<h3  :postTitle="postTitle">{{postTitle}}</h3>'
+    });
+    new Vue({
+        el: '#app'
+    })
+</script>
+</body>
+</html>

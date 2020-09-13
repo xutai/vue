@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../../vue.js"></script>
+    <script src="./velocity.min.js"></script>
+</head>
+<body>
+<div id="demo" class="demo">
+    Fade In: <input type="range" v-model="fadeInDuration" min="0" v-bind:max="maxFadeDuration">
+    Fade Out: <input type="range" v-model="fadeOutDuration" min="0" v-bind:max="maxFadeDuration">
+    <transition
+            v-bind:class="false"
+            v-on:before-enter="beforeEnter"
+            v-on:enter="enter"
+            v-on:leave="leave"
+    >
+        <p v-if="show">hello</p>
+    </transition>
+    <button v-if="stop"
+            @click="stop = false; show = false"
+    >Start animating</button>
+    <button v-else
+            @click="stop = true"
+    >Stop it!</button>
+    <!--
+           user click the "start animating"
+           we don't need to care about show, whether it's true of false
+           stop true to false
+           when user click "stop it"
+           stop false to true
+           animation will be still on but
+           for example, from beforeEnter() to enter()
+           there is an statement to check the "stop"
+           because stop true, so it won't execute leave() at all
+           but leave() is going on, there is no statement to check the "stop"
+           so leave() to beforeEnter() to enter() , then it ends
+           -->
+</div>
+<script>
+    new Vue({
+        el: '#demo',
+        data: {
+            show: true,
+            stop: true,
+            fadeInDuration: 1000,
+            fadeOutDuration: 1000,
+            maxFadeDuration: 1500
+        },
+        methods: {
+            beforeEnter(el) {
+                el.style.opacity = 0
+            },
+            enter(el, done) {
+                var vm = this
+                Velocity(el,
+                    {opacity: 1},
+                    {duration: this.fadeInDuration,
+                    complete: function () {
+                        // must link "stop, show,  with done"
+                        // that's why this is a function
+                        done()
+                        if (!vm.stop) vm.show = false
+                    }}
+                    )
+            },
+            leave(el, done) {
+                var vm = this
+                Velocity(el,
+                    {opacity: 0},
+                    {
+                        duration: this.fadeOutDuration,
+                        complete: function () {
+                            done()  // must check this
+                            vm.show = true   // must check this
+                            // the procedure:
+                            // first time user click the "start animation"
+                            // stop true to false
+                            // opacity 1 to 0, show true to false,
+                            // show false to true
+                            //  beforeEnter(), then Enter()
+                            //  opacity 0 to 1, show true to  false
+                            // leave()
+
+                        }
+                    }
+                    )
+            }
+        }
+
+    })
+
+</script>
+</body>
+</html>

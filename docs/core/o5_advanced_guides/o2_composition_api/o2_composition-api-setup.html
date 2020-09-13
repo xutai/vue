@@ -1,0 +1,350 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Setup
+            </h1>
+        </section>
+        <ul>
+            <li>arguments</li>
+            <ul>
+                <li>props</li>
+                <li>context</li>
+            </ul>
+            <li>accessing-component-properties</li>
+            <li>usage-with-templates</li>
+            <li>usage-with-render-functions</li>
+            <li>usage-of-this</li>
+        </ul>
+        <section>
+            <blockquote>
+                <p>This section uses single-file component syntax for code examples</p>
+            </blockquote>
+            <blockquote>
+                <p>This guide assumes that you have already read the Composition API Introduction and Reactivity Fundamentals. Read that first if you are new to Composition API.</p>
+            </blockquote>
+        </section>
+        <section id="arguments">
+            <h2>arguments</h2>
+            <p>When using the setup function, it will take two arguments:</p>
+            <ol>
+                <li>props</li>
+                <li>context</li>
+            </ol>
+            <p>Let's dive deeper into how each argument can be used.</p>
+        </section>
+        <section id="props">
+            <h3>props</h3>
+            <p>The first argument in the setup function is the props argument. Just as you would expect in a standard component, props inside of a setup function are reactive and will be updated when new props are passed in.</p>
+            <pre><code>
+// MyBook.vue
+
+export default {
+  props: {
+    title: String
+  },
+  setup(props) {
+    console.log(props.title)
+  }
+}
+
+            </code></pre>
+            <p class="warning">However, because props are reactive, you cannot use ES6 destructuring because it will remove props reactivity.</p>
+        </section>
+        <section id="context">
+            <h3>context</h3>
+            <p>The second argument passed to the setup function is the context. The context is a normal JavaScript object that exposes three component properties:</p>
+            <pre><code>
+// MyBook.vue
+
+export default {
+  setup(props, context) {
+    // Attributes (Non-reactive object)
+    console.log(context.attrs)
+
+    // Slots (Non-reactive object)
+    console.log(context.slots)
+
+    // Emit Events (Method)
+    console.log(context.emit)
+  }
+}
+
+            </code></pre>
+            <p>The context object is a normal JavaScript object, i.e., it is not reactive, this means you can safely use ES6 destructuring on context.</p>
+            <pre><code>
+// MyBook.vue
+export default {
+  setup(props, { attrs, slots, emit }) {
+    ...
+  }
+}
+
+            </code></pre>
+            <p>attrs and slots are stateful objects that are always updated when the component itself is updated. This means you should avoid destructuring them and always reference properties as attrs.x or slots.x. Also note that unlike props, attrs and slots are not reactive. If you intend to apply side effects based on attrs or slots changes, you should do so inside an onUpdated lifecycle hook.</p>
+        </section>
+        <section id="accessing-component-properties">
+            <h2>accessing-component-properties</h2>
+            <p>When setup is executed, the component instance has not been created yet. As a result, you will only be able to access the following properties:</p>
+            <ul>
+                <li>props</li>
+                <li>attrs</li>
+                <li>slots</li>
+                <li>emit</li>
+            </ul>
+            <p>In other words, you will not have access to the following component options:</p>
+            <ul>
+                <li>data</li>
+                <li>computed</li>
+                <li>methods</li>
+            </ul>
+        </section>
+        <section id="usage-with-templates">
+            <h2>usage-with-templates</h2>
+            <p>If setup returns an object, the properties on the object can be accessed in the component's template:</p>
+            <pre><code>
+&lt;!-- MyBook.vue --&gt;
+&lt;template&gt;
+  &lt;div&gt;{{ readersNumber }} {{ book.title }}&lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+  import { ref, reactive } from &apos;vue&apos;
+
+  export default {
+    setup() {
+      const readersNumber = ref(0)
+      const book = reactive({ title: &apos;Vue 3 Guide&apos; })
+
+      // expose to template
+      return {
+        readersNumber,
+        book
+      }
+    }
+  }
+&lt;/script&gt;
+
+            </code></pre>
+            <p>Note that refs returned from setup are automatically unwrapped when accessed in the template so you shouldn't use .value in templates.</p>
+        </section>
+        <section id="usage-with-render-functions">
+            <h2>usage-with-render-functions</h2>
+            <p>setup can also return a render function which can directly make use of the reactive state declared in the same scope:</p>
+            <pre><code>
+// MyBook.vue
+
+import { h, ref, reactive } from &apos;vue&apos;
+
+export default {
+  setup() {
+    const readersNumber = ref(0)
+    const book = reactive({ title: &apos;Vue 3 Guide&apos; })
+    // Please note that we need to explicitly expose ref value here
+    return () =&gt; h(&apos;div&apos;, [readersNumber.value, book.title])
+  }
+}
+            </code></pre>
+        </section>
+        <section id="usage-of-this">
+            <h2>usage-of-this</h2>
+            <p>Inside setup(), this won't be a reference to the current active instance Since setup() is called before other component options are resolved, this inside setup() will behave quite differently from this in other options. This might cause confusions when using setup() along other Options API.</p>
+        </section>
+        <section id="">
+            <h2></h2>
+        </section>
+        <section id="">
+            <h3></h3>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [{
+                        text: '#arguments',
+                        href: '#arguments',
+                        subItems: [{
+                                text: '#props',
+                                href: '#props'
+                            },
+                            {
+                                text: '#context',
+                                href: '#context'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#accessing-component-properties',
+                        href: '#accessing-component-properties',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#usage-with-templates',
+                        href: '#usage-with-templates',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#usage-with-render-functions',
+                        href: '#usage-with-render-functions',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#usage-of-this',
+                        href: '#usage-of-this',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [{
+                id: 1,
+                title: 'Learn React',
+                content: 'React is sky blue!'
+            },
+            {
+                id: 2,
+                title: 'Learn Vue',
+                content: 'Vue is mood Green!'
+            }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        props: {},
+        computed: {},
+        methods: {},
+        watch: {},
+        emits: {},
+        template: '',
+        directives: {
+
+        },
+        provide() {
+            return {}
+        },
+        // render(){}, // don't know what does this do
+        beforeCreate() {},
+        created() {
+            console.info(
+                "this.$data", this.$data,
+                "this.$props", this.$props,
+                "this.$el", this.$el,
+                "this.$options", this.$options,
+                "this.$parent", this.$parent,
+                "this.$root", this.$root,
+                "this.$slots", this.$slots,
+                "this.$refs", this.$refs,
+                "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() {},
+        mounted() {},
+        beforeUpdate() {},
+        updated() {},
+        activated() {},
+        deactivated() {},
+        beforeUnmount() {},
+        unmounted() {},
+        errorCaptured: (err, vm, info) => {},
+        renderTracked() {},
+        renderTriggered() {}
+    }
+    const vueInstance = Vue.createApp(options)
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

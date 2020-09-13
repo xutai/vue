@@ -1,0 +1,368 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Component Registration
+            </h1>
+        </section>
+        <section>
+        </section>
+        <section id="component-names">
+            <h2>component-names</h2>
+            <p>When registering a component, it will always be given a name. For example, in the global registration
+                we've seen so far:</p>
+            <pre><code>
+const app = Vue.createApp({...})
+
+app.component('my-component-name', {
+  /* ... */
+})
+            </code></pre>
+            <p>The component's name is the first argument of app.component. In the example above, the component's name
+                is "my-component-name".</p>
+            <p>The name you give a component may depend on where you intend to use it. When using a component directly
+                in the DOM (as opposed to in a string template or single-file component, we strongly recommend following
+                the W3C rules for custom tag names:</p>
+
+            <ol>
+                <li>All lowercase</li>
+                <li>Contains a hyphen (i.e., has multiple words connected with the hyphen symbol)</li>
+            </ol>
+            <p>By doing so, this will help you avoid conflicts with current and future HTML elements.</p>
+            <p>You can see other recommendations for component names in the Style Guide.</p>
+        </section>
+        <section id="name-casing">
+            <h3>name-casing</h3>
+            <p>When defining components in a string template or a single-file component, you have two options when
+                defining component names:</p>
+        </section>
+        <section id="">
+            <h4>With kebab-case</h4>
+            <pre><code>
+app.component('my-component-name', {
+/* ... */
+})
+            </code></pre>
+            <p>When defining a component with kebab-case, you must also use kebab-case when referencing its custom
+                element, such as in &lt;my-component-name&gt;.</p>
+        </section>
+        <section id="">
+            <h4>With PascalCase</h4>
+            <pre><code>
+app.component('MyComponentName', {
+/* ... */
+})
+            </code></pre>
+            <p>When defining a component with PascalCase, you can use either case when referencing its custom element.
+                That means both &lt;my-component-name&gt; and &lt;MyComponentName&gt; are acceptable. Note, however,
+                that only kebab-case names are valid directly in the DOM (i.e. non-string templates).</p>
+            <p class="note">
+                html does not support UpperCase element tag name??
+                <br>
+                VueComponentNames -> vuecomponentnames
+                <br>
+                [Vue warn]: Failed to resolve component: vuecomponentnames
+            </p>
+        </section>
+        <section id="global-registration">
+            <h2>global-registration</h2>
+            <p>So far, we've only created components using app.component:</p>
+            <pre><code>
+Vue.createApp({...}).component('my-component-name', {
+    // ... options ...
+})
+    
+            </code></pre>
+            <p>These components are globally registered for the application. That means they can be used in the template
+                of any component instance within this application:</p>
+            <pre><code>
+const app = Vue.createApp({})
+
+app.component('component-a', {
+  /* ... */
+})
+app.component('component-b', {
+  /* ... */
+})
+app.component('component-c', {
+  /* ... */
+})
+
+app.mount('#app')
+            </code></pre>
+            <pre><code>
+&lt;div id=&quot;app&quot;&gt;
+  &lt;component-a&gt;&lt;/component-a&gt;
+  &lt;component-b&gt;&lt;/component-b&gt;
+  &lt;component-c&gt;&lt;/component-c&gt;
+&lt;/div&gt;
+            </code></pre>
+            <p>This even applies to all subcomponents, meaning all three of these components will also be available
+                inside each other.</p>
+        </section>
+        <section id="local-registration">
+            <h2>local-registration</h2>
+            <p>Global registration often isn't ideal. For example, if you're using a build system like Webpack, globally
+                registering all components means that even if you stop using a component, it could still be included in
+                your final build. This unnecessarily increases the amount of JavaScript your users have to download.</p>
+            <p>In these cases, you can define your components as plain JavaScript objects:</p>
+            <pre><code>
+const ComponentA = {
+/* ... */
+}
+const ComponentB = {
+/* ... */
+}
+const ComponentC = {
+/* ... */
+}
+            </code></pre>
+            <p>Then define the components you'd like to use in a components option:</p>
+            <pre><code>
+const app = Vue.createApp({
+    components: {
+    'component-a': ComponentA,
+    'component-b': ComponentB
+}
+})
+            </code></pre>
+            <p>For each property in the components object, the key will be the name of the custom element, while the
+                value will contain the options object for the component.</p>
+            <p>Note that locally registered components are not also available in subcomponents. For example, if you
+                wanted ComponentA to be available in ComponentB, you'd have to use:</p>
+            <pre><code>
+const ComponentA = {
+/* ... */
+}
+
+const ComponentB = {
+components: {
+    'component-a': ComponentA
+}
+// ...
+}
+            </code></pre>
+            <p>Or if you're using ES2015 modules, such as through Babel and Webpack, that might look more like:</p>
+            <pre><code>
+import ComponentA from './ComponentA.vue'
+
+export default {
+  components: {
+    ComponentA
+  }
+  // ...
+}
+            </code></pre>
+            <p>Note that in ES2015+, placing a variable name like ComponentA inside an object is shorthand for
+                ComponentA: ComponentA, meaning the name of the variable is both:</p>
+            <ul>
+                <li>the custom element name to use in the template, and</li>
+                <li>the name of the variable containing the component options</li>
+            </ul>
+        </section>
+        <section id="module-systems">
+            <h2>module-systems</h2>
+            <p>If you're not using a module system with import/require, you can probably skip this section for now. If
+                you are, we have some special instructions and tips just for you.</p>
+        </section>
+        <section id="local-registration-in-a-module-system">
+            <h3>local-registration-in-a-module-system</h3>
+            <p>If you're still here, then it's likely you're using a module system, such as with Babel and Webpack. In
+                these cases, we recommend creating a components directory, with each component in its own file.</p>
+            <p>Then you'll need to import each component you'd like to use, before you locally register it. For example,
+                in a hypothetical ComponentB.js or ComponentB.vue file:</p>
+            <pre><code>
+import ComponentA from './ComponentA'
+import ComponentC from './ComponentC'
+
+export default {
+  components: {
+    ComponentA,
+    ComponentC
+  }
+  // ...
+}
+            </code></pre>
+            <p>Now both ComponentA and ComponentC can be used inside ComponentB's template.</p>
+        </section>
+
+        <section id="">
+            <h2></h2>
+        </section>
+        <section id="">
+            <h3></h3>
+        </section>
+        <section id="">
+            <h4></h4>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li>
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [
+                    {
+                        text: '#component-names', href: '#component-names', subItems: [
+                            { text: '#name-casing', href: '#name-casing' },
+                        ]
+                    },
+                    {
+                        text: '#global-registration', href: '#global-registration', subItems: [
+                            { text: '#', href: '#' },
+                        ]
+                    },
+                    {
+                        text: '#local-registration', href: '#local-registration', subItems: [
+                            { text: '#', href: '#' },
+                        ]
+                    },
+                    {
+                        text: '#module-systems', href: '#module-systems', subItems: [
+                            { text: '#local-registration-in-a-module-system', href: '#local-registration-in-a-module-system' },
+                        ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <vue-component-registration></vue-component-registration>
+    <VueComponentNames></VueComponentNames>
+    <vue-component-names></vue-component-names>
+    <module-systems></module-systems>
+    <module-system-wrapper></module-system-wrapper>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [
+            { id: 1, title: 'Learn React', content: 'React is sky blue!' },
+            { id: 2, title: 'Learn Vue', content: 'Vue is mood Green!' }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const ModuleSystem = {
+        template: `
+        <p>Module Sytem</p>
+        <ul>
+            <li>local registration in a module system</li>
+        </ul>
+        `
+    }
+    const ModuleSystemWrapper = {
+       components: {
+           'module-system': ModuleSystem
+       },
+       template: `
+       <p>ModuleSystemWrapper</p>
+       <module-system><module-system/>
+       `
+       
+    }
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        computed: {
+        },
+        components: {
+            'module-systems': ModuleSystem,
+            'module-system-wrapper': ModuleSystemWrapper
+        }
+    }
+    const vueInstance = Vue.createApp(options)
+    vueInstance.component('vue-component-registration', {
+        template: `
+            <p>vue-component-registration:</p>
+            <ul>
+                <li>component-names</li>
+                <li>global-registration</li>
+                <li>local-registration</li>
+                <li>module systems</li>
+            </ul>
+        `
+    })
+    vueInstance.component('VueComponentNames', {
+        template: `
+            <p>VueComponentNames:</p>
+            <ul>
+                <li>name casing</li>
+            </ul>
+        `
+    })
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

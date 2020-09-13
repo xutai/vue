@@ -1,0 +1,146 @@
+<section>
+    <h1>Directives</h1>
+    <ul>
+        <li>v-text</li>
+        <li>v-html</li>
+        <li>v-show</li>
+        <li>v-if</li>
+        <li>v-else</li>
+        <li>v-else-if</li>
+        <li>v-for</li>
+        <li>v-on</li>
+        <li>v-bind</li>
+        <li>v-model</li>
+        <li>v-slot</li>
+        <li>v-pre</li>
+        <li>v-cloak</li>
+        <li>v-once</li>
+        <li>v-is</li>
+    </ul>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2>v-is</h2>
+    <p class="info">Note: this section only affects cases where Vue templates are directly written in the page's HTML.
+    </p>
+    <ul>
+        <li>Expects: string literal</li>
+        <li>Limited to: native HTML elements</li>
+        <li>Usage: When using in-DOM templates, the template is subject to native HTML parsing rules. Some HTML
+            elements, such as &lt;ul&gt;, &lt;ol&gt;, &lt;table&gt; and &lt;select&gt; have restrictions on what
+            elements can appear inside them, and some elements such as &lt;li&gt;, &lt;tr&gt;, and &lt;option&gt; can
+            only appear inside certain other elements. As a workaround, we can use v-is directive on these elements:
+        </li>
+
+    </ul>
+    <p class="warning">
+        v-is functions like a dynamic 2.x :is binding - so to render a component by its registered name, its value
+        should be a JavaScript string literal:
+    </p>
+    <div id="root15">
+        <table>
+            <tr v-is="'blog-post-row'"></tr>
+
+            <!-- Incorrect, nothing will be rendered -->
+            <!-- <tr v-is="blog-post-row"></tr> -->
+
+            <!-- Correct -->
+            <!-- <tr v-is="'blog-post-row'"></tr> -->
+        </table>
+    </div>
+    <script>
+
+        const app15 = Vue.createApp({
+            data() {
+                return {
+
+                }
+            }
+        })
+
+        app15.component('blog-post-row', {
+            template:
+                `
+                <tr>
+                    <th>new Date</th>
+                </tr>
+            `
+        })
+
+        app15.mount('#root15')
+
+
+
+    </script>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

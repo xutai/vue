@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../../vue.js"></script>
+
+</head>
+<body>
+<div id="demo">
+
+    <div v-demo:foo.a.b="message"></div>
+</div>
+<script>
+    // https://vuejs.org/v2/api/#Vue-directive
+    Vue.directive('demo', {
+        bind: function(el, binding, vnode) {
+            var s = JSON.stringify
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify
+            el.innerHTML =
+                'name: ' +s(binding.name) + 'br>' +
+                    'value: ' + s(binding.value) + '<br>' +
+                    'expression: ' + s(binding.expression) + '<br>' +
+                    'argument' + s(binding.arg) + '<br>' +
+                    'modifier' + s(binding.modifiers) + '<br>' +
+                    'vnode keys: ' + Object.keys(vnode).join(', ')
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/join
+            // https://github.com/vuejs/vue/blob/dev/src/core/vdom/vnode.js
+            // check vnode.js doc later!!
+        }
+    })
+
+
+    var vm = new Vue({
+        el: '#demo',
+        data: {
+            message: 'hello!'
+        },
+        created: function() {
+
+        },
+        watch: {
+
+        },
+        computed: {
+
+        },
+        methods: {
+
+        },
+        directives: {
+
+        }
+
+    })
+
+</script>
+</body>
+</html>

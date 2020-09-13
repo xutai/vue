@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue.js_v2.5.16.js"></script>
+</head>
+<body>
+
+<div id="app">
+    <todo-list v-bind:todos="todos">
+        <!-- Define `slotProps` as the name of our slot scope -->
+        <template slot-scope="slotProps">
+            <!-- Define a custom template for todo items, using -->
+            <!-- `slotProps` to customize each todo.            -->
+            <span v-if="slotProps.todo.isComplete">✓</span>
+            {{ slotProps.todo.text }}
+        </template>
+    </todo-list>
+</div>
+
+<script>
+    Vue.component('todo-list',{
+        template:`<ul>
+  <li
+    v-for="todo in todos"
+    v-bind:key="todo.id"
+  >
+            <slot v-bind:todo="todo">
+            {{ todo.text }}
+            </slot>
+            </li>
+            </ul>`
+    });
+    var app = new Vue({
+        el: '#app',
+        data: {
+
+        }
+    })
+</script>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+<section>
+    <h1>Lazy Loading Routes</h1>
+</section>
+
+<section>
+    <ul>
+        <li>
+            <a href="grouping-components-in-the-same-chunk">grouping-components-in-the-same-chunk</a>
+        </li>
+    </ul>
+</section>
+
+
+<section>
+    <p>When building apps with a bundler, the JavaScript bundle can become quite large, and thus affect the page load time. It would be more efficient if we can split each route's components into a separate chunk, and only load them when the route is visited.</p>
+    <p>Combining Vue's async component feature and webpack's code splitting feature, it's trivially easy to lazy-load route components.</p>
+    <dfn>trivially adv. 琐细地；平凡地；无能地; </dfn>
+    <dfn>trivially easy 非常简单的</dfn>
+    <p>First, an async component can be defined as a factory function that returns a Promise (which should resolve to the component itself):</p>
+    <pre><code>
+const Foo = () =&gt; Promise.resolve({ /* component definition */ })
+    </code></pre>
+    <p>Second, in webpack 2, we can use the dynamic import syntax to indicate a code-split point:</p>
+    <pre><code>
+import('./Foo.vue') // returns a Promise
+    </code></pre>
+    <p class="note">node.js escmscript import() expressions, mdn import</p>
+    <p class="info">
+if you are using Babel, you will need to add the syntax-dynamic-import plugin so that Babel can properly parse the syntax.
+    </p>
+    <p>Combining the two, this is how to define an async component that will be automatically code-split by webpack:</p>
+    <pre><code>
+const Foo = () =&gt; import(&apos;./Foo.vue&apos;)
+    </code></pre>
+    <p>Nothing needs to change in the route config, just use Foo as usual:</p>
+    <pre><code>
+const router = new VueRouter({
+    routes: [
+        { path: '/foo', component: Foo }
+    ]
+})
+    </code></pre>
+</section>
+<section>
+    <h2 id="grouping-components-in-the-same-chunk">grouping-components-in-the-same-chunk</h2>
+    <p>Sometimes we may want to group all the components nested under the same route into the same async chunk. To achieve that we need to use named chunks by providing a chunk name using a special comment syntax (requires webpack &gt; 2.4):</p>
+    <pre><code>
+const Foo = () =&gt; import(/* webpackChunkName: &quot;group-foo&quot; */ &apos;./Foo.vue&apos;)
+const Bar = () =&gt; import(/* webpackChunkName: &quot;group-foo&quot; */ &apos;./Bar.vue&apos;)
+const Baz = () =&gt; import(/* webpackChunkName: &quot;group-foo&quot; */ &apos;./Baz.vue&apos;)
+    </code></pre>
+    <p>webpack will group any async module with the same chunk name into the same async chunk.</p>
+</section>

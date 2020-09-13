@@ -1,0 +1,562 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Props
+            </h1>
+        </section>
+        <section>
+        </section>
+        <section id="prop-types">
+            <h2>prop-types</h2>
+            <p>So far, we've only seen props listed as an array of strings:</p>
+            <pre><code>
+props: ['title', 'likes', 'isPublished', 'commentIds', 'author']
+            </code></pre>
+            <p>Usually though, you'll want every prop to be a specific type of value. In these cases, you can list props
+                as an object, where the properties' names and values contain the prop names and types, respectively:</p>
+            <pre><code>
+props: {
+    title: String,
+    likes: Number,
+    isPublished: Boolean,
+    commentIds: Array,
+    author: Object,
+    callback: Function,
+    contactsPromise: Promise // or any other constructor
+}
+            </code></pre>
+            <p>This not only documents vt. 记录，记载 your component, but will also warn users in the browser's JavaScript
+                console if they pass the wrong type. You'll learn much more about type checks and other prop validations
+                further down this page.</p>
+        </section>
+        <section id="passing-static-or-dynamic-props">
+            <h2>passing-static-or-dynamic-props</h2>
+            <p>So far, you've seen props passed a static value, like in:</p>
+            <pre><code>
+&lt;blog-post title=&quot;My journey with Vue&quot;&gt;&lt;/blog-post&gt;
+            </code></pre>
+            <p>You've also seen props assigned dynamically with v-bind or its shortcut, the : character, such as in:</p>
+            <pre><code>
+&lt;!-- Dynamically assign the value of a variable --&gt;
+&lt;blog-post :title=&quot;post.title&quot;&gt;&lt;/blog-post&gt;
+
+&lt;!-- Dynamically assign the value of a complex expression --&gt;
+&lt;blog-post :title=&quot;post.title + &apos; by &apos; + post.author.name&quot;&gt;&lt;/blog-post&gt;
+</code></pre>
+            <p>In the two examples above, we happen to pass string values, but any type of value can actually be passed
+                to a prop.</p>
+            <section id="passing-a-number">
+                <h3>passing-a-number</h3>
+                <pre><code>
+&lt;!-- Even though &grave;42&grave; is static, we need v-bind to tell Vue that --&gt;
+&lt;!-- this is a JavaScript expression rather than a string.       --&gt;
+&lt;blog-post :likes=&quot;42&quot;&gt;&lt;/blog-post&gt;
+
+&lt;!-- Dynamically assign to the value of a variable. --&gt;
+&lt;blog-post :likes=&quot;post.likes&quot;&gt;&lt;/blog-post&gt;
+                </code></pre>
+            </section>
+            <section id="passing-a-boolean">
+                <h3>passing-a-boolean</h3>
+                <pre><code>
+&lt;!-- Including the prop with no value will imply &grave;true&grave;. --&gt;
+&lt;blog-post is-published&gt;&lt;/blog-post&gt;
+
+&lt;!-- Even though &grave;false&grave; is static, we need v-bind to tell Vue that --&gt;
+&lt;!-- this is a JavaScript expression rather than a string.          --&gt;
+&lt;blog-post :is-published=&quot;false&quot;&gt;&lt;/blog-post&gt;
+
+&lt;!-- Dynamically assign to the value of a variable. --&gt;
+&lt;blog-post :is-published=&quot;post.isPublished&quot;&gt;&lt;/blog-post&gt;
+                </code></pre>
+                <p class="question">
+                    the first case is-published return "empty string" rather than "true", why?
+                </p>
+            </section>
+            <section id="passing-an-array">
+                <h3>passing-an-array</h3>
+                <pre><code>
+&lt;!-- Even though the array is static, we need v-bind to tell Vue that --&gt;
+&lt;!-- this is a JavaScript expression rather than a string.            --&gt;
+&lt;blog-post :comment-ids=&quot;[234, 266, 273]&quot;&gt;&lt;/blog-post&gt;
+
+&lt;!-- Dynamically assign to the value of a variable. --&gt;
+&lt;blog-post :comment-ids=&quot;post.commentIds&quot;&gt;&lt;/blog-post&gt;
+                </code></pre>
+            </section>
+            <section id="passing-an-object">
+                <h3>passing-an-object</h3>
+                <pre><code>
+&lt;!-- Even though the object is static, we need v-bind to tell Vue that --&gt;
+&lt;!-- this is a JavaScript expression rather than a string.             --&gt;
+&lt;blog-post
+  :author=&quot;{
+    name: &apos;Veronica&apos;,
+    company: &apos;Veridian Dynamics&apos;
+  }&quot;
+&gt;&lt;/blog-post&gt;
+
+&lt;!-- Dynamically assign to the value of a variable. --&gt;
+&lt;blog-post :author=&quot;post.author&quot;&gt;&lt;/blog-post&gt;
+                </code></pre>
+            </section>
+            <section id="passing-the-properties-of-an-object">
+                <h3>passing-the-properties-of-an-object</h3>
+                <p>If you want to pass all the properties of an object as props, you can use v-bind without an argument
+                    (v-bind instead of :prop-name). For example, given a post object:</p>
+                <pre><code>
+post: {
+    id: 1,
+    title: 'My Journey with Vue'
+}
+                </code></pre>
+                <p>The following template:</p>
+                <pre><code>
+&lt;blog-post v-bind=&quot;post&quot;&gt;&lt;/blog-post&gt;
+                </code></pre>
+                <p>Will be equivalent to:</p>
+                <pre><code>
+&lt;blog-post v-bind:id=&quot;post.id&quot; v-bind:title=&quot;post.title&quot;&gt;&lt;/blog-post&gt;
+                </code></pre>
+            </section>
+        </section>
+        <section id="one-way-data-flow">
+            <h2>one-way-data-flow</h2>
+            <p>All props form a one-way-down binding between the child property and the parent one: when the parent
+                property updates, it will flow down to the child, but not the other way around. This prevents child
+                components from accidentally mutating the parent's state, which can make your app's data flow harder to
+                understand.</p>
+            <p>In addition, every time the parent component is updated, all props in the child component will be
+                refreshed with the latest value. This means you should not attempt to mutate a prop inside a child
+                component. If you do, Vue will warn you in the console.</p>
+            <p>There are usually two cases where it's tempting to mutate a prop:</p>
+            <ol>
+                <li>The prop is used to pass in an initial value; the child component wants to use it as a local data
+                    property afterwards. In this case, it's best to define a local data property that uses the prop as
+                    its initial value:
+                    <br><br>
+                    <pre><code>
+props: ['initialCounter'],
+data() {
+  return {
+    counter: this.initialCounter
+  }
+}
+                    </code></pre>
+                </li>
+                <li>The prop is passed in as a raw value that needs to be transformed. In this case, it's best to define
+                    a computed property using the prop's value:
+                    <br><br>
+                    <pre><code>
+props: ['size'],
+computed: {
+  normalizedSize: function () {
+    return this.size.trim().toLowerCase()
+  }
+}
+
+                    </code></pre>
+                </li>
+            </ol>
+            <p class="info">Note that objects and arrays in JavaScript are passed by reference, so if the prop is an
+                array or object, mutating the object or array itself inside the child component will affect parent
+                state.</p>
+        </section>
+        <section id="prop-validation">
+            <h2>prop-validation</h2>
+            <p>Components can specify requirements for their props, such as the types you've already seen. If a
+                requirement isn't met, Vue will warn you in the browser's JavaScript console. This is especially useful
+                when developing a component that's intended to be used by others.</p>
+            <p>To specify prop validations, you can provide an object with validation requirements to the value of
+                props, instead of an array of strings. For example:</p>
+            <pre><code>
+app.component(&apos;my-component&apos;, {
+    props: {
+        // Basic type check (&grave;null&grave; and &grave;undefined&grave; values will pass any type validation)
+        propA: Number,
+        // Multiple possible types
+        propB: [String, Number],
+        // Required string
+        propC: {
+        type: String,
+        required: true
+        },
+        // Number with a default value
+        propD: {
+        type: Number,
+        default: 100
+        },
+        // Object with a default value
+        propE: {
+        type: Object,
+        // Object or array defaults must be returned from
+        // a factory function
+        default: function() {
+            return { message: &apos;hello&apos; }
+        }
+        },
+        // Custom validator function
+        propF: {
+        validator: function(value) {
+            // The value must match one of these strings
+            return [&apos;success&apos;, &apos;warning&apos;, &apos;danger&apos;].indexOf(value) !== -1
+        }
+        },
+        // Function with a default value
+        propG: {
+        type: Function,
+        // Unlike object or array default, this is not a factory function - this is a function to serve as a default value
+        default: function() {
+            return &apos;Default function&apos;
+        }
+        }
+    }
+    })
+            </code></pre>
+            <p>When prop validation fails, Vue will produce a console warning (if using the development build).</p>
+            <p class="info">Note that props are validated before a component instance is created, so instance properties
+                (e.g. data, computed, etc) will not be available inside default or validator functions.</p>
+            <section id="type-checks">
+                <h3>type-checks</h3>
+                <p>The type can be one of the following native constructors:</p>
+                <ul>
+                    <li>String</li>
+                    <li>Number</li>
+                    <li>Boolean</li>
+                    <li>Array</li>
+                    <li>Object</li>
+                    <li>Date</li>
+                    <li>Function</li>
+                    <li>Symbol</li>
+                </ul>
+                <p>In addition, type can also be a custom constructor function and the assertion will be made with an
+                    instanceof check. For example, given the following constructor function exists:</p>
+                <pre><code>
+function Person(firstName, lastName) {
+    this.firstName = firstName
+    this.lastName = lastName
+}
+                </code></pre>
+                <p>You could use:</p>
+                <pre><code>
+app.component('blog-post', {
+    props: {
+        author: Person
+    }
+    })
+                      
+                </code></pre>
+                <p>to validate that the value of the author prop was created with new Person.</p>
+            </section>
+        </section>
+        <section id="prop-casing-camelcase-vs-kebab-case">
+            <h2>prop-casing-camelcase-vs-kebab-case</h2>
+            <p>HTML attribute names are case-insensitive, so browsers will interpret any uppercase characters as
+                lowercase. That means when you're using in-DOM templates, camelCased prop names need to use their
+                kebab-cased (hyphen-delimited) equivalents:</p>
+            <pre><code>
+const app = Vue.createApp({})
+
+app.component(&apos;blog-post&apos;, {
+    // camelCase in JavaScript
+    props: [&apos;postTitle&apos;],
+    template: &apos;&lt;h3&gt;{{ postTitle }}&lt;/h3&gt;&apos;
+})
+            </code></pre>
+            <pre><code>
+&lt;!-- kebab-case in HTML --&gt;
+&lt;blog-post post-title=&quot;hello!&quot;&gt;&lt;/blog-post&gt;
+            </code></pre>
+            <p>Again, if you're using string templates, this limitation does not apply.</p>
+        </section>
+
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [
+                    {
+                        text: '#prop-types',
+                        href: '#prop-types',
+                        subItems: [
+                            {
+                                text: '#passing-a-number',
+                                href: '#passing-a-number'
+                            },
+                            {
+                                text: '#passing-a-boolean',
+                                href: '#passing-a-boolean'
+                            },
+                            {
+                                text: '#passing-an-array',
+                                href: '#passing-an-array'
+                            },
+                            {
+                                text: '#passing-an-object',
+                                href: '#passing-an-object'
+                            },
+                            {
+                                text: '#passing-the-properties-of-an-object',
+                                href: '#passing-the-properties-of-an-object'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#passing-static-or-dynamic-props',
+                        href: '#passing-static-or-dynamic-props',
+                        subItems: [
+                            {
+                                text: '#type-checks',
+                                href: '#type-checks'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#one-way-data-flow',
+                        href: '#one-way-data-flow',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#prop-validation',
+                        href: '#prop-validation',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#prop-casing-camelcase-vs-kebab-case',
+                        href: '#prop-casing-camelcase-vs-kebab-case',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <!-- <blog-post title="static string value"></blog-post> -->
+    <!-- <blog-post :title="'static string value evaluated in expression'" :is-published="post.isPublished"></blog-post> -->
+    <!-- <blog-post :title="title" :likes="88" :is-published="false" :comment-ids="[123,456,789]" :author="{
+        name: 'facebook team',
+        company: 'facebook'
+    }"></blog-post> -->
+    <!-- <blog-post :title="title + ' string concatenates ' + title" :likes="post.likes" is-published
+        :comment-ids="post.commentIds" :author="post.author"></blog-post> -->
+    <blog-post :title="title + ' string concatenates ' + title" :likes="post.likes" is-published
+        :comment-ids="post.commentIds" v-bind="post" :initial-counter="post.initialCounter" :size="post.size" :xutai="xutai">
+    </blog-post>
+    <!-- :xutai="xutai ok" -->
+    <!-- :xutai="{firstName: 's', lastName:'a'}" ok -->
+    <!-- :xutai="{firstNam: 's', lastN:'a'}" ok -->
+    <!-- [Vue warn]: Invalid prop: type check failed for prop "xutai". Expected Person, got Object   -->
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [
+            { id: 1, title: 'Learn React', content: 'React is sky blue!' },
+            { id: 2, title: 'Learn Vue', content: 'Vue is mood Green!' }
+        ],
+        title: 'variable value',
+        post: {
+            likes: 42,
+            isPublished: false,
+            commentIds: [333, 555, 777],
+            author: {
+                name: 'Evan You',
+                company: 'unemployed'
+            },
+            initialCounter: 10,
+            size: '  Big 123  '
+        }
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    function Person(firstName, lastName) {
+        this.firstName = firstName
+        this.lastName = lastName
+    }
+    const options = {
+        data() {
+            return {
+                ...viewState,
+                xutai: new Person('tai', 'xu')
+            }
+        },
+        computed: {
+        },
+        beforeCreate() { },
+        created() { },
+        beforeMount() { },
+        mounted() { },
+        beforeUpdate() { },
+        updated() { },
+        beforeUnmount() { },
+        unmounted() { },
+        errorCaptured: (err, vm, info) => { },
+        renderTracked() { },
+        renderTriggered() { }
+    }
+    const vueInstance = Vue.createApp(options)
+    vueInstance.component('string-template', {
+        props: ['StringTemplate'],
+        template: `
+        <p>??? {{StringTemplate}}</p>
+        `
+    })
+    vueInstance.component('blog-post', {
+        // props: ['title', 'likes', 'isPublished', 'commentIds', 'author', 'initialCounter', 'size'],
+        props: {
+            title: String,
+            likes: Number,
+            isPublished: Boolean,
+            commentIds: {
+                type: Array,
+                default: function () {
+                    return [22222, 44444, 66666]
+                }
+            },
+            author: {
+                type: Object,
+                default: function () {
+                    return {
+                        name: 'Vue Tream',
+                        company: 'no company'
+                    }
+                }
+            },
+            initialCounter: Number,
+            size: {
+                type: String,
+                default: ' Middle 999 '
+            },
+            someFunc: {
+                type: Function,
+                default: function() {
+                    return 'some default function'                    
+                }
+            },
+            xutai: {
+                type: Person,
+                default: {
+                    firstName: 'xxx',
+                    lastName: 'ttt'
+                }
+            }
+        },
+        data() {
+            return {
+                counter: this.initialCounter,
+                StringTemplate: 'StringTemplate'
+            }
+        },
+        template: `
+        <mark>props</mark>
+        <p>{{ title }}</p>
+        <span>likes: {{likes}}</span>
+        <p >isPublished: {{ isPublished ? 'truthy'+isPublished : 'falsy'+isPublished}}</p>
+        <p><span v-for="commentId in commentIds">{{commentId}},</span></p>
+        <p>author: {{author.name}} - {{author.company}}</p>
+        <p>counter: {{counter}}; normalizedSize: {{normalizedSize}}</p>
+        <p :StringTemplate="StringTemplate">xutai: {{xutai}}</p>
+        <string-template :StringTemplate="StringTemplate"></string-template>
+        `,
+        computed: {
+            normalizedSize() {
+                console.info("this.someFunc()",this.someFunc())
+                // this.size = ' SMALL 888 '
+                // [Vue warn]: Attempting to mutate prop "size". Props are readonly. 
+                return this.size.trim().toLowerCase()
+            }
+        }
+    })
+    const viewModel = vueInstance.mount('#vue')
+    // console.info("vueInstance.$data.size",vueInstance.$data)
+    // console.info("viewModel.$data.post.size",viewModel.$data.post.size)
+
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

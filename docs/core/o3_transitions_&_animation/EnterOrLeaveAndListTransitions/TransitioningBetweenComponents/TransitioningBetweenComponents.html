@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+        .component-fade-enter-active, .component-fade-leave-active {
+            transition: opacity .3s ease;
+        }
+        .component-fade-enter, .component-fade-leave-to
+     {
+            opacity: 0;
+        }
+    </style>
+    <script src="../../vue.js"></script>
+</head>
+<body>
+<div id="demo">
+
+    <button @click="toggleView()">Toggle view</button>
+    <transition name="component-fade" mode="out-in">
+        <component v-bind:is="view"></component>
+    </transition>
+
+</div>
+<script>
+
+    new Vue({
+        el: '#demo',
+        data: {
+            view: 'v-a'
+        },
+        components: {
+            'v-a': {
+                template: '<div>Component A</div>'
+            },
+            'v-b': {
+                template: '<div>Component B</div>'
+            }
+        },
+        methods: {
+            toggleView: function(){
+              //  console.log(this.view)
+                switch (this.view) {
+                    case 'v-a':
+                        this.view = 'v-b';
+                    //    console.log(this.view);
+                        break;
+                    case 'v-b':
+                        this.view = 'v-a';
+                        break;
+                }
+            }
+        }
+
+    })
+
+</script>
+</body>
+</html>

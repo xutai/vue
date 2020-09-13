@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+        .slide-fade-enter-active {
+            transition: all .3s ease;
+        }
+        .slide-fade-leave-active {
+            transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        }
+        .slide-fade-enter, .slide-fade-leave-to {
+            transform: translateX(10px);
+            opacity: 0
+        }
+
+    </style>
+    <script src="../../vue.js"></script>
+</head>
+<body>
+<div id="demo">
+    <h1>:duration="5000" does not work, need an example! </h1>
+    <button @click="show = !show">Toggle</button>
+    <transition name="slide-fade" >
+        <p v-if="show">hello</p>
+    </transition>
+</div>
+<script>
+
+    new Vue({
+        el: '#demo',
+        data: {
+            show: true
+        }
+    })
+
+</script>
+</body>
+</html>

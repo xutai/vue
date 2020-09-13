@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> </title>
+    <style>
+        .code {
+            background: #f5d6bc;
+        }
+    </style>
+
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+
+
+<video controls width="600">
+    <source src="./vids/Vue_CustomEvents_BindingNativeEventstoComponents.mp4">
+</video>
+
+<h6>app5: without .native, without label wrapper,  it doesn't work on input element. </h6>
+<div id="app5">
+    <base-input5 v-on:focus="onFocus" ></base-input5>
+</div>
+<script>
+    Vue.component('base-input5', {
+        props: ['value'],
+        template: `
+            <input
+                v-bind="$attrs"
+                v-bind:value="value"
+                v-on:input="$emit('input', $event.target.value)"
+                >
+        `
+    });
+    new Vue({
+        el: '#app5',
+        methods: {
+            onFocus:  function(){
+                console.log('onFocus is triggered! ')
+            }
+        }
+    })
+</script>
+<hr>
+
+
+<h6>app4: with .native, without label wrapper,  it works on input element </h6>
+<div id="app4">
+    <base-input4 v-on:focus.native="onFocus" label="mylabel4"></base-input4>
+</div>
+<script>
+    Vue.component('base-input4', {
+        props: ['value'],
+        template: `
+            <input
+                v-bind="$attrs"
+                v-bind:value="value"
+                v-on:input="$emit('input', $event.target.value)"
+                >
+        `
+    });
+    new Vue({
+        el: '#app4',
+        methods: {
+            onFocus:  function(){
+                console.log('onFocus is triggered! ')
+            }
+        }
+    })
+</script>
+<hr>
+
+
+<h6>app2: with label wrapper, .native has no effect, onFocus won't be called</h6>
+<div id="app2">
+<base-input2 v-on:focus.native="onFocus" label="mylabel"></base-input2>
+</div>
+<script>
+    Vue.component('base-input2', {
+        props: ['value', 'label'],
+        template: `
+        <label>
+            {{ label }}
+            <input
+                v-bind="$attrs"
+                v-bind:value="value"
+                v-on:input="$emit('input', $event.target.value)"
+                >
+        </label>
+        `
+    });
+    new Vue({
+        el: '#app2',
+        methods: {
+            onFocus:  function(){
+                console.log('onFocus is triggered! ')
+            }
+        }
+    })
+</script>
+<hr>
+
+
+
+<h6>app3: without .native, with $listeners, with label wrapper, it works </h6>
+<div id="app3">
+    <base-input3
+            v-on:focus="onFocus"
+            label="mylabel"
+    ></base-input3>
+</div>
+<script>
+    Vue.component('base-input3', {
+        props: ['value', 'label'],
+        template: `
+        <label>
+            {{ label }}
+            <input
+                v-bind="$attrs"
+                v-bind:value="value"
+                v-on:input="$emit('input', $event.target.value)"
+                v-on="$listeners"
+                >
+        </label>
+        `
+    });
+    var vm3 = new Vue({
+        el: '#app3',
+        methods: {
+            onFocus:  function(){
+                console.log('onFocus is triggered! ')
+            },
+            focus: function(){
+                console.log('focus! ')
+            },
+            input: function(){
+                console.log('input')
+            }
+        }
+    })
+</script>
+
+
+
+
+<hr>
+<h6>app: without .native, with label, with $listener, with v-model, with computed</h6>
+<section id="app" class="code">
+    <base-input
+            v-on:focus="onFocus"
+            label="label app:"
+    ></base-input>
+</section>
+<p>
+    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign">
+object.assign()    </a>
+</p>
+<script>
+    Vue.component('base-input', {
+        inheritAttrs: false,
+        props: ['label', 'value'],
+        computed: {
+            inputListeners: function () {
+                var vm = this;
+                // `Object.assign` merges objects together to form a new object
+                return Object.assign({},
+                    // We add all the listeners from the parent
+                    this.$listeners,
+                    // Then we can add custom listeners or override the
+                    // behavior of some listeners.
+                    {
+                        // This ensures that the component works with v-model
+                        input: function (event) {
+                            vm.$emit('input', event.target.value)
+                        }
+                    }
+                )
+            }
+        },
+        template: `
+    <label>
+      {{ label }}
+      <input
+        v-bind="$attrs"
+        v-bind:value="value"
+        v-on="inputListeners"
+      >
+    </label>
+  `
+    });
+
+    var app = new Vue({
+        el: '#app',
+        methods: {
+            onFocus: function(){
+                console.log('focused')
+            }
+        }
+    })
+
+</script>
+
+
+
+</body>
+</html>

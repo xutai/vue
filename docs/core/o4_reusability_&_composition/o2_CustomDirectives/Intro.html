@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../vue.js"></script>
+
+</head>
+<body>
+<div id="demo">
+    <!--  <input type="text" autofocus>  -->
+    <!-- <input type="text" v-globalfocus>  -->
+    <input type="text" v-focus>
+</div>
+<script>
+
+    Vue.directive('globalfocus', {
+        inserted(el) {
+            el.focus()
+            // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus
+        }
+    })
+
+    // https://vuejs.org/v2/api/#Vue-directive
+    var vm = new Vue({
+        el: '#demo',
+        data: {
+
+        },
+        created: function() {
+
+        },
+        watch: {
+
+        },
+        computed: {
+
+        },
+        methods: {
+
+        },
+        directives: {
+            focus: {
+                inserted(el){
+                    el.focus()
+                }
+            }
+        }
+
+    })
+
+</script>
+</body>
+</html>

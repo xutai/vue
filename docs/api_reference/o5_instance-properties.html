@@ -1,0 +1,407 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Instance Properties
+            </h1>
+        </section>
+        <section>
+            <ul>
+                <li>$data</li>
+                <li>$props</li>
+                <li>$el</li>
+                <li>$options</li>
+                <li>$parent</li>
+                <li>$root</li>
+                <li>$slots</li>
+                <li>$refs</li>
+                <li>$attrs</li>
+            </ul>
+        </section>
+        <section id="data">
+            <h2>$data</h2>
+            <ul>
+                <li><strong>Type</strong>: <code>Object</code></li>
+                <li>
+                    <p><strong>Details:</strong></p>
+                    <p>The data object that the component instance is observing. The component instance proxies access to the properties on its data object.</p>
+                </li>
+                <li>See also: Options / Data - data</li>
+            </ul>
+        </section>
+        <section id="props">
+            <h2>$props</h2>
+            <ul>
+                <li><strong>Type</strong>: <code>Object</code></li>
+                <li>
+                    <p><strong>Details:</strong></p>
+                    <p>An object representing the current props a component has received. The component instance proxies access to the properties on its props object.</p>
+                </li>
+            </ul>
+        </section>
+        <section id="el">
+            <h2>$el</h2>
+            <ul>
+                <li><strong>Type</strong>: <code>any</code></li>
+                <li><strong>Read only</strong></li>
+                <li>
+                    <p><strong>Details:</strong></p>
+                    <p>The root DOM element that the component instance is managing.</p>
+                </li>
+            </ul>
+        </section>
+        <section id="options">
+            <h2>$options</h2>
+            <ul>
+                <li><strong>Type</strong>: <code>Object</code></li>
+                <li>Read only</li>
+                <li>
+                    <p><strong>Details:</strong></p>
+                    <p>The instantiation options used for the current component instance. This is useful when you want to include custom properties in the options:</p>
+                    <pre><code>
+const app = Vue.createApp({
+    customOption: 'foo',
+    created() {
+        console.log(this.$options.customOption) // => 'foo'
+    }
+})
+                    </code></pre>
+                </li>
+            </ul>
+        </section>
+        <section id="parent">
+            <h2>$parent</h2>
+            <ul>
+                <li><strong>Type</strong>: <code>Component instance</code></li>
+                <li>
+                    <p><strong>Details:</strong></p>
+                    <p>The parent instance, if the current instance has one.</p>
+                </li>
+            </ul>
+        </section>
+        <section id="root">
+            <h2>$root</h2>
+            <ul>
+                <li><strong>Type</strong>: <code>Component instance</code></li>
+                <li>
+                    <p><strong>Details:</strong></p>
+                    <p>The root component instance of the current component tree. If the current instance has no parents this value will be itself.</p>
+                </li>
+            </ul>
+        </section>
+        <section id="slots">
+            <h2>$slots</h2>
+            <ul>
+                <li><strong>Type</strong>: <code>{ [name: string]: (...args: any[]) =&gt; Array&lt;VNode&gt; | undefined }</code></li>
+                <li><strong>Read only</strong></li>
+                <li>
+                    <p><strong>Details:</strong></p>
+                    <p>Used to programmatically access content distributed by slots. Each named slot has its own corresponding property (e.g. the contents of v-slot:foo will be found at this.$slots.foo()). The default property contains either nodes not included in a named slot or contents of v-slot:default.</p>
+                    <p>Accessing this.$slots is most useful when writing a component with a render function.</p>
+                    <pre><code>
+&lt;blog-post&gt;
+  &lt;template v-slot:header&gt;
+    &lt;h1&gt;About Me&lt;/h1&gt;
+  &lt;/template&gt;
+
+  &lt;template v-slot:default&gt;
+    &lt;p&gt;
+      Here&apos;s some page content, which will be included in $slots.default.
+    &lt;/p&gt;
+  &lt;/template&gt;
+
+  &lt;template v-slot:footer&gt;
+    &lt;p&gt;Copyright 2020 Evan You&lt;/p&gt;
+  &lt;/template&gt;
+&lt;/blog-post&gt;
+
+                    </code></pre>
+                    <pre><code>
+const app = Vue.createApp({})
+
+app.component(&apos;blog-post&apos;, {
+  render() {
+    return Vue.h(&apos;div&apos;, [
+      Vue.h(&apos;header&apos;, this.$slots.header()),
+      Vue.h(&apos;main&apos;, this.$slots.default()),
+      Vue.h(&apos;footer&apos;, this.$slots.footer())
+    ])
+  }
+})
+                    </code></pre>
+                </li>
+                <li>
+                    <p><strong>See also:</strong></p>
+                    <ul>
+                        <li><code>&lt;slot&gt;</code> Component</li>
+                        <li>Content Distribution with Slots</li>
+                        <li>Render Functions - Slots</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <section id="refs">
+            <h2>$refs</h2>
+            <ul>
+                <li><strong>Type</strong>: <code>Object</code></li>
+                <li><strong>Read only</strong></li>
+                <li>
+                    <p><strong>Details:</strong></p>
+                    <p>An object of DOM elements and component instances, registered with ref attributes</p>
+                </li>
+                <li>
+                    <p><strong>See also:</strong></p>
+                    <ul>
+                        <li>Template refs</li>
+                        <li>Special Attributes - refs</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <section id="attrs">
+            <h2>$attrs</h2>
+            <ul>
+                <li><strong>Type</strong>: <code>Object</code></li>
+                <li>
+                    <p><strong>Details:</strong></p>
+                    <p>Contains parent-scope attribute bindings and events that are not recognized (and extracted) as component props or custom events. When a component doesn't have any declared props or custom events, this essentially contains all parent-scope bindings, and can be passed down to an inner component via v-bind="$attrs" - useful when creating higher-order components.</p>
+                </li>
+                <li>
+                    <p><strong>See also:</strong></p>
+                    <ul>
+                        <li>Non-Prop Attributes</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [
+                    {
+                        text: '#data',
+                        href: '#data',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#props',
+                        href: '#props',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#el',
+                        href: '#el',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#options',
+                        href: '#options',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#parent',
+                        href: '#parent',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#root',
+                        href: '#root',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#slots',
+                        href: '#slots',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#refs',
+                        href: '#refs',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#attrs',
+                        href: '#attrs',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [
+            { id: 1, title: 'Learn React', content: 'React is sky blue!' },
+            { id: 2, title: 'Learn Vue', content: 'Vue is mood Green!' }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        props: {},
+        computed: {},
+        methods: {},
+        watch: {},
+        emits: {},
+        template: '',
+        directives: {
+
+        },
+        provide(){
+            return {}
+        },
+        // render(){}, // don't know what does this do
+        beforeCreate() { },
+        created() {
+            console.info(
+                "this.$data", this.$data,
+                "this.$props", this.$props,
+                "this.$el", this.$el,
+                "this.$options", this.$options,
+                "this.$parent", this.$parent,
+                "this.$root", this.$root,
+                "this.$slots", this.$slots,
+                "this.$refs", this.$refs,
+                "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() { },
+        mounted() { },
+        beforeUpdate() { },
+        updated() { },
+        activated(){},
+        deactivated(){},
+        beforeUnmount() { },
+        unmounted() { },
+        errorCaptured: (err, vm, info) => { },
+        renderTracked() { },
+        renderTriggered() { }
+    }
+    const vueInstance = Vue.createApp(options)
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

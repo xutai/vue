@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <script src="../../vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <hello-world></hello-world>
+</div>
+<script type="text/x-template" id="hello-world-template">
+    <p>Hello hello hello</p>
+</script>
+<script>
+    Vue.component('hello-world', {
+        template: '#hello-world-template'
+    })
+    var vm = new Vue({
+        el: '#app',
+        data: {
+
+        }
+    })
+
+</script>
+</body>
+</html>

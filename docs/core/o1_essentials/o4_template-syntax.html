@@ -1,0 +1,610 @@
+<section>
+    <h1>Template Syntax</h1>
+    <p>Vue.js uses an HTML-based template syntax that allows you to declaratively bind the rendered DOM to the
+        underlying application instance's data. All Vue.js templates are valid HTML that can be parsed by spec-compliant
+        adj. 顺从的；服从的
+        browsers and HTML parsers.</p>
+    <p>Under the hood, Vue compiles the templates into Virtual DOM render functions. Combined with the reactivity
+        system, Vue is able to intelligently figure out the minimal number of components to re-render and apply the
+        minimal amount of DOM manipulations when the app state changes.</p>
+    <p class="note">
+        Virtual DOM render function (vue) --- function component (react)
+    </p>
+    <p>If you are familiar with Virtual DOM concepts and prefer the raw power of JavaScript, you can also directly write
+        render functions instead of templates, with optional JSX support.</p>
+</section>
+<section>
+    <h2>Interpolations </h2>
+    <p class="note">interpolation n. 插入；篡改；填写；插值</p>
+</section>
+<section>
+    <h3>Text</h3>
+    <p>The most basic form of data binding is text interpolation using the "Mustache" syntax (double curly braces):</p>
+    <p class="note">
+        react: {} --- vue {{}}
+    </p>
+    <p>The mustache tag will be replaced with the value of the msg property on the corresponding data object. It will
+        also be updated whenever the data object's msg property changes.</p>
+    <pre>
+                            parse (browser, HTMl parser)
+                            --->    valid HTML
+               compile
+template        --->     Virtual DOM render functions  --->   DOM manipulation
+                         (combine with reactivity system)
+    </pre>
+    <p>You can also perform one-time interpolations that do not update on data change by using the v-once directive, but
+        keep in mind this will also affect any other bindings on the same node:</p>
+    <div id="root1">
+        <code>{{ msg1 }}</code>
+        <code v-once>{{ msg2 }}</code>
+        <code>{{ msg3 }}</code>
+    </div>
+    <script>
+        // view, state
+        // const msgObj = {
+        //     msg1: 'today\'s vue is colorful!',
+        //     msg2: 'It\'s good time to learn vue.',
+        //     msg3: 'vue is hard!'
+        // }
+        // const data1 = {
+        //     data() {
+        //         return msgObj
+        //     }
+        // }
+
+        // bad practice
+        // const viewModel1 = Vue.createApp(data1)
+        // viewModel1.mount('#root1')
+
+        // good practice
+        // const viewModel11 = Vue.createApp(data1)
+        // const viewModel1 = viewModel11.mount('#root1')
+        // console.log("viewModel11",viewModel11) // object
+        // console.log("viewModel1",viewModel1) // proxy
+
+        // // good practice
+        // const viewModel1 = Vue.createApp(data1).mount('#root1')
+
+        // // setTimeout(() => {
+        //     viewModel1.msg1 = 1
+        //     console.log("msgObj.msg1",msgObj.msg1)
+        //     console.log("viewModel1.msg1",viewModel1.msg1)
+        //     console.log("viewModel1.$data.msg1", viewModel1.$data.msg1)
+        //     viewModel1.msg2 = 2
+        //     console.log("msgObj.msg2",msgObj.msg2)
+        //     console.log("viewModel1.msg2",viewModel1.msg2)
+        //     console.log("viewModel1.$data.msg2", viewModel1.$data.msg2)
+        //     msgObj.msg3 = 3
+        //     console.log("msgObj.msg3",msgObj.msg3)
+        //     console.log("viewModel1.msg3",viewModel1.msg3)
+        //     console.log("viewModel1.$data.msg3", viewModel1.$data.msg3)
+        // // }, 1000)
+
+    </script>
+    <pre>
+const viewModel1 = Vue.createApp(data1).mount('#root1')
+// app instace, obj, lifecycle diagram isn't ran
+viewModel1.mount('#root1')
+// viewModel1 is still an object!!
+
+vs
+
+const viewModel1 = Vue.createApp(data1).mount('#root1')
+// lifecycle diagram is ran
+// return a proxy!!
+    </pre>
+</section>
+<section>
+    <h3>Raw HTML</h3>
+    <p>The double mustaches interprets the data as plain text, not HTML. In order to output real HTML, you will need to
+        use the v-html directive:</p>
+    <p>The contents of the span will be replaced with the value of the rawHtml property, interpreted as plain HTML -
+        data bindings are ignored. Note that you cannot use v-html to compose template partials, because Vue is not a
+        string-based templating engine. Instead, components are preferred as the fundamental unit for UI reuse and
+        composition.</p>
+    <p class="tip">Dynamically rendering arbitrary HTML on your website can be very dangerous because it can easily lead
+        to XSS vulnerabilities. Only use HTML interpolation on trusted content and never on user-provided content</p>
+    <div id="root2">
+        <code>{{ rawHTML }}</code>
+        <code v-html="rawHTML"></code>
+    </div>
+    <script>
+        // const view = {
+        //     rawHTML: '<span style="color: lightgreen;">HyperText Markup Language</span>'
+        // }
+        // const options = {
+        //     data() {
+        //         return view
+        //     }
+        // }
+        // const viewModel = Vue.createApp(options).mount('#root2')
+    </script>
+</section>
+<section>
+    <h3>Attributes</h3>
+    <p>Mustaches cannot be used inside HTML attributes. Instead, use a v-bind directive:</p>
+    <p>In the case of boolean attributes, where their mere adj. 仅仅的；只不过的 existence implies true, v-bind works a little
+        differently. In this example:</p>
+    <p>If isButtonDisabled has the value of null or undefined, the disabled attribute will not even be included in the
+        rendered &lt;button&gt; element.</p>
+    <div id="root3">
+        <!-- bad practice -->
+        <!-- <code id="{{dynamicId}}">dynamicId</code> -->
+        <!-- <code id={{dynamicId}}>dynamicId</code> -->
+
+        <code v-bind:id="dynamicId">dynamicId</code>
+        <!-- <button disabled></button> -->
+        <button v-bind:disabled="isButtonDisabled">isButtonDisabled</button>
+    </div>
+    <script>
+        // const viewState = {
+        //     dynamicId: 123,
+        //     isButtonDisabled: null // false, null, undefined
+        // }
+        // const options = {
+        //     data() {
+        //         return viewState
+        //     }
+        // }
+        // const viewModel = Vue.createApp(options).mount('#root3')
+    </script>
+</section>
+<section>
+    <h3>Using JavaScript Expressions</h3>
+    <p>So far we've only been binding to simple property keys in our templates. But Vue.js actually supports the full
+        power of JavaScript expressions inside all data bindings:</p>
+    <p>These expressions will be evaluated as JavaScript in the data scope of the current active instance. One
+        restriction is that each binding can only contain one single expression, so the following will NOT work:</p>
+    <div id="root4">
+        <code v-bind:id="'list' + id">
+            {{ number + 1 }} 
+            {{ ok ? 'YES' : 'NO' }} 
+            {{ message.split('').reverse().join('')}}
+
+            <!-- this is a statement, not an expression: -->
+            <!-- {{ var a = 1 }} -->
+            <!-- SyntaxError: expected expression, got keyword 'var' -->
+
+            <!-- flow control won't work either, use ternary expressions -->
+            <!-- {{ if (ok) { return message } }} -->
+            <!-- SyntaxError: expected expression, got keyword 'if' -->
+
+        </code>
+    </div>
+    <script>
+        // const viewState = {
+        //     id: 123,
+        //     number: 1,
+        //     ok: '',
+        //     message: "reverse"
+        // }
+        // const options = {
+        //     data() {
+        //         return viewState
+        //     }
+        // }
+        // const viewModel = Vue.createApp(options).mount('#root4')
+    </script>
+    <script>
+        // check vue3 source code
+        // console.log(new Function('a + b'))
+        // console.log((new Function('a', 'b', 'a + b'))())
+        // console.log((new Function('a', 'b', 'return a + b'))())
+        // console.log((new Function('a', 'b', 'return a + b'))(1, 2))
+        // console.log((new Function('a', 'b', 'return c = a + b'))(1, 2))
+    </script>
+
+</section>
+<section>
+    <h2>Directives</h2>
+    <p>Directives are special attributes with the v- prefix. Directive attribute values are expected to be a single
+        JavaScript expression (with the exception of v-for and v-on, which will be discussed later). A directive's job
+        is to reactively apply side effects to the DOM when the value of its expression changes. Let's review the
+        example we saw in the introduction:</p>
+    <p>Here, the v-if directive would remove/insert the &lt;p&gt; element based on the truthiness of the value of the
+        expression seen.</p>
+    <div id="root5">
+        <code v-if="seen">Can you see me?</code>
+    </div>
+    <script>
+        // const viewState = {
+        //     seen: true
+        // }
+        // const options = {
+        //     data() {
+        //         return viewState
+        //     }
+        // }
+        // const viewModel = Vue.createApp(options).mount('#root5')
+    </script>
+</section>
+<section>
+    <h3>Arguments</h3>
+    <p>Some directives can take an "argument", denoted by a colon after the directive name. For example, the v-bind
+        directive is used to reactively update an HTML attribute:</p>
+    <p>Here href is the argument, which tells the v-bind directive to bind the element's href attribute to the value of
+        the expression url.</p>
+    <p>Another example is the v-on directive, which listens to DOM events:</p>
+    <p>Here the argument is the event name to listen to. We will talk about event handling in more detail too.</p>
+    <div id="root6">
+        <code>
+            <!-- <a href=""></a> -->
+            <a v-bind:href="url">a</a>
+            <br>
+            <a v-on:click="doSomething">doSomething</a>
+        </code>
+    </div>
+    <script>
+        // const viewState = {
+        //     url: 'javascript:void(0);',
+        //     doSomething: () => {
+        //         console.log(new Date().toLocaleTimeString())
+        //     }
+        // }
+        // const options = {
+        //     data() {
+        //         return viewState
+        //     }
+        // }
+        // const viewModel = Vue.createApp(options).mount('#root6')
+    </script>
+</section>
+<section>
+    <h3>Dynamic Arguments</h3>
+    <p>It is also possible to use a JavaScript expression in a directive argument by wrapping it with square brackets:
+    </p>
+    <p>Here attributeName will be dynamically evaluated as a JavaScript expression, and its evaluated value will be used
+        as the final value for the argument. For example, if your application instance has a data property,
+        attributeName, whose value is "href", then this binding will be equivalent to v-bind:href.</p>
+    <p>Similarly, you can use dynamic arguments to bind a handler to a dynamic event name:</p>
+    <p>In this example, when eventName's value is "focus", v-on:[eventName] will be equivalent to v-on:focus.</p>
+    <div id="root7">
+        <code>
+            <!-- 
+            Note that there are some constraints to the argument expression, as explained
+            in the "Dynamic Argument Expression Constraints" section below. -->
+            
+            <!-- bad practice -->
+            <!-- <a v-bind:["attributeName"]="url">dynamic arguments</a> -->
+            
+            <!-- <a v-bind:href="url">dynamic arguments</a> -->
+            
+            
+            <!-- <a v-on:[eventName]="doSomething">clickEvent</a> -->
+
+            <a v-bind:[attributeName]="url">dynamic arguments</a>
+            <a v-bind:[attributename]="url">dynamic arguments</a>
+            <a v-bind:[attribute-name]="url">dynamic arguments</a>
+            <a v-bind:[someAttributeName]="url">dynamic arguments</a>
+            <a v-bind:[key]="url">dynamic arguments</a>
+        </code>
+    </div>
+
+    <script>
+        // const viewState = {
+        //     // attributename: 'href',
+        //     attributeName: 'href',
+        //     someAttributeName: 'href',
+        //     key: 'href',
+        //     url: 'javascript:void(0);',
+        //     eventName: 'focus'
+        // }
+        // const options = {
+        //     data() {
+        //         return {
+        //             ...viewState,
+        //             "attributeName": 'href'
+        //         }
+        //     },
+        //     methods: {
+        //         doSomething() {
+        //             console.log('123456')
+        //         }
+        //     }
+        // }
+        // const viewModel = Vue.createApp(options).mount('#root7')
+    </script>
+    <p class="question">
+        ??? doesn't work!!!!!
+
+    </p>
+    <p class="note">
+        attributeName and eventName won't work!!
+        <br>
+        in data property, attributeName won't work! attributename works!
+        <br>
+        in attribute [argument] can be either attributeName or attributename,
+        as long as the property is attributename
+
+        <br>
+        check the caveats:
+        browsers will coerce attribute names into lowercase
+    </p>
+</section>
+<section>
+    <h3>Modifiers</h3>
+    <p>Modifiers are special postfixes denoted by a dot, which indicate that a directive should be bound in some special
+        way. For example, the .prevent modifier tells the v-on directive to call event.preventDefault() on the triggered
+        event:</p>
+    <p>You'll see other examples of modifiers later, for v-on and for v-model, when we explore those features.</p>
+    <div id="root8">
+        <form v-on:submit.prevent="onSubmit" action="/">
+            <button>submit</button>
+        </form>
+    </div>
+    <script>
+        // const viewState = {
+
+        // }
+        // const options = {
+        //     data() {
+        //         return {
+        //             ...viewState
+        //         }
+        //     },
+        //     methods: {
+        //         onSubmit() {
+        //             console.log('onsubmit')
+        //         }
+        //     }
+        // }
+        // const viewModel = Vue.createApp(options).mount('#root8')
+    </script>
+</section>
+<section>
+    <h2>Shorthands</h2>
+    <p>The v- prefix serves as a visual cue for identifying Vue-specific attributes in your templates. This is useful
+        when you are using Vue.js to apply dynamic behavior to some existing markup, but can feel verbose for some
+        frequently used directives. At the same time, the need for the v- prefix becomes less important when you are
+        building a SPA, where Vue manages every template. Therefore, Vue provides special shorthands for two of the most
+        often used directives, v-bind and v-on:</p>
+</section>
+<section>
+    <h3>v-bind Shorthand</h3>
+    <div id="root9">
+        <!-- full syntax -->
+        <!-- <a v-bind:href="url"> a1 </a> -->
+
+        <!-- shorthand -->
+        <!-- <a :href="url"> a2 </a> -->
+
+        <!-- <a v-bind:[key]="url"> a3 </a> -->
+        <!-- shorthand with dynamic argument -->
+        <!-- <a :[key]="url"> a3 </a> -->
+    </div>
+    <script>
+        // const viewState = {
+        //     url: 'javascript:void(0);',
+        //     key: 'href'
+        // }
+        // const options = {
+        //     data() {
+        //         return {
+        //             ...viewState
+        //         }
+        //     },
+        //     methods: {}
+        // }
+        // const viewModel = Vue.createApp(options).mount('#root9')
+    </script>
+</section>
+<section>
+    <h3>v-on Shorthand</h3>
+    <p>They may look a bit different from normal HTML, but : and @ are valid characters for attribute names and all
+        Vue-supported browsers can parse it correctly. In addition, they do not appear in the final rendered markup. The
+        shorthand syntax is totally optional, but you will likely appreciate it when you learn more about its usage
+        later.</p>
+
+    <div id="root10">
+        <code>
+        <!-- full syntax -->
+        <a v-on:click="doSomething"> v-on:click </a>
+
+        <!-- shorthand -->
+        <a @click="doSomething"> @click </a>
+
+        <!-- shorthand with dynamic argument (2.6.0+) -->
+        <a @[event]="doSomething"> @[event] </a>
+        </code>
+    </div>
+    <script>
+        // const viewState = {
+        //     event: 'mouseover'
+        // }
+        // const options = {
+        //     data() {
+        //         return {
+        //             ...viewState
+        //         }
+        //     },
+        //     methods: {
+        //         doSomething() {
+        //             console.log(new Date().toLocaleTimeString())
+        //         }
+        //     }
+        // }
+        // const viewModel = Vue.createApp(options).mount('#root10')
+    </script>
+</section>
+<section>
+    <h3>Caveats n. 警告；说明</h3>
+    <p>Dynamic Argument Value Constraints</p>
+    <p>
+        Dynamic arguments are expected to evaluate to a string, with the exception of null. The special value null can
+        be used to explicitly remove the binding. Any other non-string value will trigger a warning.</p>
+    <div id="root11">
+        <code>
+                <a v-bind:href="url">dynamic arguments</a>
+                <br>
+                <a v-bind:href="null">dynamic arguments</a>
+                <br>
+                <!-- <a v-bind:href="symbol">dynamic arguments</a> -->
+                <br>
+                <a v-bind:href="number">dynamic arguments</a>
+            </code>
+    </div>
+    <script>
+                // const viewState = {
+                //     key: 'href',
+                //     // symbol: Symbol(123),
+                //     // Uncaught TypeError: can't convert symbol to string
+                //     number: 999,
+                //     url: 'javascript:void(0);',
+                //     eventName: 'focus'
+                // }
+                // const options = {
+                //     data() {
+                //         return {
+                //             ...viewState
+                //         }
+                //     },
+                //     methods: {
+                //         doSomething() {
+                //             console.info(new Date().toLocaleTimeString())
+                //         }
+                //     }
+                // }
+                // const viewModel = Vue.createApp(options).mount('#root11')
+    </script>
+    <br>
+    <br>
+    <p>Dynamic Argument Expression Constraints</p>
+    <p>Dynamic argument expressions have some syntax constraints because certain characters, such as spaces and quotes,
+        are invalid inside HTML attribute names. For example, the following is invalid:</p>
+    <p>We recommend replacing any complex expressions with a computed property, one of the most fundamental pieces of
+        Vue, which we'll cover shortly.</p>
+    <p>When using in-DOM templates (templates directly written in an HTML file), you should also avoid naming keys with
+        uppercase characters, as <span class="key">browsers will coerce attribute names into lowercase</span>:</p>
+    <div id="root12">
+        <code>
+
+                <!-- This will trigger a compiler warning. -->
+                <!-- <a v-bind:['foo' + bar]="value"> ... </a> -->
+                <br>
+
+                <!--
+                This will be converted to v-bind:[someattr] in in-DOM templates.
+                Unless you have a "someattr" property in your instance, your code won't work.
+                -->
+                <!-- <a v-bind:[someAttr]="value"> ... </a> -->
+                <br>
+
+                <a v-bind:[key]="url">dynamic arguments</a>
+                <br>
+                <a v-bind:[null]="url">dynamic arguments</a>
+                <br>
+                <a v-bind:['null']="url">dynamic arguments</a>
+                <br>
+                <a v-bind:[keynull]="url">dynamic arguments</a>
+                <br>
+                <a v-bind:[symbol]="url">dynamic arguments</a>
+                <br>
+                <!-- <a v-bind:[number]="url">dynamic arguments</a> -->
+            </code>
+    </div>
+    <script>
+        // const viewState = {
+        //     bar: 'bar',
+        //     // Uncaught SyntaxError: '' string literal contains an unescaped line break
+        //     key: 'href',
+        //     keynull: null,
+        //     symbol: Symbol(123),
+        //     // number: 999,
+        //     // Uncaught DOMException: String contains an invalid character
+        //     url: 'javascript:void(0);',
+        //     eventName: 'focus'
+        // }
+        // const options = {
+        //     data() {
+        //         return {
+        //             ...viewState
+        //         }
+        //     },
+        //     methods: {
+        //         doSomething() {
+        //             console.info(new Date().toLocaleTimeString())
+        //         }
+        //     }
+        // }
+        // const viewModel = Vue.createApp(options).mount('#root12')
+    </script>
+    <br>
+    <br>
+    <p>JavaScript Expressions</p>
+    <p>Template expressions are sandboxed and only have access to a whitelist of globals such as Math and Date. You
+        should not attempt to access user defined globals in template expressions.</p>
+
+    <script>
+        console.log(window)
+        console.log(globalThis)
+        console.log(globalThis.location.href)
+        globalVariable = 1
+        console.log(globalVariable)
+    </script>
+    <div id="root13">
+        <!-- <code :title="Date.now()">globals</code> -->
+        <!-- <code :title="globalVariable">globals</code> -->
+        <!-- <code :title="globalThis.location.href">globals</code> -->
+        <!-- Uncaught TypeError: can't access property "location", globalThis is undefined -->
+    </div>
+    <script>
+
+        // const viewState = {
+        //     globals: globalVariable,
+        //     url: 'javascript:void(0);'
+        // }
+        // const options = {
+        //     data() {
+        //         return {
+        //             ...viewState
+        //         }
+        //     },
+        //     methods: {
+        //         doSomething() {
+        //             console.info(new Date().toLocaleTimeString())
+        //         }
+        //     }
+        // }
+        // const viewModel = Vue.createApp(options).mount('#root13')
+    </script>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>
+
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

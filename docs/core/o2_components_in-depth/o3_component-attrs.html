@@ -1,0 +1,376 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Non-Prop Attributes
+            </h1>
+        </section>
+        <p><span class="key">A component non-prop attribute is an attribute or event listener that is passed to a component, but does not
+            have a corresponding property defined in props or emits.</span> Common examples of this include class, style, and
+            id attributes.</p>
+        <section>
+        </section>
+        <section id="attribute-inheritance">
+            <h2>attribute-inheritance</h2>
+            <p>When a component returns a single <span class="keyword">root node</span>, <span class="keyword">non-prop attributes</span> will automatically be added to the root
+                node's attributes. For example, in the instance of a date-picker component:</p>
+            <pre><code>
+app.component(&apos;date-picker&apos;, {
+    template: &grave;
+        &lt;div class=&quot;date-picker&quot;&gt;
+        &lt;input type=&quot;datetime&quot; /&gt;
+        &lt;/div&gt;
+    &grave;
+    })
+            </code></pre>
+            <p>In the event we need to define the status of the date-picker component via a data-status property, it
+                will be applied to the root node (i.e., div.date-picker).</p>
+            <pre><code>
+&lt;!-- Date-picker component with a non-prop attribute --&gt;
+&lt;date-picker data-status=&quot;activated&quot;&gt;&lt;/date-picker&gt;
+
+&lt;!-- Rendered date-picker component --&gt;
+&lt;div class=&quot;date-picker&quot; data-status=&quot;activated&quot;&gt;
+  &lt;input type=&quot;datetime&quot; /&gt;
+&lt;/div&gt;
+            </code></pre>
+            <p>Same rule applies to the event listeners:</p>
+            <pre><code>
+&lt;date-picker @change=&quot;submitChange&quot;&gt;&lt;/date-picker&gt;
+            </code></pre>
+            <pre><code>
+app.component('date-picker', {
+    created() {
+        console.log(this.$attrs) // { onChange: () => {}  }
+    }
+})
+            </code></pre>
+            <p class="question">
+                this.$attrs returns a proxy not this object
+            </p>
+            <p>This might be helpful when we have an HTML element with change event as a root element of date-picker.
+            </p>
+            <pre><code>
+app.component(&apos;date-picker&apos;, {
+    template: &grave;
+        &lt;select&gt;
+        &lt;option value=&quot;1&quot;&gt;Yesterday&lt;/option&gt;
+        &lt;option value=&quot;2&quot;&gt;Today&lt;/option&gt;
+        &lt;option value=&quot;3&quot;&gt;Tomorrow&lt;/option&gt;
+        &lt;/select&gt;
+    &grave;
+    })
+            </code></pre>
+            <p>In this case, change event listener is passed from the parent component to the child and it will be
+                triggered on native &lt;select&gt; change event. We won&apos;t need to emit an event from the
+                date-picker explicitly:</p>
+            <pre><code>
+&lt;div id=&quot;date-picker&quot; class=&quot;demo&quot;&gt;
+  &lt;date-picker @change=&quot;showChange&quot;&gt;&lt;/date-picker&gt;
+&lt;/div&gt;
+            </code></pre>
+            <pre><code>
+const app = Vue.createApp({
+    methods: {
+        showChange(event) {
+        console.log(event.target.value) // will log a value of the selected option
+        }
+    }
+})
+            </code></pre>
+            <p>In this case, change event listener is passed from the parent component to the child and it will be
+                triggered on native &lt;select&gt; change event. We won&apos;t need to emit an event from the
+                date-picker explicitly:</p>
+        </section>
+        <section id="disabling-attribute-inheritance">
+            <h2>disabling-attribute-inheritance</h2>
+            <p>If you do not want a component to automatically inherit attributes, you can set <span
+                    class="key">inheritAttrs: false</span> in
+                the component's options.</p>
+            <p>The common scenario for disabling an attribute inheritance is when attributes need to be applied to other
+                elements besides the root node.</p>
+            <p>By setting the inheritAttrs option to false, this gives you access to the component's <span
+                    class="keyword">$attrs</span> property,
+                <span class="key">which includes all attributes not included to component props and <span class="keyword">emits</span> properties
+                    (e.g., class, style,
+                    v-on listeners</span>, etc.).</p>
+            <p>Using our date-picker component example from the previous section, in the event we need to apply all
+                non-prop attributes to the input element rather than the root div element, this can be accomplished by
+                using the v-bind shortcut.</p>
+            <pre><code>
+app.component(&apos;date-picker&apos;, {
+    inheritAttrs: false,
+    template: &grave;
+        &lt;div class=&quot;date-picker&quot;&gt;
+        &lt;input type=&quot;datetime&quot; v-bind=&quot;$attrs&quot; /&gt;
+        &lt;/div&gt;
+    &grave;
+    })
+            </code></pre>
+            <p>With this new configuration, our data-status attribute will be applied to our input element!</p>
+            <pre><code>
+&lt;!-- Date-picker component with a non-prop attribute --&gt;
+&lt;date-picker data-status=&quot;activated&quot;&gt;&lt;/date-picker&gt;
+
+&lt;!-- Rendered date-picker component --&gt;
+&lt;div class=&quot;date-picker&quot;&gt;
+  &lt;input type=&quot;datetime&quot; data-status=&quot;activated&quot; /&gt;
+&lt;/div&gt;
+            </code></pre>
+        </section>
+        <section id="attribute-inheritance-on-multiple-root-nodes">
+            <h2>attribute-inheritance-on-multiple-root-nodes</h2>
+            <p>Unlike single root node components, components with multiple root nodes do not have an automatic
+                attribute fallthrough 落空；失败 behavior. If $attrs are not bound explicitly, a runtime warning will be
+                issued 发行（新的一批）；流出；由……产生.
+            </p>
+            <pre><code>
+&lt;custom-layout id=&quot;custom-layout&quot; @click=&quot;changeValue&quot;&gt;&lt;/custom-layout&gt;
+            </code></pre>
+            <pre><code>
+// This will raise a warning
+app.component(&apos;custom-layout&apos;, {
+  template: &grave;
+    &lt;header&gt;...&lt;/header&gt;
+    &lt;main&gt;...&lt;/main&gt;
+    &lt;footer&gt;...&lt;/footer&gt;
+  &grave;
+})
+
+// No warnings, $attrs are passed to &lt;main&gt; element
+app.component(&apos;custom-layout&apos;, {
+  template: &grave;
+    &lt;header&gt;...&lt;/header&gt;
+    &lt;main v-bind=&quot;$attrs&quot;&gt;...&lt;/main&gt;
+    &lt;footer&gt;...&lt;/footer&gt;
+  &grave;
+})
+            </code></pre>
+        </section>
+        <section id="">
+            <h3></h3>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [
+                    {
+                        text: '#attribute-inheritance',
+                        href: '#attribute-inheritance',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#disabling-attribute-inheritance',
+                        href: '#disabling-attribute-inheritance',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#attribute-inheritance-on-multiple-root-nodes',
+                        href: '#attribute-inheritance-on-multiple-root-nodes',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <!-- Date-picker component with a non-prop attribute -->
+    <date-picker data-status="activated" @change="submitChange"></date-picker>
+    <!-- <div id="date-picker" class="demo">
+        <date-picker @change="showChange"></date-picker>
+      </div> -->
+    <custom-layout id="custom-layout" @click="changeValue"></custom-layout>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [
+            { id: 1, title: 'Learn React', content: 'React is sky blue!' },
+            { id: 2, title: 'Learn Vue', content: 'Vue is mood Green!' }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        computed: {},
+        methods: {
+            submitChange(event) {
+                console.info("event.target.value", event.target.value)
+            },
+            showChange(event) {
+                console.info("event.target.value", event.target.value)
+            }
+        },
+        beforeCreate() { },
+        created() {
+            // console.info(
+            //     this.$data,
+            //     this.$props,
+            //     this.$el,
+            //     this.$options,
+            //     this.$parent,
+            //     this.$root,
+            //     this.$slots,
+            //     this.$refs,
+            //     this.$attrs
+            // )
+        },
+        beforeMount() { },
+        mounted() { },
+        beforeUpdate() { },
+        updated() { },
+        beforeUnmount() { },
+        unmounted() { },
+        errorCaptured: (err, vm, info) => { },
+        renderTracked() { },
+        renderTriggered() { }
+    }
+    const vueInstance = Vue.createApp(options)
+    vueInstance.component('date-picker', {
+        inheritAttrs: false,
+        template: `
+            <div class="date-picker">
+                <input type="datetime" v-bind="$attrs" @input="$emit('change')"/>
+            </div>
+        `,
+        // template: `
+        //     <select>
+        //         <option value="1">Yesterday</option>
+        //         <option value="2">Today</option>
+        //         <option value="3">Tomorrow</option>
+        //     </select>
+        // `,
+        created() {
+            console.info(
+                // "this.$data", this.$data,
+                // "this.$props", this.$props,
+                // "this.$el", this.$el,
+                // "this.$options", this.$options,
+                // "this.$parent", this.$parent,
+                // "this.$root", this.$root,
+                // "this.$slots", this.$slots,
+                // "this.$refs", this.$refs,
+                // "this.$attrs", this.$attrs
+            )
+            console.info(this.$attrs['data-status'])
+            console.info(this.$emit['change'])
+        }
+    })
+
+    // This will raise a warning
+    //     vueInstance.component('custom-layout', {
+    //         template: `
+    //     <header>...</header>
+    //     <main>...</main>
+    //     <footer>...</footer>
+    //   `
+    //     })
+    // [Vue warn]: Extraneous non-props attributes (id) were passed to component but could not be automatically inherited because component renders fragment or text root nodes. 
+    // [Vue warn]: Extraneous non-emits event listeners (click) were passed to component but could not be automatically inherited because component renders fragment or text root nodes. If the listener is intended to be a component custom event listener only, declare it using the "emits" option. 
+
+    // No warnings, $attrs are passed to <main> element
+    // vueInstance.component('custom-layout', {
+    //     template: `
+    //         <header>...</header>
+    //         <main v-bind="$attrs">...</main>
+    //         <footer>...</footer>
+    //             `
+    // })
+
+
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

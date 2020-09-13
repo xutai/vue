@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue.js_v2.5.16.js"></script>
+</head>
+<body>
+<h4>API Options / MISC - model</h4>
+<div id="app">
+<my-checkbox v-model="isChecked" value="some Value"></my-checkbox>
+</div>
+<script>
+    Vue.component('my-checkbox', {
+        model: {
+            prop: 'checked',
+            event: 'change'
+        },
+        props: {
+            value: String,
+            checked: {
+                type: Boolean
+            }
+        },
+        template: `
+        <input
+        type="checkbox"
+        v-on:change="$emit('change', $event.target.checked)"
+        >
+        `
+    });
+    new Vue({
+        el: '#app',
+        data: {
+            isChecked:true
+        }
+    })
+</script>
+</body>
+</html>

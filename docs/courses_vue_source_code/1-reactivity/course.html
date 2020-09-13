@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+    <h1>Evan You Courses</h1>
+    <section>
+        <h2>Agenda</h2>
+        <ul>
+            <li>Intro</li>
+            <li>Fundamentals: Reactivity</li>
+            <li>Fundamentals: Writing Plugins</li>
+            <li>Fundamentals: Render Functions</li>
+        </ul>
+        <p>--- Lunch Breadk</p>
+        <ul>
+            <li>State Management</li>
+            <li>Routing</li>
+        </ul>
+        <p>-- Coffee Break --</p>
+        <ul>
+            <li>Form Validation</li>
+            <li>i18n</li>
+        </ul>
+    </section>
+
+
+    <section>
+        <script>
+            let a = 3
+            let b = a * 10
+            console.log(b) // 30
+            a= 4
+            b = a * 10
+            console.log(b) // 40
+            </script>
+
+            <span class="cell b1"></span>
+
+            <script>
+            document
+                .querySelector('.cell.b1')
+                .textContent = state.a * 10
+            </script>
+
+            <script>
+                onStateChanged(() => {
+                    document
+                .querySelector('.cell.b1')
+                .textContent = state.a * 10
+            })
+            </script>
+
+            <span class="cell b1">
+                {{ state.a * 10 }}
+            </span>
+
+            <script>
+            onStateChanged(() => {
+                view = render(state)
+            })
+            </script>
+
+            <script>
+            let update
+            const onStateChanged = _update => {
+                update = _update
+            }
+
+            const setState = newState => {
+                state = newState
+                update()
+            }
+            </script>
+
+            <script>
+            onStateChanged(() => {
+                view = render(state)
+            })
+
+            setState({ a: 5 })
+            </script>
+
+
+            <hr>
+
+            <script>
+            autorun(() => {
+                console.log(state.count)
+            })
+            </script>
+
+            <p>Exercise: Mini Data Observer</p>
+            <p>Goal: implement observe() and autorun() which triggers re-computation when object is mutated</p>
+            <script>
+            Object.defineProperty(obj, 'foo', {
+                // enumerable: false
+                // configurable: false
+                // writable: false
+                get() {
+                    // return 'bar'
+                    return realValue
+                },
+                set(newValue) {
+                }
+            })
+            </script>
+    </section>
+</body>
+</html>

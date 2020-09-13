@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../vue.js"></script>
+</head>
+<body>
+<div id="demo">
+    <h1><a href="https://www.vuemastery.com/courses/next-level-vue/mixins/">
+        https://www.vuemastery.com/courses/next-level-vue/mixins/
+    </a>
+        <a href="https://cn.vuejs.org/v2/api/index.html#Vue-extend">
+            https://cn.vuejs.org/v2/api/index.html#Vue-extend
+        </a>
+        <a href="https://vuejs.org/v2/api/#Vue-extend">
+            https://vuejs.org/v2/api/#Vue-extend
+        </a></h1>
+
+
+</div>
+<script>
+    var myMixin =  {
+        created () {
+            this.hello()
+        },
+        methods: {
+            hello: function() {
+                console.log('hello from mixin! ')
+            }
+        }
+    }
+
+     var Component = Vue.extend({
+        mixins: [myMixin]
+    })
+
+    var component = new Component()
+
+
+
+
+
+</script>
+</body>
+</html>

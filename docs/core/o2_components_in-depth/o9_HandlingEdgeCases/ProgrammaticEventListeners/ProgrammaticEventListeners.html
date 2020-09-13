@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style><!-- https://cdn.jsdelivr.net/npm/pikaday/pikaday.js  -->
+    <script src="./pikaday.js"></script>
+    <script src="../../vue.js"></script>
+</head>
+<body>
+<div id="app">
+   <p>see this <a href="https://jsfiddle.net/chrisvfritz/1Leb7up8/">fiddle</a></p>
+    <p>see the  3rd-party library <a href="https://github.com/Pikaday/Pikaday">Pikaday</a></p>
+    <p><a href="https://codingexplained.com/coding/front-end/vue-js/destroying-vue-instance">some article to help understanding</a></p>
+
+    <h1>Counter: {{ counter }}</h1>
+    <button @click="counter++">Increase Counter</button>
+
+    <input type="date">
+   <input ref="dateInput" v-model="date" type="date">
+</div>
+<script>
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            date: null,
+            counter: 1
+        },
+        mounted: function() {
+            var picker = new  Pikaday({
+                field: this.$refs.dateInput,
+                format: 'YYYY-MM-DD'
+            });
+
+         this.$once('hook:beforeDestroy', function() {
+             console.log(picker);
+                picker.destroy();
+             if(picker) {
+                 console.log( '1')
+             } else {
+                 console.log( '2')
+             }
+
+            })
+
+        }
+
+/*
+*         destroyed: function() {
+            console.log('destroyed')
+        }*/
+    })
+      /*    vm.$destroy()   */
+</script>
+</body>
+</html>

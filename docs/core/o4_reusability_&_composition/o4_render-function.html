@@ -1,0 +1,811 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Render Functions
+            </h1>
+        </section>
+        <section>
+            <ul>
+                <li>the-dom-tree</li>
+                <li>the-virtual-dom-tree</li>
+                <li>h-arguments</li>
+                <li>complete-example</li>
+                <li>constraints</li>
+                <ul>
+                    <li>vnodes-must-be-unique</li>
+                </ul>
+                <li>replacing-template-features-with-plain-javascript</li>
+                <ul>
+                    <li>v-if-and-v-for</li>
+                    <li>v-model</li>
+                    <li>v-on</li>
+                    <ul>
+                        <li>event-modifiers</li>
+                    </ul>
+                    <li>slots</li>
+                </ul>
+                <li>jsx</li>
+                <li>template-compilation</li>
+            </ul>
+        </section>
+        <section>
+            <p>Vue recommends using templates to build applications in the vast majority of cases. However, there are
+                situations where we need the full programmatic power of JavaScript. That's where we can use the render
+                function.</p>
+            <p>Let's dive into an example where a render() function would be practical. Say we want to generate anchored
+                headings:</p>
+            <pre><code>
+&lt;h1&gt;
+  &lt;a name=&quot;hello-world&quot; href=&quot;#hello-world&quot;&gt;
+    Hello world!
+  &lt;/a&gt;
+&lt;/h1&gt;
+            </code></pre>
+            <p>Anchored headings are used very frequently, we should create a component:</p>
+            <pre><code>
+&lt;anchored-heading :level=&quot;1&quot;&gt;Hello world!&lt;/anchored-heading&gt;
+            </code></pre>
+            <p>The component must generate a heading based on the level prop, and we quickly arrive at this:</p>
+            <pre><code>
+const app = Vue.createApp({})
+
+app.component(&apos;anchored-heading&apos;, {
+  template: &grave;
+    &lt;h1 v-if=&quot;level === 1&quot;&gt;
+      &lt;slot&gt;&lt;/slot&gt;
+    &lt;/h1&gt;
+    &lt;h2 v-else-if=&quot;level === 2&quot;&gt;
+      &lt;slot&gt;&lt;/slot&gt;
+    &lt;/h2&gt;
+    &lt;h3 v-else-if=&quot;level === 3&quot;&gt;
+      &lt;slot&gt;&lt;/slot&gt;
+    &lt;/h3&gt;
+    &lt;h4 v-else-if=&quot;level === 4&quot;&gt;
+      &lt;slot&gt;&lt;/slot&gt;
+    &lt;/h4&gt;
+    &lt;h5 v-else-if=&quot;level === 5&quot;&gt;
+      &lt;slot&gt;&lt;/slot&gt;
+    &lt;/h5&gt;
+    &lt;h6 v-else-if=&quot;level === 6&quot;&gt;
+      &lt;slot&gt;&lt;/slot&gt;
+    &lt;/h6&gt;
+  &grave;,
+  props: {
+    level: {
+      type: Number,
+      required: true
+    }
+  }
+})
+
+            </code></pre>
+            <p>This template doesn&apos;t feel great. It&apos;s not only verbose, but we&apos;re duplicating
+                &lt;slot&gt;&lt;/slot&gt; for every heading level. And when we add the anchor element, we have to again
+                duplicate it in every v-if/v-else-if branch.</p>
+            <p>While templates work great for most components, it's clear that this isn't one of them. So let's try
+                rewriting it with a render() function:</p>
+            <pre><code>
+const app = Vue.createApp({})
+
+app.component(&apos;anchored-heading&apos;, {
+  render() {
+    const { h } = Vue
+
+    return h(
+      &apos;h&apos; + this.level, // tag name
+      {}, // props/attributes
+      this.$slots.default() // array of children
+    )
+  },
+  props: {
+    level: {
+      type: Number,
+      required: true
+    }
+  }
+})
+
+            </code></pre>
+            <p>The render() function implementation is much simpler, but also requires greater familiarity with
+                component instance properties. In this case, you have to know that when you pass children without a
+                v-slot directive into a component, like the Hello world! inside of anchored-heading, those children are
+                stored on the component instance at $slots.default(). If you haven't already, it's recommended to read
+                through the instance properties API before diving into render functions.</p>
+        </section>
+        <section id="the-dom-tree">
+            <h2>the-dom-tree</h2>
+            <p>Before we dive into render functions, it’s important to know a little about how browsers work. Take this
+                HTML for example:</p>
+            <pre><code>
+&lt;div&gt;
+  &lt;h1&gt;My title&lt;/h1&gt;
+  Some text content
+  &lt;!-- TODO: Add tagline --&gt;
+&lt;/div&gt;
+
+            </code></pre>
+            <p>When a browser reads this code, it builds a <a href="https://javascript.info/dom-nodes">tree of "DOM
+                    nodes"</a> to help it keep track of everything.</p>
+            <p>The tree of DOM nodes for the HTML above looks like this:</p>
+            <picture>
+                <source srcset="https://v3.vuejs.org/images/dom-tree.png" media="(min-width: 800px)" type="image/png">
+                <img src="https://v3.vuejs.org/images/dom-tree.png" alt="https://v3.vuejs.org/images/dom-tree.png"
+                    srcset="">
+            </picture>
+            <p>Every element is a node. Every piece of text is a node. Even comments are nodes! Each node can have
+                children (i.e. each node can contain other nodes).</p>
+            <p>Updating all these nodes efficiently can be difficult, but thankfully, we never have to do it manually.
+                Instead, we tell Vue what HTML we want on the page, in a template:</p>
+            <pre><code>
+&lt;h1&gt;{{ blogTitle }}&lt;/h1&gt;
+            </code></pre>
+            <p>Or in a render function:</p>
+            <pre><code>
+render() {
+    return Vue.h('h1', {}, this.blogTitle)
+}
+            </code></pre>
+            <p>And in both cases, Vue automatically keeps the page updated, even when blogTitle changes.</p>
+        </section>
+        <section id="the-virtual-dom-tree">
+            <h2>the-virtual-dom-tree</h2>
+            <p>Vue keeps the page updated by building a <strong>virtual DOM</strong> to keep track of the changes it
+                needs to make to the real DOM. Taking a closer look at this line:</p>
+            <pre><code>
+return Vue.h('h1', {}, this.blogTitle)
+            </code></pre>
+            <p>What is the <code>h()</code> function returning? It's not <em>exactly</em> a real DOM element. It returns
+                a plain object which contains information describing to Vue what kind of node it should render on the
+                page, including descriptions of any child nodes. We call this node description a "virtual node", usually
+                abbreviated to VNode. "Virtual DOM" is what we call the entire tree of <strong>VNodes</strong>, built by
+                a tree of Vue components.</p>
+        </section>
+        <section id="h-arguments">
+            <h2>h-arguments</h2>
+            <p>The <code>h()</code> function is a utility to create VNodes. It could perhaps more accurately be named
+                <code>createVNode()</code>, but it's called <code>h()</code> due to frequent use and for brevity n.
+                简洁，简短；. It accepts three arguments:</p>
+            <pre><code>
+// @returns {VNode}
+h(
+  // {String | Object | Function | null} tag
+  // An HTML tag name, a component, an async component or null.
+  // Using null would render a comment.
+  //
+  // Required.
+  'div',
+
+  // {Object} props
+  // An object corresponding to the attributes, props and events
+  // we would use in a template.
+  //
+  // Optional.
+  {},
+
+  // {String | Array | Object} children
+  // Children VNodes, built using `h()`,
+  // or using strings to get 'text VNodes' or
+  // an object with slots.
+  //
+  // Optional.
+  [
+    'Some text comes first.',
+    h('h1', 'A headline'),
+    h(MyComponent, {
+      someProp: 'foobar'
+    })
+  ]
+)
+            </code></pre>
+        </section>
+        <section id="complete-example">
+            <h2>complete-example</h2>
+            <p>With this knowledge, we can now finish the component we started:</p>
+            <pre><code>
+    const app = Vue.createApp({})
+
+/** Recursively get text from children nodes */
+function getChildrenTextContent(children) {
+  return children
+    .map(node => {
+      return typeof node.children === 'string'
+        ? node.children
+        : Array.isArray(node.children)
+        ? getChildrenTextContent(node.children)
+        : ''
+    })
+    .join('')
+}
+
+app.component('anchored-heading', {
+  render() {
+    // create kebab-case id from the text contents of the children
+    const headingId = getChildrenTextContent(this.$slots.default())
+      .toLowerCase()
+      .replace(/\W+/g, '-') // replace non-word characters with dash
+      .replace(/(^-|-$)/g, '') // remove leading and trailing dashes
+
+    return Vue.h('h' + this.level, [
+      Vue.h(
+        'a',
+        {
+          name: headingId,
+          href: '#' + headingId
+        },
+        this.$slots.default()
+      )
+    ])
+  },
+  props: {
+    level: {
+      type: Number,
+      required: true
+    }
+  }
+})
+
+            </code></pre>
+        </section>
+        <section id="constraints">
+            <h2>constraints</h2>
+        </section>
+        <section id="vnodes-must-be-unique">
+            <h3>vnodes-must-be-unique</h3>
+            <p>All VNodes in the component tree must be unique. That means the following render function is invalid:</p>
+            <pre><code>
+render() {
+    const myParagraphVNode = Vue.h('p', 'hi')
+    return Vue.h('div', [
+        // Yikes - duplicate VNodes!
+        myParagraphVNode, myParagraphVNode
+    ])
+}
+                  
+            </code></pre>
+            <p>If you really want to duplicate the same element/component many times, you can do so with a factory
+                function. For example, the following render function is a perfectly valid way of rendering 20 identical
+                paragraphs:</p>
+            <pre><code>
+render() {
+    return Vue.h(&apos;div&apos;,
+        Array.apply(null, { length: 20 }).map(() =&gt; {
+        return Vue.h(&apos;p&apos;, &apos;hi&apos;)
+        })
+    )
+}
+            </code></pre>
+            <p class="question">
+                what is this "Array.apply()", never used it,
+                if considering Array is a function
+            </p>
+        </section>
+        <section id="replacing-template-features-with-plain-javascript">
+            <h2>replacing-template-features-with-plain-javascript</h2>
+        </section>
+        <section id="v-if-and-v-for">
+            <h3>v-if-and-v-for</h3>
+            <p>Wherever something can be easily accomplished in plain JavaScript, Vue render functions do not provide a
+                proprietary 所有的，所有权的；alternative. For example, in a template using v-if and v-for:</p>
+            <pre><code>
+&lt;ul v-if=&quot;items.length&quot;&gt;
+  &lt;li v-for=&quot;item in items&quot;&gt;{{ item.name }}&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p v-else&gt;No items found.&lt;/p&gt;
+
+            </code></pre>
+            <p>This could be rewritten with JavaScript's if/else and map() in a render function:</p>
+            <pre><code>
+props: [&apos;items&apos;],
+render() {
+  if (this.items.length) {
+    return Vue.h(&apos;ul&apos;, this.items.map((item) =&gt; {
+      return Vue.h(&apos;li&apos;, item.name)
+    }))
+  } else {
+    return Vue.h(&apos;p&apos;, &apos;No items found.&apos;)
+  }
+}
+            </code></pre>
+        </section>
+        <section id="v-model">
+            <h3>v-model</h3>
+            <p>The v-model directive is expanded to modelValue and onUpdate:modelValue props during template
+                compilation—we will have to provide these props ourselves:</p>
+            <pre><code>
+props: [&apos;modelValue&apos;],
+render() {
+  return Vue.h(SomeComponent, {
+    modelValue: this.modelValue,
+    &apos;onUpdate:modelValue&apos;: value =&gt; this.$emit(&apos;update:modelValue&apos;, value)
+  })
+}
+            </code></pre>
+        </section>
+        <section id="v-on">
+            <h3>v-on</h3>
+            <p>We have to provide a proper prop name for the event handler, e.g., to handle click events, the prop name
+                would be onClick.</p>
+            <pre><code>
+render() {
+    return Vue.h(&apos;div&apos;, {
+        onClick: $event =&gt; console.log(&apos;clicked&apos;, $event.target)
+    })
+}
+    
+            </code></pre>
+        </section>
+        <section id="event-modifiers">
+            <h4>event-modifiers</h4>
+            <p>For the .passive, .capture, and .once event modifiers, Vue offers object syntax of the handler:</p>
+            <p>For example:</p>
+            <pre><code>
+render() {
+    return Vue.h('input', {
+        onClick: {
+        handler: this.doThisInCapturingMode,
+        capture: true
+        },
+        onKeyUp: {
+        handler: this.doThisOnce,
+        once: true
+        },
+        onMouseOver: {
+        handler: this.doThisOnceInCapturingMode,
+        once: true,
+        capture: true
+        },
+    })
+}
+                  
+            </code></pre>
+            <p>For all other event and key modifiers, no special API is necessary, because we can use event methods in
+                the handler:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Modifier(s)</th>
+                        <th>Equivalent in Handler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>.stop</td>
+                        <td>event.stopPropagation()</td>
+                    </tr>
+                    <tr>
+                        <td>.prevent</td>
+                        <td>event.preventDefault()</td>
+                    </tr>
+                    <tr>
+                        <td>.self</td>
+                        <td>if (event.target !== event.currentTarget) return</td>
+                    </tr>
+                    <tr>
+                        <td>keys: .enter, .13</td>
+                        <td>if (event.keyCode !== 13) return (change 13 to another key code for other key modifiers)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Modifiers Keys: .ctrl, .alt, .shift, .meta</td>
+                        <td>if (!event.ctrlKey) return (change ctrlKey to altKey, shiftKey, or metaKey, respectively)
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>Here's an example with all of these modifiers used together:</p>
+            <pre><code>
+render() {
+    return Vue.h(&apos;input&apos;, {
+        onKeyUp: event =&gt; {
+        // Abort if the element emitting the event is not
+        // the element the event is bound to
+        if (event.target !== event.currentTarget) return
+        // Abort if the key that went up is not the enter
+        // key (13) and the shift key was not held down
+        // at the same time
+        if (!event.shiftKey || event.keyCode !== 13) return
+        // Stop event propagation
+        event.stopPropagation()
+        // Prevent the default keyup handler for this element
+        event.preventDefault()
+        // ...
+        }
+    })
+    }
+                  
+            </code></pre>
+        </section>
+        <section id="slots">
+            <h3>slots</h3>
+            <p>You can access slot contents as Arrays of VNodes from this.$slots:</p>
+            <pre><code>
+render() {
+    // &grave;&lt;div&gt;&lt;slot&gt;&lt;/slot&gt;&lt;/div&gt;&grave;
+    return Vue.h(&apos;div&apos;, {}, this.$slots.default())
+    }
+                  
+            </code></pre>
+            <pre><code>
+props: [&apos;message&apos;],
+render() {
+  // &grave;&lt;div&gt;&lt;slot :text=&quot;message&quot;&gt;&lt;/slot&gt;&lt;/div&gt;&grave;
+  return Vue.h(&apos;div&apos;, {}, this.$slots.default({
+    text: this.message
+  }))
+}
+            </code></pre>
+            <p>To pass slots to a child component using render functions:</p>
+            <pre><code>
+render() {
+    // &grave;&lt;div&gt;&lt;child v-slot=&quot;props&quot;&gt;&lt;span&gt;{{ props.text }}&lt;/span&gt;&lt;/child&gt;&lt;/div&gt;&grave;
+    return Vue.h(&apos;div&apos;, [
+        Vue.h(&apos;child&apos;, {}, {
+        // pass &grave;slots&grave; as the children object
+        // in the form of { name: props =&gt; VNode | Array&lt;VNode&gt; }
+        default: (props) =&gt; Vue.h(&apos;span&apos;, props.text)
+        })
+    ])
+}
+                  
+            </code></pre>
+        </section>
+        <section id="jsx">
+            <h2>jsx</h2>
+            <p>If we're writing a lot of render functions, it might feel painful to write something like this:</p>
+            <pre><code>
+Vue.h(
+  'anchored-heading',
+  {
+    level: 1
+  },
+  [Vue.h('span', 'Hello'), ' world!']
+)
+            </code></pre>
+            <p>Especially when the template version is so concise in comparison:</p>
+            <pre><code>
+&lt;anchored-heading :level=&quot;1&quot;&gt; &lt;span&gt;Hello&lt;/span&gt; world! &lt;/anchored-heading&gt;
+
+            </code></pre>
+            <p>That's why there's a <a href="https://github.com/vuejs/jsx">Babel plugin</a>  to use JSX with Vue, getting us back to a syntax that's closer to templates:</p>
+            <pre><code>
+import AnchoredHeading from &apos;./AnchoredHeading.vue&apos;
+
+new Vue({
+  el: &apos;#demo&apos;,
+  render() {
+    return (
+      &lt;AnchoredHeading level={1}&gt;
+        &lt;span&gt;Hello&lt;/span&gt; world!
+      &lt;/AnchoredHeading&gt;
+    )
+  }
+})
+
+            </code></pre>
+            <p>For more on how JSX maps to JavaScript, see the <a href="https://github.com/vuejs/jsx#installation">usage docs</a>  .</p>
+        </section>
+        <section id="template-compilation">
+            <h2>template-compilation</h2>
+            <p class="note">this will comes in handy when i want to explore vue source code!</p>
+            <p>You may be interested to know that Vue's templates actually compile to render functions. This is an implementation detail you usually don't need to know about, but if you'd like to see how specific template features are compiled, you may find it interesting. Below is a little demo using Vue.compile to live-compile a template string:</p>
+            <mark>pretend here is a demo!</mark>
+        </section>
+        <section id="">
+            <h3></h3>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [{
+                        text: '#the-dom-tree',
+                        href: '#the-dom-tree',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#the-virtual-dom-tree',
+                        href: '#the-virtual-dom-tree',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#h-arguments',
+                        href: '#h-arguments',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#complete-example',
+                        href: '#complete-example',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#constraints',
+                        href: '#constraints',
+                        subItems: [{
+                            text: '#vnodes-must-be-unique',
+                            href: '#vnodes-must-be-unique'
+                        }, ]
+                    },
+                    {
+                        text: '#replacing-template-features-with-plain-javascript',
+                        href: '#replacing-template-features-with-plain-javascript',
+                        subItems: [{
+                                text: '#v-if-and-v-for',
+                                href: '#v-if-and-v-for'
+                            },
+                            {
+                                text: '#v-model',
+                                href: '#v-model'
+                            },
+                            {
+                                text: '#v-on',
+                                href: '#v-on'
+                            },
+                            {
+                                text: '#slots',
+                                href: '#slots'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#jsx',
+                        href: '#jsx',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#template-compilation',
+                        href: '#template-compilation',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <div>
+        <anchored-heading :level="1">level 1 anchored heading</anchored-heading>
+        <anchored-heading :level="2">level 2 anchored heading</anchored-heading>
+    </div>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [{
+                id: 1,
+                title: 'Learn React',
+                content: 'React is sky blue!'
+            },
+            {
+                id: 2,
+                title: 'Learn Vue',
+                content: 'Vue is mood Green!'
+            }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        props: {},
+        computed: {},
+        methods: {},
+        watch: {},
+        emits: {},
+        template: '',
+        directives: {
+
+        },
+        provide() {
+            return {}
+        },
+        // render(){}, // don't know what does this do
+        beforeCreate() {},
+        created() {
+            console.info(
+                "this.$data", this.$data,
+                "this.$props", this.$props,
+                "this.$el", this.$el,
+                "this.$options", this.$options,
+                "this.$parent", this.$parent,
+                "this.$root", this.$root,
+                "this.$slots", this.$slots,
+                "this.$refs", this.$refs,
+                "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() {},
+        mounted() {},
+        beforeUpdate() {},
+        updated() {},
+        activated() {},
+        deactivated() {},
+        beforeUnmount() {},
+        unmounted() {},
+        errorCaptured: (err, vm, info) => {},
+        renderTracked() {},
+        renderTriggered() {}
+    }
+    const vueInstance = Vue.createApp(options)
+
+
+    // v 1-2
+    // vueInstance.component('anchored-heading', {
+    //     // v1
+    //     // template: `
+    //     //     <h1 v-if="level === 1">
+    //     //         <slot></slot>
+    //     //     </h1>
+    //     //     <h2 v-else-if="level === 2">
+    //     //         <slot></slot>
+    //     //     </h2>
+    //     //     <h3 v-else-if="level === 3">
+    //     //         <slot></slot>
+    //     //     </h3>
+    //     //     <h4 v-else-if="level === 4">
+    //     //         <slot></slot>
+    //     //     </h4>
+    //     //     <h5 v-else-if="level === 5">
+    //     //         <slot></slot>
+    //     //     </h5>
+    //     //     <h6 v-else-if="level === 6">
+    //     //         <slot></slot>
+    //     //     </h6>
+    //     // `,
+
+    //     // v2
+    //     render() {
+    //         const {
+    //             h
+    //         } = Vue
+
+    //         return h(
+    //             'h' + this.level, // tag name
+    //             {}, // props/attributes
+    //             this.$slots.default() // array of children
+    //         )
+    //     },
+    //     props: {
+    //         level: {
+    //             type: Number,
+    //             required: true
+    //         }
+    //     }
+    // })
+
+
+    // v3
+    /** Recursively get text from children nodes */
+    function getChildrenTextContent(children) {
+        return children
+            .map(node => {
+                return typeof node.children === 'string' ?
+                    node.children :
+                    Array.isArray(node.children) ?
+                    getChildrenTextContent(node.children) :
+                    ''
+            })
+            .join('')
+    }
+
+    vueInstance.component('anchored-heading', {
+        render() {
+            // create kebab-case id from the text contents of the children
+            const headingId = getChildrenTextContent(this.$slots.default())
+                .toLowerCase()
+                .replace(/\W+/g, '-') // replace non-word characters with dash
+                .replace(/(^-|-$)/g, '') // remove leading and trailing dashes
+
+            return Vue.h('h' + this.level, [
+                Vue.h(
+                    'a', {
+                        name: headingId,
+                        href: '#' + headingId
+                    },
+                    this.$slots.default()
+                )
+            ])
+        },
+        props: {
+            level: {
+                type: Number,
+                required: true
+            }
+        }
+    })
+
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

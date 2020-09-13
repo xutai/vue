@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../tools/font/fontawesome-free-5.8.2-web/css/all.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+
+<h4>Compilation Scope</h4>
+
+
+<div id="app">
+<navigation-link>
+    Logged in as {{user.name}}
+</navigation-link>
+</div>
+<script>
+    Vue.component('navigation-link',{
+        template: `<p><slot></slot></p>`
+    })
+    new Vue({
+        el: '#app',
+        data: {
+            user: {
+                name: 'Tyler Xu'
+            }
+        }
+    })
+</script>
+
+<hr>
+
+<div id="app2">
+    <navigation-link2 url="/profile">
+        Clicking here will send you to : {{url}}
+    </navigation-link2>
+</div>
+<script>
+    Vue.component('navigation-link2',{
+        props: {
+            url: String
+        },
+        template: `<a :href="url"><slot></slot></a>`,
+    })
+    new Vue({
+        el: '#app2',
+        data: {
+            user: {
+                name: 'Tyler Xu'
+            }
+        }
+    })
+</script>
+
+<p>the content of url is passed to  &lt;navigation-link&gt;,
+    rather than defined inside the &lt;navigation-link&gt; </p>
+<div>
+    <img src="./pics/CompilationScope.png" alt="">
+</div>
+<p>so I think taht the url should be defined in parent scope, and pass it to the component;
+attribute url is child scope, passed as prop to child component</p>
+</body>
+</html>

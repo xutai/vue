@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../tools/font/fontawesome-free-5.8.2-web/css/all.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+
+<h4>Named Slots Shorthand</h4>
+<div id="app">
+<base-layout>
+    <template #header>
+        <h5>This is header</h5>
+    </template>
+    <p>something</p>
+    <p>else</p>
+    <template #footer>
+        <p>Here's some footer info</p>
+    </template>
+</base-layout>
+</div>
+<script>
+    Vue.component('base-layout', {
+        template: `<div>
+        <header><slot name="header"></slot></header>
+        <main><slot></slot></main>
+        <footer><slot name="footer"></slot></footer>
+                   </div>
+`
+    })
+    new Vue({
+        el: '#app'
+    })
+</script>
+
+<hr>
+<h6>error mesasge: v-slot shorthand syntax requires a slot name.</h6>
+<div id="app2">
+    <current-user #="{ user }">
+        {{user.firstName}}
+    </current-user>
+</div>
+<script>
+    Vue.component('current-user', {
+        template: `
+        <p><slot></slot></p>
+        `,
+        data(){
+            return{
+                user: {
+                    firstName: 'fuckyou'
+                }
+            }
+        }
+    })
+    new Vue({
+        el: '#app2'
+    })
+</script>
+
+<hr>
+
+<div id="app3">
+    <current-user2 #default="{ user1 }">
+        {{user2.firstName}}
+    </current-user2>
+</div>
+<script>
+    Vue.component('current-user2', {
+        template: `
+        <p><slot></slot></p>
+        `,
+        data(){
+            return{
+                user1: {
+                    firstName: 'fuckyou'
+                }
+            }
+        }
+    })
+    new Vue({
+        el: '#app3',
+        data(){
+            return{
+                user2: {
+                    firstName: 'fuckyou'
+                }
+            }
+        }
+    })
+</script>
+</body>
+</html>

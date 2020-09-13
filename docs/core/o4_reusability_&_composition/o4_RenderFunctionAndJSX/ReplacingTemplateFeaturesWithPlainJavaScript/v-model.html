@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../../vue.js"></script>
+
+</head>
+<body>
+<div id="demo">
+
+    <input type="text" :value="v">
+    <p>{{ v }}</p>
+    <input v-model="model1"></input>
+    <p>{{ model1 }}</p>
+</div>
+<script>
+
+// two-way data binding
+// user input value in the input box, the value will change in the vue instance
+// similarly, change data in the vue instance, the value of input will be changed
+
+
+// https://vuejs.org/v2/guide/components-custom-events.html#Binding-Native-Events-to-Components
+    var vm = new Vue({
+        el: '#demo',
+        data: {
+            v: '2',
+            model1: ''
+        },
+        created: function() {
+
+        },
+        watch: {
+
+        },
+        computed: {
+
+        },
+        methods: {
+
+        },
+        directives: {
+
+        }
+
+    })
+
+</script>
+</body>
+</html>

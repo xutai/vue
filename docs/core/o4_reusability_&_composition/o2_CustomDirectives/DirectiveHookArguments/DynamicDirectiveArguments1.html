@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../../vue.js"></script>
+
+</head>
+<body>
+<div id="demo">
+
+    <div>
+        <p>Scroll down the page</p>
+        <p v-pin:[direction]="200">I am pinned onto the page at 200px to the left</p>
+    </div>
+
+</div>
+<script>
+
+    Vue.directive('pin', {
+        bind: function(el, binding, vnode) {
+            el.style.position = 'fixed'
+            var s = (binding.arg == 'left' ? 'left' : 'top')
+            //console.log(s)
+            // console.log(el.style.s)  wrong!!
+            el.style[s] = binding.value + 'px'
+            // remember this "el.style[s]"
+            // console.log(el.style['left'])  correct
+        }
+    })
+
+
+    var vm = new Vue({
+        el: '#demo',
+        data() {
+          return {
+              direction: 'left'
+          }
+        },
+        created: function() {
+
+        },
+        watch: {
+
+        },
+        computed: {
+
+        },
+        methods: {
+
+        },
+        directives: {
+
+        }
+
+    })
+
+</script>
+</body>
+</html>

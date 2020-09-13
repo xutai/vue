@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../../vue.js"></script>
+
+</head>
+<body>
+<div id="demo">
+
+    <ul v-if="items.length > 0 ">
+        <li v-for="item in items">{{ item.name }}</li>
+    </ul>
+    <p v-else> No items found. </p>
+
+
+    <render-component :items="items"></render-component>
+
+</div>
+<script>
+    Vue.component('render-component', {
+        props: ['items'],
+        render: function(createElement){
+            if ( this.items.length ) {
+                return createElement('ul', this.items.map( function(item) {
+                    return createElement('li', item.name )
+                }))
+            } else {
+                return createElement('p', 'No items found')
+            }
+        }
+    })
+
+
+    var vm = new Vue({
+        el: '#demo',
+        data: {
+            items: [
+                {name: 'bingo'},
+                {name: 'taylor'}
+            ]
+        },
+        created: function() {
+
+        },
+        watch: {
+
+        },
+        computed: {
+
+        },
+        methods: {
+
+        },
+        directives: {
+
+        }
+
+    })
+
+</script>
+</body>
+</html>

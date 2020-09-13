@@ -1,0 +1,293 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>Conditional Rendering</h1>
+        </section>
+        <section>
+            <h2>v-if</h2>
+            <p>The directive v-if is used to conditionally render a block. The block will only be rendered if the
+                directive's expression returns a truthy value.</p>
+            <p>It is also possible to add an "else block" with v-else:</p>
+        </section>
+        <section id="conditional-groups-with-v-if-on-template">
+            <h3>Conditional Groups with v-if on &lt;template&gt;</h3>
+            <p>Because v-if is a directive, it has to be attached to a single element. But what if we want to toggle
+                more than one element? In this case we can use v-if on a &lt;template&gt; element, which serves as an
+                invisible wrapper. The final rendered result will not include the &lt;template&gt; element.</p>
+        </section>
+        <section id="v-else">
+            <h3>v-else</h3>
+            <p>You can use the v-else directive to indicate an "else block" for v-if:</p>
+            <p>A v-else element must immediately follow a v-if or a v-else-if element - otherwise it will not be
+                recognized.</p>
+        </section>
+        <section id="v-else-if">
+            <h3>v-else-if</h3>
+            <p>The v-else-if, as the name suggests, serves as an "else if block" for v-if. It can also be chained
+                multiple times:</p>
+            <p>Similar to v-else, a v-else-if element must immediately follow a v-if or a v-else-if element.</p>
+        </section>
+        <section id="v-show">
+            <h2>v-show</h2>
+            <p>Another option for conditionally displaying an element is the v-show directive. The usage is largely the same:</p>
+            <p>The difference is that an element with v-show will always be rendered and remain in the DOM; v-show only toggles the display CSS property of the element.</p>
+            <p>v-show doesn't support the &lt;template&gt; element, nor does it work with v-else.</p>
+        </section>
+        <section id="v-if-vs-v-show">
+            <h2>v-if vs v-show</h2>
+            <p>v-if is "real" conditional rendering because it ensures that event listeners and child components inside the conditional block are properly destroyed and re-created during toggles.</p>
+            <p>v-if is also lazy: if the condition is false on initial render, it will not do anything - the conditional block won't be rendered until the condition becomes true for the first time.</p>
+            <p>In comparison, v-show is much simpler - the element is always rendered regardless of initial condition, with CSS-based toggling.</p>
+            <p>Generally speaking, v-if has higher toggle costs while v-show has higher initial render costs. So prefer v-show if you need to toggle something very often, and prefer v-if if the condition is unlikely to change at runtime.</p>
+            <p class="question">
+                prefer v-if if the condition is unlikely to change at runtime.??? 
+                at runtime??? for example?
+                is runtime means running ?
+            </p>
+        </section>
+        <section>
+            <h2>v-if with v-for</h2>
+            <p class="info">Using v-if and v-for together is not recommended. See the style guide for further information.</p>
+            <p class="note">check the guide, it generally says v-for has higher order, it will always iterate over all the list. more details check the guide</p>
+            <p>When used together with v-if, v-for has a higher priority than v-if. See the list rendering guide for details.</p>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ol>
+                <template v-for="item in items">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li>
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ol>
+        </section>
+        <script>
+            Vue.createApp({
+                data() {
+                    return {
+                        items: [
+                            {
+                                text: '#v-if', href: '#v-if', subItems: [
+                                    { text: '#conditional-groups-with-v-if-on-template', href: '#conditional-groups-with-v-if-on-template' },
+                                    { text: '#v-else', href: '#v-else' },
+                                    { text: '#v-else-if', href: '#v-else-if' },
+                                ]
+                            },
+
+                            { text: '#v-show', href: '#v-show' },
+                            { text: '#v-if-vs-v-show', href: '#v-if-vs-v-show' },
+                            { text: '#v-if-with-v-for', href: '#v-if-with-v-for' },
+                        ]
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<style>
+    /* react */
+    .notShow {
+        display: none;
+    }
+</style>
+<section id="plain-html">
+    <mark id="feeling"></mark>
+</section>
+<section id="vue">
+    <mark v-if="feeling">feels good!</mark>
+    <mark v-else-if="feeling">feels good!</mark>
+    <mark v-else>feels bad!</mark>
+    <template v-if="feeling">
+        <code>Vue is so green!</code>
+        <code>React is so Blue!</code>
+    </template>
+    <b v-if="3 > Math.random() * 10">HTML is markup language</b>
+    <b v-else-if="6 > Math.random() * 10 ">CSS is declarative language</b>
+    <b v-else>JavaScript is programming language</b>
+    <s v-show="'truty value'">getting better!</s>
+    <s v-show="''">getting tired!</s>
+</section>
+<section id="react">
+
+</section>
+<script>
+    // vanilla
+    const plainHtml = document.querySelector('section[id^="plain-html"]')
+    const feeling = document.querySelector('mark[id$="feeling"]')
+    // const language = document.querySelector('b[id*="language"]')
+    const statePlain = {
+        feeling: Symbol.for('some truthy value'),
+        colors: ['Vue is so green!', 'React is so Blue!'],
+        randomNumber: Math.random() * 10,
+        languages: [
+            'HTML is markup language',
+            'CSS is declarative language',
+            'JavaScript is programming language'
+        ]
+    }
+    feeling.textContent = statePlain.feeling ? 'feels good!' : 'feels bad!'
+
+    const color1 = document.createElement('code')
+    const color2 = document.createElement('code')
+    color1.textContent = statePlain.colors[0]
+    color2.textContent = statePlain.colors[1]
+    plainHtml.appendChild(color1)
+    plainHtml.appendChild(color2)
+
+
+    // if, else if, else
+    const b = document.createElement('b')
+    b.id = 'language'
+    switch (statePlain.randomNumber) {
+        case (statePlain.randomNumber < 3):
+            b.textContent = statePlain.languages[0]
+            break;
+
+        case (statePlain.randomNumber < 6):
+            b.textContent = statePlain.languages[1]
+            break;
+
+        default:
+            b.textContent = statePlain.languages[2]
+    }
+    plainHtml.appendChild(b)
+    
+    // show or not
+    const s1 = document.createElement('s')
+    const s2 = document.createElement('s')
+    s1.textContent = 'getting better!'
+    s2.textContent = 'getting tired!'
+    s2.classList.add('notShow')
+    plainHtml.appendChild(s1)
+    plainHtml.appendChild(s2)
+
+
+</script>
+<script>
+    // vue
+    const vueInstance = Vue.createApp({
+        data() {
+            return {
+                feeling: Symbol.for('some truthy value')
+            }
+        }
+    })
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    const state = {
+        feeling: Symbol.for('some truthy value'),
+        colors: ['Vue is so green!', 'React is so Blue!'],
+        randomNumber: Math.random() * 10,
+        languages: [
+            'HTML is markup language',
+            'CSS is declarative language',
+            'JavaScript is programming language'
+        ]
+    }
+    function Feeling(props) {
+        return props.feeling
+            ? <mark>feels good!</mark>
+            : <mark>feels bad!</mark>
+            ;
+    }
+    // function Color(props) {
+    //     return props.feeling
+    //         && <div>
+    //             <code>Vue is so green!</code>
+    //             <code>React is so Blue!</code>
+    //         </div>
+
+    // }
+    function SubColor(props) {
+        return <code>{props.color}</code>
+    }
+    function Language(props) {
+        const randomNumber = props.randomNumber
+        const languages = props.languages
+        switch (randomNumber) {
+            case (randomNumber < 3):
+                return <b>{languages[0]}</b>
+                break;
+
+            case (randomNumber < 6):
+                return <b>{languages[0]}</b>
+                break;
+
+            default:
+                return <b>{languages[2]}</b>
+        }
+    }
+    function Show(props) {
+        const show = props.show
+        return show 
+        ? <s>getting better!</s>
+        : <s className="notShow">getting tired!</s>
+    }
+    // <Color feeling={state.feeling} />
+    const el = <div>
+        <Feeling feeling={state.feeling} />
+        <SubColor color={state.colors[0]} />
+        <SubColor color={state.colors[1]} />
+        <Language randomNumber={state.randomNumber} languages={state.languages} />
+        <Show show={'truthy value'}/>
+        <Show show={''}/>
+    </div>
+
+    ReactDOM.render(
+        el,
+        document.getElementById('react'),
+        () => console.info(new Date().getTimezoneOffset())
+    )
+</script>
+
+
+
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

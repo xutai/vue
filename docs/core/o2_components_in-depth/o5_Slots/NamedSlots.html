@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../tools/font/fontawesome-free-5.8.2-web/css/all.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+
+<h4>Fallback Content</h4>
+
+<div id="app">
+    <base-layout></base-layout>
+</div>
+<script>
+    Vue.component('base-layout',{
+        template: `
+        <div class="container">
+            <header>
+            </header>
+            <main></main>
+            <footer></footer>
+        </div>
+`
+    })
+    new Vue({
+        el: '#app'
+    })
+</script>
+
+
+<hr>
+
+
+<div id="app2">
+    <base-layout2>
+        <template v-slot:header>
+            <h3>Here is header content</h3>
+        </template>
+
+        <p>paragraph one in main</p>
+        <p>paragraph two in main</p>
+
+        <template v-slot:footer>
+            <h3>Here is footer content </h3>
+        </template>
+    </base-layout2>
+</div>
+<script>
+    Vue.component('base-layout2',{
+        template: `
+        <div class="container">
+            <header>
+                <slot name="header"></slot>
+            </header>
+            <main>
+            <slot></slot>
+</main>
+            <footer>
+            <slot name="footer"></slot>
+</footer>
+        </div>
+`
+    })
+    new Vue({
+        el: '#app2'
+    })
+</script>
+
+
+
+<hr>
+
+
+<div id="app3">
+    <base-layout3>
+        <template v-slot:header>
+            <h3>Here is header content</h3>
+        </template>
+
+        <p>paragraph one in main</p>
+        <p>paragraph two in main</p>
+
+        <template v-slot:footer>
+            <h3>Here is footer content </h3>
+        </template>
+    </base-layout3>
+</div>
+<script>
+    Vue.component('base-layout3',{
+        template: `
+        <div class="container">
+            <header>
+                <slot name="header"></slot>
+            </header>
+            <main>
+            <slot></slot>
+</main>
+            <footer>
+            <slot name="footer"></slot>
+</footer>
+        </div>
+`
+    })
+    new Vue({
+        el: '#app3'
+    })
+</script>
+</body>
+</html>

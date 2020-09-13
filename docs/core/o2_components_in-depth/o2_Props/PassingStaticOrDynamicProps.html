@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+<div id="app">
+    <h5>Passing a Number</h5>
+    <!-- Even though the array is static, we need v-bind to tell Vue that
+    this is a JavaScript expression rather than a string -->
+    <blog-post-number :likes="42"></blog-post-number>
+    <h5>Passing a Boolean</h5>
+    <blog-post-is-published :is-published="false"></blog-post-is-published>
+    <h5>Passing an Array</h5>
+    <blog-post-array :comment-ids="[1,2,3]"></blog-post-array>
+    <h5>Passing an Object</h5>
+    <blog-post-object :author="{
+    name: 'Tyler',
+    company: 'moonton'
+    }"></blog-post-object>
+    <h5>Passing the Properties of an Object</h5>
+    <p>v-bind="post", in the end this post does not pass through the props, because i can get no
+    value of the "post"</p>
+    <blog-post-properties-of-an-object v-bind="post"></blog-post-properties-of-an-object>
+</div>
+<script>
+    Vue.component('blog-post-number', {
+       props: {
+         likes: Number
+       },
+        template: '<p>likes: {{likes}}</p>'
+    });
+    Vue.component('blog-post-is-published', {
+        props: {
+            isPublished: Boolean
+        },
+        template: '<p>isPublished: {{isPublished}}</p>'
+    });
+    Vue.component('blog-post-array', {
+        props: {
+            commentIds: Array
+        },
+        template: '<p>CommentIds: {{commentIds[1]}}</p>'
+    });
+    Vue.component('blog-post-object', {
+        props: {
+            author: Object
+        },
+        template: '<p>author: {{author.name}} -  {{author.company}}</p>'
+    });
+
+    Vue.component('blog-post-properties-of-an-object', {
+        props: ['post'],
+        template: '<p>{{post}}</p>'
+    });
+    new Vue({
+        el: '#app',
+        data: {
+            post: {
+                id: 1,
+                title: 'My journey with vue'
+            }        }
+    })
+</script>
+</body>
+</html>

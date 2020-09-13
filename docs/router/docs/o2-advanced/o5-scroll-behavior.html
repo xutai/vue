@@ -1,0 +1,78 @@
+<section>
+    <h1>scroll-behavior</h1>
+</section>
+
+<section>
+    <ul>
+        <li>
+            <a href="async-scrolling">async-scrolling</a>
+        </li>
+    </ul>
+</section>
+
+<section>
+    <p>When using client-side routing, we may want to scroll to top when navigating to a new route, or preserve the scrolling position of history entries just like real page reload does. vue-router allows you to achieve these and even better, allows you to completely customize the scroll behavior on route navigation.</p>
+    <p>Note: this feature only works if the browser supports history.pushState.</p>
+    <p>When creating the router instance, you can provide the scrollBehavior function:</p>
+    <pre><code>
+const router = new VueRouter({
+    routes: [...],
+    scrollBehavior (to, from, savedPosition) {
+        // return desired position
+    }
+})
+    </code></pre>
+    <p>The scrollBehavior function receives the to and from route objects. The third argument, savedPosition, is only available if this is a popstate navigation (triggered by the browser's back/forward buttons).</p>
+    <p>The function can return a scroll position object. The object could be in the form of:</p>
+    <ul>
+        <li>{ x: number, y: number }</li>
+        <li class="confusing">{ selector: string, offset? : { x: number, y: number }} (offset only supported in 2.6.0+)</li>
+    </ul>
+    <p>If a falsy value or an empty object is returned, no scrolling will happen.</p>
+    <p>For example:</p>
+    <pre><code>
+scrollBehavior (to, from, savedPosition) {
+    return { x: 0, y: 0 }
+}
+    </code></pre>
+    <p class="note">{ left: 0, top: 0 }</p>
+    <p>This will simply make the page scroll to top for all route navigations.</p>
+    <p>Returning the savedPosition will result in a native-like behavior when navigating with back/forward buttons:</p>
+    <pre><code>
+scrollBehavior (to, from, savedPosition) {
+    if (savedPosition) {
+        return savedPosition
+    } else {
+        return { x: 0, y: 0 }
+    }
+}
+    </code></pre>
+    <p>If you want to simulate the "scroll to anchor" behavior:</p>
+    <pre><code>
+scrollBehavior (to, from, savedPosition) {
+    if (to.hash) {
+        return {
+        selector: to.hash
+        // , offset: { x: 0, y: 10 }
+        }
+    }
+}
+    </code></pre>
+    <p>We can also use route meta fields to implement fine-grained scroll behavior control. Check out a full example here.</p>
+</section>
+
+<section>
+    <h2 id="async-scrolling">async-scrolling</h2>
+    <p>New in 2.8.0</p>
+    <p>You can also return a Promise that resolves to the desired position descriptor:</p>
+    <pre><code>
+scrollBehavior (to, from, savedPosition) {
+    return new Promise((resolve, reject) =&gt; {
+        setTimeout(() =&gt; {
+        resolve({ x: 0, y: 0 })
+        }, 500)
+    })
+}
+    </code></pre>
+    <p>It's possible to hook this up with events from a page-level transition component to make the scroll behavior play nicely with your page transitions, but due to the possible variance and complexity in use cases, we simply provide this primitive to enable specific userland implementations.</p>
+</section>

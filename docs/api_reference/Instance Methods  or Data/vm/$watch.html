@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+<h4><a href="https://vuejs.org/v2/api/#vm-watch">
+    vue.js api Instance Methods / Data, vm.$watch
+</a></h4>
+
+<div id="app">
+    {{ totalmoney }}
+</div>
+<script>
+    /*
+    var a =  {
+        b: {
+            c: function(){
+                return vm.d
+            }
+        }
+    };
+    */
+
+
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            storedMoney: 100,
+            newMoney: 10,
+            a: {
+                b: {
+                    c: function(){
+                        return  this.d;
+                    }
+                }
+            },
+            d: 0
+        },
+        computed: {
+            totalmoney: function(){
+                return this.storedMoney + this.newMoney
+            }
+        }
+    });
+
+    // keypath
+    vm.$watch('totalmoney', function (newVal, oldVal) {
+        // do something
+        // in the example, a.b.c,  what is this ? KeyPath 要监听的属性,
+        // or as the usage says "The expression only accepts dot-delimited paths"
+        // so like this ? var a = {b: { c:  function(){ //do something }}}
+        // or var a = {b: { c:  function(){ return something  }}}
+        // and ....  i need to test it!!
+        console.log('watching totalmoney and it made change')
+    });
+
+    // how does this work?
+
+    // keypath
+    vm.$watch('vm.a.b.c', function (newVal, oldVal) {
+        console.log('2')
+        console.log('1',newVal, oldVal);
+    });
+
+    // function
+    vm.$watch(
+        function () {
+            // everytime the expression `this.a + this.b` yields a different result,
+            // the handler will be called. It's as if we were watching a computed
+            // property without defining the computed property itself
+            console.log('anonymous function, is this will be triggered?');
+            return this.storedMoney + this.newMoney
+        },
+        function (newVal, oldVal) {
+            // do something
+            console.log(newVal, oldVal)
+        }
+    )
+</script>
+</body>
+</html>

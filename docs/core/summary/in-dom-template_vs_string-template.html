@@ -1,0 +1,56 @@
+<blockquote cite="https://forum.vuejs.org/t/confused-about-dom-template-and-string-template/1797">
+    <p>A string template is this:</p>
+    <pre><code>
+Vue.component('my-component', {
+template: '<p>This is a String template, it iss passed as a string to the component.</p>'
+})
+    </code></pre>
+    <p>Templates in .vue files are also String template in this sense.</p>
+    <p>DOM Templates are those that you define inside of an actual .html file that the browser will load and open.Those
+        are usually used when you don’t use a build system and directly include Vue in the page.</p>
+    <p>For example:</p>
+    <pre><code>
+&lt;body&gt;
+&lt;div id=&quot;app&quot;&gt; &lt;!-- your App is runnning in this div ---&gt;
+&lt;my-component&gt;&lt;/my-component&gt;
+&lt;/div&gt;
+
+&lt;template id=&quot;template-for-my-component&quot;&gt;
+{{ message }}
+&lt;/template&gt;
+&lt;/body&gt;
+    </code></pre>
+    <p>This HTML will be controlled by the browser before Vue can work with it, and therefore Vue is limited by the
+        caveats explained in the linked documentation (can&rsquo;t use other elments besides &lt;tr&gt;,&lt;tbody&gt; in
+        &lt;table&gt; etc.).</p>
+</blockquote>
+
+
+<p class="note">
+    in-dom template vs (string template vs single-file component)
+    <br>
+    <br>
+    in-DOM template :in-dom template: 
+    templates directly written in an HTML file
+    <br>
+    &lt;my-component&gt;&lt;/my-component&gt;
+    &lt;template&gt;
+    {{ something }}
+    &lt;/template&gt;
+    <br>
+    process: template -> browser -> vue
+
+    <br><br>
+
+    string template: in html, reference template name (including single-file component template)
+    <br>
+    tempalte: ``
+    <br>
+    process: template -> vue -> browser
+</p>
+
+<p class="note">
+
+   
+   
+</p>

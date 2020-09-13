@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+    </style>
+    <script src="../../../../frameworks/vue.js"></script>
+</head>
+<body>
+<h4>Accessing Child Component Instances & Child Elements </h4>
+
+<div id="app">
+    <div @click="clickMe">click me</div>
+    <base-input ref="usernameInput"></base-input>
+</div>
+<script>
+Vue.component('base-input', {
+    template: '<input ref="input">',
+    methods: {
+        focus: function(){
+            this.$refs.input.focus()
+        }
+    }
+})
+    var vm = new Vue({
+        el: '#app',
+        methods: {
+            clickMe(){
+               this.$refs.usernameInput.focus()
+            }
+        }
+    })
+</script>
+</body>
+</html>

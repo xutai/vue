@@ -1,0 +1,112 @@
+<section>
+    <h1>Lifecycle hooks</h1>
+
+    <ul>
+        <li>beforeCreate</li>
+        <li>created</li>
+        <li>beforeMount</li>
+        <li>mounted</li>
+        <li>beforeUpdate</li>
+        <li>updated</li>
+        <li>activated</li>
+        <li>deactivated</li>
+        <li>beforeUnmount</li>
+        <li>unmounted</li>
+        <li>errorCaptured</li>
+        <li>renderTracked</li>
+        <li>renderTriggered</li>
+    </ul>
+
+</section>
+<section>
+    <h2>beforeCreate</h2>
+    <ul>
+        <li>Type: Function</li>
+        <li>Details:
+            Called synchronously immediately after the instance has been initialized, before data observation and
+            event/watcher setup.
+        </li>
+        <li>See also: Lifecycle Diagram</li>
+    </ul>
+</section>
+<section>
+    <h2>created</h2>
+    <ul>
+        <li>Type: Function</li>
+        <li>Details:
+            Called synchronously after the instance is created. At this stage, the instance has finished processing the
+            options which means the following have been set up: data observation, computed properties, methods,
+            watch/event callbacks. However, the mounting phase has not been started, and the $el property will not be
+            available yet.
+        </li>
+        <li>See also: Lifecycle Diagram</li>
+    </ul>
+</section>
+<section>
+    <h2>beforeMount</h2>
+</section>
+<section>
+    <h2>mounted</h2>
+    <ul>
+        <li>Type: Function</li>
+        <li>Details:
+            Called after the instance has been mounted, where element, passed to Vue.createApp({}).mount() is replaced
+            by the newly created vm.$el. If the root instance is mounted to an in-document element, vm.$el will also be
+            in-document when mounted is called.
+            Note that mounted does not guarantee that all child components have also been mounted. If you want to wait
+            until the entire view has been rendered, you can use vm.$nextTick inside of mounted:
+            <pre><code>
+mounted() {
+    this.$nextTick(function () {
+        // Code that will run only after the
+        // entire view has been rendered
+    })
+    }
+            </code></pre>
+            <p>This hook is not called during server-side rendering.</p>
+        </li>
+        <li>See also: Lifecycle Diagram</li>
+    </ul>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue.js_v2.5.16.js"></script>
+</head>
+<body>
+
+
+
+<h5>Basics</h5>
+<script>
+    // define a mixin object
+    var myMixin = {
+        created: function () {
+            this.hello()
+        },
+        methods: {
+            hello: function () {
+                console.log('hello from mixin!')
+            }
+        }
+    }
+
+    // define a component that uses this mixin
+    var Component = Vue.extend({
+        mixins: [myMixin]
+    })
+
+    var component = new Component() // => "hello from mixin!"
+</script>
+
+<h5>Option Merging</h5>
+<script>
+    var mixin = {
+        data: function () {
+            return {
+                message: 'hello',
+                foo: 'abc'
+            }
+        }
+    }
+
+    new Vue({
+        mixins: [mixin],
+        data: function () {
+            return {
+                message: 'goodbye',
+                bar: 'def'
+            }
+        },
+        created: function () {
+            console.log(this.$data)
+            // => { message: "goodbye", foo: "abc", bar: "def" }
+        }
+    })
+</script>
+</body>
+</html>

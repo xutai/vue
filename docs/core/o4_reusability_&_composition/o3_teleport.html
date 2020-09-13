@@ -1,0 +1,401 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Teleport
+            </h1>
+        </section>
+        <section>
+            <p>Vue encourages us to build our UIs by encapsulating UI and related behavior into components. We can nest
+                them inside one another to build a tree that makes up an application UI.</p>
+            <p>However, sometimes a part of a component's template belongs to this component logically, while from a
+                technical point of view, it would be preferable to move this part of the template somewhere else in the
+                DOM, outside of the Vue app.</p>
+            <p>A common scenario for this is creating a component that includes a full-screen modal. In most cases,
+                you'd want the modal's logic to live within the component, but the positioning of the modal quickly
+                becomes difficult to solve through CSS, or requires a change in component composition.</p>
+            <p>Consider the following HTML structure.</p>
+            <pre><code>
+&lt;body&gt;
+  &lt;div style=&quot;position: relative;&quot;&gt;
+    &lt;h3&gt;Tooltips with Vue 3 Teleport&lt;/h3&gt;
+    &lt;div&gt;
+      &lt;modal-button&gt;&lt;/modal-button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+
+            </code></pre>
+            <p>Let's take a look at modal-button.</p>
+            <p>The component will have a button element to trigger the opening of the modal, and a div element with a
+                class of .modal, which will contain the modal's content and a button to self-close.</p>
+            <pre><code>
+const app = Vue.createApp({});
+
+app.component(&apos;modal-button&apos;, {
+  template: &grave;
+    &lt;button @click=&quot;modalOpen = true&quot;&gt;
+        Open full screen modal!
+    &lt;/button&gt;
+
+    &lt;div v-if=&quot;modalOpen&quot; class=&quot;modal&quot;&gt;
+      &lt;div&gt;
+        I&apos;m a modal! 
+        &lt;button @click=&quot;modalOpen = false&quot;&gt;
+          Close
+        &lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &grave;,
+  data() {
+    return { 
+      modalOpen: false
+    }
+  }
+})
+
+            </code></pre>
+            <p>When using this component inside the initial HTML structure, we can see a problem - the modal is being
+                rendered inside the deeply nested div and the position: absolute of the modal takes the parent
+                relatively positioned div as reference.</p>
+            <p>Teleport provides a clean way to allow us to control under which parent in our DOM we want a piece of
+                HTML to be rendered, without having to resort to global state or splitting this into two components.</p>
+            <p>Let&apos;s modify our modal-button to use &lt;teleport&gt; and tell Vue &quot;teleport this HTML to the
+                &quot;body&quot; tag&quot;.</p>
+            <pre><code>
+app.component(&apos;modal-button&apos;, {
+    template: &grave;
+        &lt;button @click=&quot;modalOpen = true&quot;&gt;
+            Open full screen modal! (With teleport!)
+        &lt;/button&gt;
+    
+        &lt;teleport to=&quot;body&quot;&gt;
+        &lt;div v-if=&quot;modalOpen&quot; class=&quot;modal&quot;&gt;
+            &lt;div&gt;
+            I&apos;m a teleported modal! 
+            (My parent is &quot;body&quot;)
+            &lt;button @click=&quot;modalOpen = false&quot;&gt;
+                Close
+            &lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;/teleport&gt;
+    &grave;,
+    data() {
+        return { 
+        modalOpen: false
+        }
+    }
+    })
+            </code></pre>
+            <p>As a result, once we click the button to open the modal, Vue will correctly render the modal's content as
+                a child of the body tag.</p>
+            <mark>pretend here is a demo</mark>
+        </section>
+        <section id="using-with-vue-components">
+            <h2>using-with-vue-components</h2>
+            <p>If &lt;teleport&gt; contains a Vue component, it will remain a logical child component of the
+                &lt;teleport&gt;&apos;s parent:</p>
+            <pre><code>
+const app = Vue.createApp({
+    template: &grave;
+        &lt;h1&gt;Root instance&lt;/h1&gt;
+        &lt;parent-component /&gt;
+    &grave;
+    })
+    
+    app.component(&apos;parent-component&apos;, {
+    template: &grave;
+        &lt;h2&gt;This is a parent component&lt;/h2&gt;
+        &lt;teleport to=&quot;#endofbody&quot;&gt;
+        &lt;child-component name=&quot;John&quot; /&gt;
+        &lt;/teleport&gt;
+    &grave;
+    })
+    
+    app.component(&apos;child-component&apos;, {
+    props: [&apos;name&apos;],
+    template: &grave;
+        &lt;div&gt;Hello, {{ name }}&lt;/div&gt;
+    &grave;
+})
+                  
+            </code></pre>
+            <p>In this case, even when child-component is rendered in the different place, it will remain a child of
+                parent-component and will receive a name prop from it.</p>
+            <p>This also means that injections from a parent component work as expected, and that the child component
+                will be nested below the parent component in the Vue Devtools, instead of being placed where the actual
+                content moved to.</p>
+        </section>
+        <section id="using-multiple-teleports-on-the-same-target">
+            <h2>using-multiple-teleports-on-the-same-target</h2>
+            <p>A common use case scenario would be a reusable &lt;Modal&gt; component of which there might be multiple instances active at the same time. For this kind of scenario, multiple &lt;teleport&gt; components can mount their content to the same target element. The order will be a simple append - later mounts will be located after earlier ones within the target element.</p>
+            <pre><code>
+&lt;teleport to=&quot;#modals&quot;&gt;
+  &lt;div&gt;A&lt;/div&gt;
+&lt;/teleport&gt;
+&lt;teleport to=&quot;#modals&quot;&gt;
+  &lt;div&gt;B&lt;/div&gt;
+&lt;/teleport&gt;
+
+&lt;!-- result--&gt;
+&lt;div id=&quot;modals&quot;&gt;
+  &lt;div&gt;A&lt;/div&gt;
+  &lt;div&gt;B&lt;/div&gt;
+&lt;/div&gt;
+
+            </code></pre>
+            <p>You can check &lt;teleport&gt; component options in the API reference</p>
+        </section>
+        <section id="">
+            <h3></h3>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [{
+                        text: '#using-with-vue-components',
+                        href: '#using-with-vue-components',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#using-multiple-teleports-on-the-same-target',
+                        href: '#using-multiple-teleports-on-the-same-target',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<div>
+    <div id="endofbody">#endofbod</div>
+    <div id="modals">#modals</div>
+</div>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <div>
+        <!-- <div style="position: relative;">
+            <h3>Tooltips with Vue 3 Teleport</h3>
+            <div>
+                <modal-button></modal-button>
+            </div>
+        </div> -->
+    </div>
+
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [{
+                id: 1,
+                title: 'Learn React',
+                content: 'React is sky blue!'
+            },
+            {
+                id: 2,
+                title: 'Learn Vue',
+                content: 'Vue is mood Green!'
+            }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        props: {},
+        computed: {},
+        methods: {},
+        watch: {},
+        emits: {},
+        template: `
+        <h1>Root instance</h1>
+        <parent-component />
+        `,
+        directives: {
+
+        },
+        provide() {
+            return {}
+        },
+        // render(){}, // don't know what does this do
+        beforeCreate() {},
+        created() {
+            console.info(
+                "this.$data", this.$data,
+                "this.$props", this.$props,
+                "this.$el", this.$el,
+                "this.$options", this.$options,
+                "this.$parent", this.$parent,
+                "this.$root", this.$root,
+                "this.$slots", this.$slots,
+                "this.$refs", this.$refs,
+                "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() {},
+        mounted() {},
+        beforeUpdate() {},
+        updated() {},
+        activated() {},
+        deactivated() {},
+        beforeUnmount() {},
+        unmounted() {},
+        errorCaptured: (err, vm, info) => {},
+        renderTracked() {},
+        renderTriggered() {}
+    }
+    const vueInstance = Vue.createApp(options)
+    // v1
+    //     vueInstance.component('modal-button', {
+    //         template: `
+    //     <button @click="modalOpen = true">
+    //         Open full screen modal!
+    //     </button>
+
+    //     <div v-if="modalOpen" class="modal">
+    //       <div>
+    //         I'm a modal! 
+    //         <button @click="modalOpen = false">
+    //           Close
+    //         </button>
+    //       </div>
+    //     </div>
+    //   `,
+    //         data() {
+    //             return {
+    //                 modalOpen: false
+    //             }
+    //         }
+    //     })
+
+    // v2
+    vueInstance.component('modal-button', {
+        template: `
+    <button @click="modalOpen = true">
+        Open full screen modal! (With teleport!)
+    </button>
+
+    <teleport to="body">
+      <div v-if="modalOpen" class="modal">
+        <div>
+          I'm a teleported modal! 
+          (My parent is "body")
+          <button @click="modalOpen = false">
+            Close
+          </button>
+        </div>
+      </div>
+    </teleport>
+  `,
+        data() {
+            return {
+                modalOpen: false
+            }
+        }
+    })
+
+    vueInstance.component('parent-component', {
+        template: `
+    <h2>This is a parent component</h2>
+    <teleport to="#endofbody">
+      <child-component name="John" />
+    </teleport>
+  `
+    })
+
+    vueInstance.component('child-component', {
+        props: ['name'],
+        template: `
+            <div>Hello, {{ name }}</div>
+            <teleport to="#modals">
+                <div>A</div>
+            </teleport>
+            <teleport to="#modals">
+                <div>B</div>
+            </teleport>
+            `
+    })
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

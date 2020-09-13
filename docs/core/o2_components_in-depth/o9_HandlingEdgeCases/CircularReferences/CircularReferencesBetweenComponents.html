@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <script src="../../vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <h1>i did not understand this !!! need an example! </h1>
+<tree-folder></tree-folder>
+</div>
+<script>
+    Vue.component('tree-folder', {
+        template: `
+        <p>
+            <span>{{ folder.name }}</span>
+            <tree-folder-contents :children="folder.children" />
+         </p>
+        `,
+        data: function () {
+            return {
+                folder: {
+                    name: 'fuck',
+                    children: [
+                        {
+                            name: 'child'
+                        }
+                    ]
+                }
+            }
+        }
+    });
+    Vue.component('tree-folder-contents', {
+        template: `
+        <li>
+            <li v-for="child in children">
+                <tree-folder v-if="child.children" :folder="child" />
+                <span v-else> {{ child.name }}</span>
+            </li>
+        </ul>
+        `
+    });
+    var vm = new Vue({
+        el: '#app',
+        data: {
+
+        },
+        beforeCreate: function () {
+            this.$options.components.TreeFolderContents = require('./tree-folder-contents.vue').default
+        }
+    })
+
+</script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<section>
+    <h1>Navigation Guards</h1>
+</section>
+
+<section>
+    <ul>
+        <li>
+            <a href="global-before-guards">global-before-guards</a>
+        </li>
+        <li>
+            <a href="global-resolve-guards">global-resolve-guards</a>
+        </li>
+        <li>
+            <a href="global-after-hooks">global-after-hooks</a>
+        </li>
+        <li>
+            <a href="pre-route-guard">pre-route-guard</a>
+        </li>
+        <li>
+            <a href="in-component-guards">in-component-guards</a>
+        </li>
+        <li>
+            <a href="the-ful-navigation-resolution-flow">the-ful-navigation-resolution-flow</a>
+        </li>
+    </ul>
+</section>
+
+<section>
+    <p>As the name suggests, the navigation guards provided by vue-router are primarily used to guard navigations either
+        by redirecting it or canceling it. There are a number of ways to hook into the route navigation process:
+        globally, per-route, or in-component.</p>
+    <p>Remember that params or query changes won't trigger enter/leave navigation guards. You can either watch the
+        $route object to react to those changes, or use the beforeRouteUpdate in-component guard.</p>
+</section>
+<section>
+    <h2 id="global-before-guards">global-before-guards</h2>
+    <p>You can register global before guards using router.beforeEach:</p>
+    <pre><code>
+const router = new VueRouter({ ... })
+
+router.beforeEach((to, from, next) =&gt; {
+  // ...
+})
+    </code></pre>
+    <p>Global before guards are called in creation order, whenever a navigation is triggered.
+        <small class="confusing">Guards may be resolved asynchronously, and the navigation is considered pending before
+            all hooks have been resolved.</small>
+    </p>
+    <q>pending adj. 未决定的；行将发生的</q>
+    <p>Every guard function receives three arguments:</p>
+    <ul>
+        <li><strong>to: Route</strong>: the target Route Object being navigated to.</li>
+        <li><strong>from: Route</strong>: the current route being navigated away from.</li>
+        <li><strong>next: Function</strong>: this function must be called to resolve the hook. The action depends on the
+            arguments provided to next:</li>
+        <ul>
+            <li><strong>next()</strong>: move on to the next hook in the pipeline. If no hooks are left, the navigation
+                is confirmed.</li>
+            <li class="confusing"><strong>next(false)</strong>: abort the current navigation. If the browser URL was
+                changed (either manually by the user or via back button), it will be reset to that of the from route.
+            </li>
+            <li><strong>next('/') or next({ path: '/' })</strong>: redirect to a different location. The current
+                navigation will be aborted and a new one will be started. You can pass any location object to next,
+                which allows you to specify options like replace: true, name: 'home' and any option used in
+                router-link's to prop or router.push</li>
+            <li><strong>next(error)</strong>: (2.4.0+) if the argument passed to next is an instance of Error, the
+                navigation will be aborted and the error will be passed to callbacks registered via router.onError().
+            </li>
+        </ul>
+    </ul>
+</section>
+<section>
+    <h2 id="global-resolve-guards">global-resolve-guards</h2>
+    <p>You can register a global guard with router.beforeResolve. This is similar to router.beforeEach, with the
+        difference that resolve guards will be called right before the navigation is confirmed, after all in-component
+        guards and async route components are resolved.</p>
+</section>
+<section>
+    <h2 id="global-after-hooks">global-after-hooks</h2>
+    <p>You can also register global after hooks, however unlike guards, these hooks do not get a next function and
+        cannot affect the navigation:</p>
+    <pre><code>
+router.afterEach((to, from) =&gt; {
+    // ...
+})
+    </code></pre>
+</section>
+<section>
+    <h2 id="pre-route-guard">pre-route-guard</h2>
+    <p>You can define beforeEnter guards directly on a route's configuration object:</p>
+    <pre><code>
+const router = new VueRouter({
+    routes: [
+        {
+            path: &apos;/foo&apos;,
+            component: Foo,
+            beforeEnter: (to, from, next) =&gt; {
+                // ...
+            }
+        }
+    ]
+})
+    </code></pre>
+    <p>These guards have the exact same signature as global before guards.</p>
+    <q>signature 信号</q>
+</section>
+<section>
+    <h2 id="in-component-guards">in-component-guards</h2>
+    <p>Finally, you can directly define route navigation guards inside route components (the ones passed to the router
+        configuration) with the following options:</p>
+    <ul>
+        <li>beforeRouteEnter</li>
+        <li>beforeRouteUpdate</li>
+        <li>beforeRouteLeave</li>
+    </ul>
+    <pre><code>
+const Foo = {
+    template: &grave;...&grave;,
+    beforeRouteEnter (to, from, next) {
+        // called before the route that renders this component is confirmed.
+        // does NOT have access to &grave;this&grave; component instance,
+        // because it has not been created yet when this guard is called!
+    },
+    beforeRouteUpdate (to, from, next) {
+        // called when the route that renders this component has changed.
+        // This component being reused (by using an explicit &grave;key&grave;) in the new route or not doesn&apos;t change anything.
+        // For example, for a route with dynamic params &grave;/foo/:id&grave;, when we
+        // navigate between &grave;/foo/1&grave; and &grave;/foo/2&grave;, the same &grave;Foo&grave; component instance
+        // will be reused (unless you provided a &grave;key&grave; to &grave;&lt;router-view&gt;&grave;), and this hook will be called when that happens.
+        // has access to &grave;this&grave; component instance.
+    },
+    beforeRouteLeave (to, from, next) {
+        // called when the route that renders this component is about to
+        // be navigated away from.
+        // has access to &grave;this&grave; component instance.
+    }
+}
+    </code></pre>
+    <p>The beforeRouteEnter guard does NOT have access to this, because the guard is called before the navigation is
+        confirmed, thus the new entering component has not even been created yet.</p>
+    <p>However, you can access the instance by passing a callback to next. The callback will be called when the
+        navigation is confirmed, and the component instance will be passed to the callback as the argument:</p>
+    <pre><code>
+beforeRouteEnter (to, from, next) {
+    next(vm =&gt; {
+        // access to component instance via &grave;vm&grave;
+    })
+}
+    </code></pre>
+    <p>Note that beforeRouteEnter is the only guard that supports passing a callback to next. For beforeRouteUpdate and
+        beforeRouteLeave, this is already available, so passing a callback is unnecessary and therefore not supported:
+    </p>
+    <pre><code>
+beforeRouteUpdate (to, from, next) {
+    // just use `this`
+    this.name = to.params.name
+    next()
+}
+    </code></pre>
+    <p class="confusing">The leave guard is usually used to prevent the user from accidentally leaving the route with
+        unsaved edits. The navigation can be canceled by calling next(false).</p>
+    <pre><code>
+beforeRouteLeave (to, from, next) {
+    const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
+    if (answer) {
+        next()
+    } else {
+        next(false)
+    }
+}
+    </code></pre>
+    <p>If you are using mixins that add in-component navigation guards, make sure to add the mixin after installing the
+        router plugin:</p>
+    <pre><code>
+Vue.use(Router)
+
+Vue.mixin({
+  beforeRouteUpdate(to, from ,next) {
+    // ...
+  }
+})
+    </code></pre>
+</section>
+<section>
+    <h2 id="the-ful-navigation-resolution-flow">the-ful-navigation-resolution-flow</h2>
+    <ol>
+        <li>Navigation triggered.</li>
+        <li>Call beforeRouteLeave guards in deactivated components.</li>
+        <li>Call global beforeEach guards.</li>
+        <li>Call beforeRouteUpdate guards in reused components.</li>
+        <li>Call beforeEnter in route configs.</li>
+        <li>Resolve async route components.</li>
+        <li>Call beforeRouteEnter in activated components.</li>
+        <li>Call global beforeResolve guards.</li>
+        <li>Navigation confirmed.</li>
+        <li>Call global afterEach hooks.</li>
+        <li>DOM updates triggered.</li>
+        <li>Call callbacks passed to next in beforeRouteEnter guards with instantiated instances.</li>
+    </ol>
+</section>

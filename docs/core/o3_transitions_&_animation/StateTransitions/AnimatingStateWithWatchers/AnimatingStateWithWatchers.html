@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../../vue.js"></script>
+    <script src="./TweenMax.min.js"></script>
+    <!-- https://greensock.com/tweenmax -->
+</head>
+<body>
+<div id="demo">
+    <input  v-model.number="number" type="number" step="20">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/number -->
+    <p>{{ animatedNumber }}</p>
+</div>
+<script>
+
+    var vm = new Vue({
+        el: '#demo',
+        data: {
+            number: 0,
+            tweenedNumber: 0
+        },
+        computed: {
+            animatedNumber: function() {
+                return this.tweenedNumber.toFixed(0)
+                // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toFixed
+            }
+        },
+        watch: {
+            number: function(newValue) {
+                TweenLite.to(this.$data, 0.5, { tweenedNumber: newValue})
+                // https://greensock.com/docs/TweenLite/static.to()
+            }
+        }
+    })
+
+</script>
+</body>
+</html>

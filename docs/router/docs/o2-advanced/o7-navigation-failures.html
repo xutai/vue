@@ -1,0 +1,75 @@
+<section>
+    <h1>navigation failures</h1>
+</section>
+
+<section>
+    <ul>
+        <li>
+            <a href="detecting-navigation-failures">detecting-navigation-failures</a>
+        </li>
+        <li>
+            <a href="NavigationFailureType">NavigationFailureType</a>
+        </li>
+        <li>
+            <a href="navigation-failures-properties">navigation-failures-properties</a>
+        </li>
+    </ul>
+</section>
+
+<section>
+    <p>New in 3.4.0</p>
+    <p>When using router-link, Vue Router calls router.push to trigger a navigation. While the expected behavior for most links is to navigate a user to a new page, there are a few situations where users will remain on the same page:</p>
+    <ul>
+        <li class="confusing">Users are already on the page that they are trying to navigate to</li>
+        <li class="confusing">A navigation guard aborts the navigation by calling next(false)</li>
+        <li class="confusing">A navigation guard throws an error or calls next(new Error())</li>
+    </ul>
+    <section>
+        <p class="question">in case1 and case2, error will enver be thrown?! in case3, you don't know  chich error to throw to match the error in NavigationFailureType's four error types </p>
+    </section>
+    <p>When using a router-link component, none of these failures will log an error. However, if you are using router.push or router.replace, you might come across an "Uncaught (in promise) Error" message followed by a more specific message in your console. Let's understand how to differentiate Navigation Failures.</p>
+    <div class="info">
+        <p>Background story</p>
+        <p>In v3.2.0, Navigation Failures were exposed through the two optional callbacks of router.push: onComplete and onAbort. Since version 3.1.0, router.push and router.replace return a Promise if no onComplete/onAbort callback is provided. This Promise resolves instead of invoking onComplete and rejects instead of invoking onAbort.</p>
+    </div>
+</section>
+<section>
+    <h2 id="detecting-navigation-failures">detecting-navigation-failures</h2>
+<p>Navigation Failures are Error instances with a few extra properties. To check if an error comes from the Router, use the isNavigationFailure function:</p>
+<pre><code>
+import { NavigationFailureType, isNavigationFailure } from &apos;vue-router&apos;
+
+// trying to access the admin page
+router.push(&apos;/admin&apos;).catch(failure =&gt; {
+  if (isNavigationFailure(failure, NavigationFailureType.redirected)) {
+    // show a small notification to the user
+    showToast(&apos;Login in order to access the admin panel&apos;)
+  }
+})
+</code></pre>
+<p class="tip">If you omit the second parameter: isNavigationFailure(failure), it will only check if the error is a Navigation Failure</p>
+
+</section>
+<section>
+    <h2 id="NavigationFailureType">NavigationFailureType</h2>
+    <p>NavigationFailureType help developers to differentiate between the various types of Navigation Failures. There are four different types:</p>
+    <ul>
+        <li class="confusing">redirected: next(newLocation) was called inside of a navigation guard to redirect somewhere else.</li>
+        <li class="confusing">aborted: next(false) was called inside of a navigation guard to the navigation.</li>
+        <li class="confusing">cancelled: A new navigation completely took place before the current navigation could finish. e.g. router.push was called while waiting inside of a navigation guard.</li>
+        <li class="confusing">duplicated: The navigation was prevented because we are already at the target location.</li>
+    </ul>
+</section>
+<section>
+    <h2 id="navigation-failures-properties">navigation-failures-properties</h2>
+    <p>All navigation failures expose to and from properties to reflect the current location as well as the target location for the navigation that failed:</p>
+    <pre><code>
+// trying to access the admin page
+router.push(&apos;/admin&apos;).catch(failure =&gt; {
+  if (isNavigationFailure(failure, NavigationFailureType.redirected)) {
+    failure.to.path // &apos;/admin&apos;
+    failure.from.path // &apos;/&apos;
+  }
+})
+    </code></pre>
+</section>

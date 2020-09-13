@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+        .slide-fade-enter-active {
+            transition: all .3s ease;
+        }
+        .slide-fade-leave-active {
+            transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        }
+        .slide-fade-enter, .slide-fade-leave-to {
+            transform: translateX(10px);
+            opacity: 0
+        }
+        /*
+        for the first time, click the button, opacity 1 to 0 , from v-leave to v-leave-to, position from 0 -> 10px
+        then the next, opacity 0 to 1, from v-enter to v-enter-to ,  position from 10px to 0
+        v-enter: 向右平移10px， 透明度变成0
+        v-enter-to: 向左平移10px， 透明度变成1
+        v-leave:  向左平移10px， 透明度变成1
+        v-leave-to: 向右平移10px， 透明度变成0
+
+
+
+        test:
+
+                .slide-fade-enter {
+            transform: translateX(10px);
+            opacity: 0
+        }
+         .slide-fade-leave-to {
+            transform: translateX(50px);
+            opacity: 0.8
+        }
+
+
+        */
+    </style>
+    <script src="../../vue.js"></script>
+</head>
+<body>
+<div id="demo">
+    <button @click="show = !show">Toggle</button>
+    <transition name="slide-fade">
+        <p v-if="show">hello</p>
+    </transition>
+</div>
+<script>
+
+    new Vue({
+        el: '#demo',
+        data: {
+            show: true
+        }
+    })
+
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #demo {
+            padding: 30px;
+            margin: 30px;
+        }
+
+    </style>
+    <link rel="stylesheet" href="../../../tools/css/animate.css">
+
+    <script src="../../../tools/Vue/vue.js_v2.5.16.js"></script>
+    <script src="../../../tools/js/velocity_2.0.5.js"></script>
+</head>
+<body>
+
+<p>
+
+</p>
+
+<div id="demo">
+    <transition>
+        <table v-if="items.length > 0">
+            <tr>
+                <td>yes</td>
+            </tr>
+        </table>
+        <p v-else>Sorry, no tiems found</p>
+    </transition>
+    <transition>
+        <button v-if="isEditing" key="save">
+            Save
+        </button>
+        <button v-else key="edit">
+            Edit
+        </button>
+    </transition>
+    <transition>
+        <button v-bind:key="isEditing1">
+            {{ isEditing1 ? 'Save' : 'Edit' }}
+        </button>
+    </transition>
+    <transition>
+        <button v-if="docState === 'saved'" key="saved">
+            Edit
+        </button>
+        <button v-if="docState === 'edited'" key="edited">
+            Save
+        </button>
+        <button v-if="docState === 'editing'" key="editing">
+            Cancel
+        </button>
+    </transition>
+    <transition>
+        <button v-bind:key="docState1">
+            {{ buttonMessage }}
+        </button>
+    </transition>
+
+</div>
+
+<script>
+
+    new Vue({
+        el: '#demo',
+        data: {
+            items: [1,2],
+            isEditing: false,
+            isEditing1: '1',
+            docState: 'edited',
+            docState1: 'editing'
+
+        },
+
+        computed: {
+            buttonMessage: function () {
+                switch (this.docState1) {
+                    case 'saved' : return 'Edit'
+                    case 'edited' : return 'save'
+                    case 'editing' : return 'Cancel'
+                }
+            }
+        }
+        
+
+    })
+
+
+</script>
+
+
+</body>
+</html>

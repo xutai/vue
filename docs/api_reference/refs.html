@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue.js_v2.5.16.js"></script>
+</head>
+<body>
+
+
+<h6>this.$refs, will get all refs ref="" in this instance</h6>
+<h6>this.$refs is object, key-value pair, </h6>
+<div id="app">
+    <h2>Refs</h2>
+    <input type="text" ref="input">
+    <button v-on:click="readRefs">v-on:click="readRefs"</button>
+    {{someData}}
+    <div ref="ref2">ref2</div>
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            someData: 'somedata'
+        },
+        methods: {
+            readRefs:function () {
+                console.log(this.$refs);
+                console.log(this.$refs.input.value);
+                this.someData = this.$refs.input.value;
+            }
+        }
+    })
+</script>
+</body>
+</html>

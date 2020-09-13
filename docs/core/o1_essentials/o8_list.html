@@ -1,0 +1,570 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                List Rendering</h1>
+        </section>
+        <section id="mapping-an-array-to-elements-with-v-for">
+            <h2>Mapping an Array to Elements with v-for</h2>
+            <p>We can use the v-for directive to render a list of items based on an array. The v-for directive requires
+                a special syntax in the form of item in items, where items is the source data array and item is an alias
+                for the array element being iterated on:</p>
+            <p>Inside v-for blocks we have full access to parent scope properties. v-for also supports an optional
+                second argument for the index of the current item.</p>
+            <p>You can also use of as the delimiter instead of in, so that it is closer to JavaScript's syntax for
+                iterators:</p>
+        </section>
+        <section id="v-for-with-an-object">
+            <h2>v-for with an Object</h2>
+            <p>You can also use v-for to iterate through the properties of an object.</p>
+            <p>You can also provide a second argument for the property's name (a.k.a. key):</p>
+            <p>And another for the index:</p>
+            <p class="info">Note
+                <br>
+                When iterating over an object, the order is based on the enumeration order of Object.keys(), which isn't
+                guaranteed to be consistent across JavaScript engine implementations.</p>
+        </section>
+        <section id="maintaining-state">
+            <h2>Maintaining State</h2>
+            <p>When Vue is updating a list of elements rendered with v-for, by default it uses an "in-place patch "
+                就地补丁 strategy. If the order of the data items has changed, instead of moving the DOM elements to match
+                the
+                order of the items, Vue will patch each element in-place and make sure it reflects what should be
+                rendered at that particular index.</p>
+            <pre>
+----moving DOM elements---- ---in-place patch---
+0  a  ->            a           -> a
+1  b  ->remove b    c                  
+2  c  ->move c to b's position     c (patch, to reflect what should be rendered)   
+            </pre>
+            <p>This default mode is efficient, but only suitable when your list render output does not rely on child
+                component state or temporary DOM state (e.g. form input values).</p>
+            <p class="note">this is bit confusing</p>
+            <p>To give Vue a hint so that it can track each node's identity, and thus reuse and reorder existing
+                elements, you need to provide a unique key attribute for each item:</p>
+            <p>It is recommended to provide a key attribute with v-for whenever possible, unless the iterated DOM
+                content is simple, or you are intentionally relying on the default behavior for performance gains.</p>
+            <p>Since it's a generic mechanism for Vue to identify nodes, the key also has other uses that are not
+                specifically tied to v-for, as we will see later in the guide.</p>
+            <p class="info">
+                Note
+                <br>
+                Don't use non-primitive values like objects and arrays as v-for keys. Use string or numeric values
+                instead.
+            </p>
+            <p>For detailed usage of the key attribute, please see the key API documentation.</p>
+        </section>
+        <section id="array-change-detection">
+            <h2>Array Change Detection</h2>
+        </section>
+        <section id="mutation-methods">
+            <h3>Mutation Methods</h3>
+            <p>Vue wraps an observed array's mutation methods so they will also trigger view updates. The wrapped
+                methods are:</p>
+            <ul>
+                <li>push()</li>
+                <li>pop()</li>
+                <li>shift()</li>
+                <li>unshift()</li>
+                <li>splice()</li>
+                <li>sort()</li>
+                <li>reverse()</li>
+            </ul>
+            <p>You can open the console and play with the previous examples' items array by calling their mutation
+                methods. For example: example1.items.push({ message: 'Baz' }).</p>
+        </section>
+        <section id="replacing-an-array">
+            <h3>Replacing an Array</h3>
+            <p>Mutation methods, as the name suggests, mutate the original array they are called on. In comparison,
+                there are also non-mutating methods, e.g. filter(), concat() and slice(), which do not mutate the
+                original array but always return a new array. When working with non-mutating methods, you can replace
+                the old array with the new one:</p>
+            <p>You might think this will cause Vue to throw away the existing DOM and re-render the entire list -
+                luckily, that is not the case. Vue implements some smart heuristics 摸索 to maximize DOM element reuse, so
+                replacing an array with another array containing overlapping objects is a very efficient operation.</p>
+        </section>
+        <section id="displaying-filtered-sorted-results">
+            <h2>Displaying Filtered/Sorted Results</h2>
+            <p>Sometimes we want to display a filtered or sorted version of an array without actually mutating or
+                resetting the original data. In this case, you can create a computed property that returns the filtered
+                or sorted array.</p>
+            <p>In situations where computed properties are not feasible (e.g. inside nested v-for loops), you can use a
+                method:</p>
+            <p class="note">double check, why it's not feasible?
+                can computed receive different parameter?
+                and this method looks handy!</p>
+        </section>
+        <section id="v-for-with-a-range">
+            <h2>v-for with a Range</h2>
+            <p>v-for can also take an integer. In this case it will repeat the template that many times.</p>
+        </section>
+        <section id="v-for-on-a-template">
+            <h2>v-for on a &lt;template&gt;</h2>
+            <p>Similar to template v-if, you can also use a &lt;template&gt; tag with v-for to render a block of
+                multiple
+                elements. For example:</p>
+        </section>
+        <section id="v-for-with-v-if">
+            <h2>v-for with v-if</h2>
+            <p class="tip">
+                TIP
+                <br>
+                Note that it's not recommended to use v-if and v-for together. Refer to style guide for details.
+            </p>
+            <p>When they exist on the same node, v-for has a higher priority than v-if. That means the v-if will be run
+                on each iteration of the loop separately. This can be useful when you want to render nodes for only some
+                items, like below:</p>
+            <p>The above only renders the todos that are not complete.</p>
+            <p>If instead, your intent is to conditionally skip execution of the loop, you can place the v-if on a
+                wrapper element (or &lt;template&gt;). For example:</p>
+        </section>
+        <section id="v-for-with-a-component">
+            <h2>v-for with a Component</h2>
+            <p>You can directly use v-for on a custom component, like any normal element:</p>
+            <p>However, this won't automatically pass any data to the component, because components have isolated scopes
+                of their own. In order to pass the iterated data into the component, we should also use props:</p>
+            <p>The reason for not automatically injecting item into the component is because that makes the component
+                tightly coupled to how v-for works. Being explicit about where its data comes from makes the component
+                reusable in other situations.</p>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in items">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li>
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            Vue.createApp({
+                data() {
+                    return {
+                        items: [
+                            { text: '#mapping-an-array-to-elements-with-v-for', href: '#mapping-an-array-to-elements-with-v-for' },
+                            { text: '#v-for-with-an-object', href: '#v-for-with-an-object' },
+                            { text: '#maintaining-state', href: '#maintaining-state' },
+                            {
+                                text: '#array-change-detection', href: '#array-change-detection', subItems: [
+                                    { text: '#mutation-methods', href: '#mutation-methods' },
+                                    { text: '#replacing-an-array', href: '#replacing-an-array' },
+                                ]
+                            },
+                            { text: '#displaying-filtered-sorted-results', href: '#displaying-filtered-sorted-results' },
+                            { text: '#v-for-with-a-range', href: '#v-for-with-a-range' },
+                            { text: '#v-for-on-a-template', href: '#v-for-on-a-template' },
+                            { text: '#v-for-with-v-if', href: '#v-for-with-v-if' },
+                            { text: '#v-for-with-a-component', href: '#v-for-with-a-component' },
+                        ]
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+    <form onsubmit="handleSubmit(); return false;">
+        <label for="plain-todo-input">Add a todo</label>
+        <input type="text" id="plain-todo-input" value="">
+        <p id="newTodoText"></p>
+        <button>Add</button>
+    </form>
+    <ul id="plain-todolist"></ul>
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <ul>
+        <!-- <li v-for="learningMethod of learningMethods"> -->
+        <!-- <li v-for="(learningMethod, index) of learningMethods"> -->
+        <li v-for="(learningMethod, index) in learningMethods">
+            {{ index }} - {{ learningMethod.stage }}
+        </li>
+        <li v-for="(learningMethod, index) in filtered">
+            filtered - {{ index }} - {{ learningMethod.stage }}
+        </li>
+        <!-- <li v-for="value in vue"> -->
+        <!-- <li v-for="(value, property) in vue"> -->
+        <!-- <li v-for="(value, property) of vue"> -->
+        <li v-for="(value, property, index) of vue">
+            {{ index }}. {{ property }} : {{ value }}
+        </li>
+    </ul>
+    <ul v-for="versions in versionsSets">
+        <li v-for="version in even(versions)">{{version}}</li>
+    </ul>
+    <!-- v-if="!todo.isComplete" -->
+    <ul v-if="todos.length">
+        <!-- <li v-for="(todo, index) in todos" v-if="!todo.isComplete"> -->
+        <!-- Paused on exception TypeError: can't access property "isComplete", todo is undefined -->
+        <template v-for="(todo, index) in todos">
+            <li v-if="!todo.isComplete">
+                todo: {{index}} - {{todo.doWhat}} - {{todo.isComplete}}
+            </li>
+        </template>
+        <!-- <li v-for="todo in todos">
+            {{todo}}
+        </li> -->
+    </ul>
+    <p v-else>No todos left!</p>
+    <p class="question">:value vs @input="newTodoText = $event.target.value" vs @input="newTodoText = value",
+        what's difference
+    </p>
+    <p class="note">
+        :value this might be the value attribute
+        value cached value? or DOM value
+        $event.target.value value event, has not written in DOM yet
+    </p>
+    <div id="todo-list-example">
+        <form v-on:submit.prevent="addNewTodo">
+            <label for="new-todo">Add a todo</label>
+            <!-- <input v-model="newTodoText" id="new-todo" placeholder="E.g. Feed the cat" /> -->
+            <input :value="newTodoText" @input="newTodoText = $event.target.value" id="new-todo"
+                placeholder="E.g. Feed the cat" />
+            {{ newTodoText }}
+            <button>Add</button>
+        </form>
+        <ul>
+            <todo-item v-for="(todo, index) in todos" :key="todo.id" :title="todo.title"
+                @remove="todos.splice(index, 1)"></todo-item>
+        </ul>
+    </div>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        learningMethods: [
+            { id: 0, stage: 'understood' },
+            { id: 1, stage: 'remembered' },
+            { id: 2, stage: 'applied' },
+            { id: 3, stage: 'best practice' },
+        ],
+        vue: {
+            color: 'green',
+            speed: 'fast',
+            version: '3.0'
+        },
+        versionsSets: [[1, 2, 3], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]],
+        todos: [
+            { id: 1, title: 'solidify foundation!', doWhat: 'solidify foundation!', isComplete: true },
+            { id: 2, title: 'mastery foundation!', doWhat: 'mastery foundation!', isComplete: false },
+            { id: 3, title: 'learning Vue basis', doWhat: 'learning Vue basis!', isComplete: false },
+            { id: 4, title: 'learning React basis!', doWhat: 'learning React basis!', isComplete: false },
+            { id: 5, title: 'create a good project!', doWhat: 'create a good project! ', isComplete: false },
+            { id: 6, title: 'read Vue\'s source code!', doWhat: 'read Vue\'s source code! ', isComplete: false }
+        ],
+        newTodoText: 'think a moment, what to do next?',
+        nextTodoId: 7
+    }
+</script>
+<script>
+    // vanilla
+    const plainHtml = document.querySelector('section[id^="plain-html"]')
+    const ul = document.createElement('ul')
+    // viewState.learningMethods.forEach((item, index, array, viewState) => {
+    viewState.learningMethods.map((item, index, array, viewState) => {
+        const li = document.createElement('li')
+        // li.innerText = `   the format is just the way i set
+        // li.textContent = `  the browser will format it for me
+        li.textContent = ` 
+            ${index} - ${item.stage}
+        `
+        ul.appendChild(li)
+    })
+    plainHtml.appendChild(ul)
+
+    const ul2 = document.createElement('ul')
+    Object.entries(viewState.vue).forEach(
+        ([key, value],
+            index,
+            array
+        ) => {
+            const li = document.createElement('li')
+            li.textContent = ` 
+            ${index}. ${key} - ${value}
+        `
+            ul2.appendChild(li)
+        }, Object.entries(viewState.vue))
+    plainHtml.appendChild(ul2)
+
+
+    const plainTodoInput = document.querySelector("input[id*= 'plain-todo-input']")
+    const plainTodolist = document.querySelector("ul[id$='plain-todolist']")
+    const newTodoTextEl = document.querySelector("p[id^='newTodoText']")
+    newTodoTextEl.textContent = viewState.newTodoText
+    plainTodoInput.value = viewState.newTodoText
+    plainTodoInput.addEventListener('input', function (event) {
+        this.value = event.target.value
+        viewState.newTodoText = this.value
+        newTodoTextEl.textContent = viewState.newTodoText
+    })
+
+    function handleSubmit() {
+        viewState.todos.push({
+            id: viewState.nextTodoId++,
+            title: viewState.newTodoText,
+            doWhat: viewState.newTodoText,
+            isComplete: false
+        })
+        const li = document.createElement('li')
+        const index = plainTodolist.length
+        li.innerHTML = `
+            ${viewState.newTodoText} <button onclick="removeChildNode(event, ${index})">Remove</button>
+            `
+        plainTodolist.appendChild(li)
+        viewState.newTodoText = ''
+        plainTodoInput.value = ''
+        newTodoTextEl.textContent = ''
+    }
+    function removeChildNode(event, index) {
+
+        // event.target.parentNode.removeChild(event.target)
+        // button - li - ul
+        console.info(
+            event,
+            event.target,
+            event.target.parentNode,
+            event.target.parentNode.parentNode
+        )
+        // event.target - event.target.parentNode - event.target.parentNode.parentNode
+        // ChildNode.remove() vs Node.removeChild()
+        event.target.parentNode.parentNode.removeChild(event.target.parentNode)
+        viewState.todos.splice(index, 1)
+    }
+    viewState.todos.forEach(
+        (todo,
+            index,
+            array
+        ) => {
+            const li = document.createElement('li')
+            li.innerHTML = `
+            ${todo.title} <button onclick="removeChildNode(event, ${index})">Remove</button>
+            `
+            plainTodolist.appendChild(li)
+        }, viewState.todos)
+
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState
+            }
+        },
+        computed: {
+            filtered() {
+                return this.learningMethods.filter(item => item.id < 2)
+            }
+        },
+        methods: {
+            even(versions) {
+                return versions.filter(version => version % 2 === 0)
+            },
+            addNewTodo() {
+                this.todos.push({
+                    id: this.nextTodoId++,
+                    title: this.newTodoText
+                })
+                this.newTodoText = ''
+            }
+        }
+    }
+    const vueInstance = Vue.createApp(options)
+    vueInstance.component('todo-item', {
+        template: `
+            <li>
+                {{ title }}
+                <button @click="$emit('remove')">Remove</button>
+            </li>
+        `,
+        props: ['title']
+    })
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    function LiComponent(props) {
+        const type = props.type
+        const iterable = props.iterable
+        const index = props.index
+        if (type === 'Object') {
+            return <li>{index}. {iterable.key} : {iterable.value}</li>
+        } else if (type === 'Array') {
+            return <li>{index} - {iterable.stage}</li>
+        }
+
+    }
+    function UlComponent(props) {
+        const iterable = props.iterable
+        if (props.type === 'Object') {
+            return (<ul>
+                {
+                    Object.entries(iterable).map(([key, value], index) =>
+                        <LiComponent iterable={{ key, value }}
+                            index={index}
+                            key={key}
+                            type={'Object'} />
+                    )
+                }
+            </ul>)
+        } else if (props.type === 'Array') {
+            return <ul>
+                {iterable.map((iterable, index) =>
+                    <LiComponent iterable={iterable}
+                        index={index}
+                        key={iterable.id.toString()}
+                        type={'Array'} />
+                )}
+            </ul>
+        }
+
+    }
+    // function TodoListExample(props) {
+    //     const newTodoText = props.newTodoText
+    //     const todos = props.todos
+    //     function addNewTodo(e) {
+    //         event.preventDefault()
+    //     }
+    //     function handleInputChange(e) {
+
+    //     }
+    //     return
+    //     <div>
+    //         <form onSubmit={addNewTodo}>
+    //             <input value={newTodoText} onChange={handleInputChange} />
+    //         </form>
+    //         <ul>
+    //             <Todolist />
+    //         </ul>
+    //     </div>
+    // }
+    // id: 1, title: 'solidify foundation!', doWhat: 'solidify foundation!', isComplete: true
+    // function Todolist(props) {
+    //     const todos = props.todos
+    //     return <li>{todos.title} <button>Remove</button></li>
+    // }
+    class TodoListExample extends React.Component {
+        constructor(props) {
+            super(props)
+            this.state = {
+                newTodoText: props.newTodoText,
+                todos: props.todos,
+                nextTodoId: props.nextTodoId
+            }
+            this.addNewTodo = this.addNewTodo.bind(this)
+            this.handleInputChange = this.handleInputChange.bind(this)
+            this.removeLi = this.removeLi.bind(this)
+        }
+        addNewTodo(e) {
+            e.preventDefault()
+            this.setState(state => {
+                state.todos.push({
+                    id: state.nextTodoId++,
+                    title: state.newTodoText,
+                    doWhat: state.newTodoText,
+                    isComplete: false
+                })
+                this.state.newTodoText = ''
+                return state.todos
+            })
+        }
+        handleInputChange(event) {
+            event.persist()
+            this.setState(state => ({
+                newTodoText: event.target.value
+            }))
+        }
+
+        removeLi(index, event) {
+            console.info("index", index)
+            console.info("event", event)
+
+            this.setState(state => (
+                state.todos.splice(index, 1)
+            ))
+        }
+        // bad practice 
+        // <label for={'todo-input'}>Add a todo</label>
+        // Warning: Invalid DOM property `for`. Did you mean `htmlFor`?
+        render() {
+            return (
+                <div>
+                    <form onSubmit={this.addNewTodo}>
+                        <label>Add a todo:
+                            <input value={this.state.newTodoText} onChange={this.handleInputChange} id="todo-input" />
+                        </label>
+                        <p>{this.state.newTodoText}</p>
+                        <button>Add</button>
+                    </form>
+                    <ul>
+                        {
+                            this.state.todos.map((todo, index) => (
+                                // bad practice
+                                // <li key={index}>{todo.title} <button onClick={this.removeLi}>Remove</button></li>
+                                // In this case event evaluates to: DOMContentLoaded
+                                // bad practice
+                                // <li key={index}>{todo.title} <button onClick={this.removeLi( index, event)}>Remove</button></li>
+                                // In this case event evaluates to: DOMContentLoaded
+                                // bad practice
+                                // <li key={index}>{todo.title} <button onClick={this.removeLi.bind(this, index, event)}>Remove</button></li>
+                                // In this case event evaluates to: DOMContentLoaded
+                                // good practice
+                                <li key={index}>{todo.title} <button onClick={(event) => this.removeLi(index, event)}>Remove</button></li>
+                                // In this case event evaluates to: click event Object
+                            ))
+                        }
+                    </ul>
+                </div>
+            )
+        }
+        // <Todolist todos={todos} />
+    }
+    const el =
+        <div>
+            <UlComponent iterable={viewState.learningMethods} type={'Array'} />
+            <UlComponent iterable={viewState.vue} type={'Object'} />
+            <TodoListExample newTodoText={viewState.newTodoText} todos={viewState.todos} nextTodoId={viewState.nextTodoId} />
+        </div>
+
+    ReactDOM.render(
+        el,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCMilliseconds())
+    )
+</script>
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

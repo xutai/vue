@@ -1,0 +1,926 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+            </h1>
+        </section>
+        <section>
+        </section>
+        <section id="slot-content">
+            <h2>slot-content</h2>
+            <p>Vue implements a content distribution API inspired by the Web Components spec draft, using the
+                &lt;slot&gt; element to serve as distribution outlets for content.</p>
+            <p>This allows you to compose components like this:</p>
+            <pre><code>
+&lt;todo-button&gt;
+  Add todo
+&lt;/todo-button&gt;
+            </code></pre>
+            <p>Then in the template for &lt;todo-button&gt;, you might have:</p>
+            <pre><code>
+&lt;!-- todo-button component template --&gt;
+&lt;button class=&quot;btn-primary&quot;&gt;
+  &lt;slot&gt;&lt;/slot&gt;
+&lt;/button&gt;
+            </code></pre>
+            <p>When the component renders, &lt;slot&gt;&lt;/slot&gt; will be replaced by &quot;Add Todo&quot;.</p>
+            <pre><code>
+&lt;!-- rendered HTML --&gt;
+&lt;button class=&quot;btn-primary&quot;&gt;
+  Add todo
+&lt;/button&gt;
+            </code></pre>
+            <p>When the component renders, &lt;slot&gt;&lt;/slot&gt; will be replaced by &quot;Add Todo&quot;.</p>
+            <pre><code>
+&lt;!-- rendered HTML --&gt;
+&lt;button class=&quot;btn-primary&quot;&gt;
+  Add todo
+&lt;/button&gt;
+            </code></pre>
+            <p>Strings are just the beginning though! Slots can also contain any template code, including HTML:</p>
+            <pre><code>
+&lt;todo-button&gt;
+  &lt;!-- Add a Font Awesome icon --&gt;
+  &lt;i class=&quot;fas fa-plus&quot;&gt;&lt;/i&gt;
+  Add todo
+&lt;/todo-button&gt;
+            </code></pre>
+            <p>Or even other components:</p>
+            <pre><code>
+&lt;todo-button&gt;
+  &lt;!-- Use a component to add an icon --&gt;
+  &lt;font-awesome-icon name=&quot;plus&quot;&gt;&lt;/font-awesome-icon&gt;
+  Your Profile
+&lt;/todo-button&gt;
+            </code></pre>
+            <p>If &lt;todo-button&gt;&apos;s template did not contain a &lt;slot&gt; element, any content provided
+                between its opening and closing tag would be discarded.</p>
+            <pre><code>
+&lt;!-- todo-button component template --&gt;
+
+&lt;button class=&quot;btn-primary&quot;&gt;
+  Create a new item
+&lt;/button&gt;
+            </code></pre>
+            <pre><code>
+&lt;todo-button&gt;
+  &lt;!-- Following text won&apos;t be rendered --&gt;
+  Add todo
+&lt;/todo-button&gt;
+            </code></pre>
+        </section>
+        <section id="render-scope">
+            <h2>render-scope</h2>
+            <p>When you want to use data inside a slot, such as in:</p>
+            <pre><code>
+&lt;todo-button&gt;
+  Delete a {{ item.name }}
+&lt;/todo-button&gt;
+            </code></pre>
+            <p>That slot has access to the same instance properties (i.e. the same &quot;scope&quot;) as the rest of the
+                template.</p>
+            <picture>
+                <source srcset="https://v3.vuejs.org/images/slot.png" media="(min-width: 800px)" type="image/png">
+                <img src="https://v3.vuejs.org/images/slot.png" alt="https://v3.vuejs.org/images/slot.png" srcset="">
+            </picture>
+            <p>The slot does not have access to &lt;todo-button&gt;&apos;s scope. For example, trying to access action
+                would not work:</p>
+            <pre><code>
+&lt;todo-button action=&quot;delete&quot;&gt;
+  Clicking here will {{ action }} an item
+  &lt;!--
+  The &grave;action&grave; will be undefined, because this content is passed
+  _to_ &lt;todo-button&gt;, rather than defined _inside_ the
+  &lt;todo-button&gt; component.
+  --&gt;
+&lt;/todo-button&gt;
+            </code></pre>
+            <p class="question">
+                what does this "action" attribute do here?
+            </p>
+            <p>As a rule, remember that:</p>
+            <blockquote>
+                <p>Everything in the parent template is compiled in parent scope; everything in the child template is
+                    compiled in the child scope.</p>
+            </blockquote>
+        </section>
+        <section id="fallback-content">
+            <h2>fallback-content</h2>
+            <p>There are cases when it&#x27;s useful to specify fallback (i.e. default) content for a slot, to be
+                rendered only when no content is provided. For example, in a &#x3C;submit-button&#x3E; component:</p>
+            <pre><code>
+&#x3C;button type=&#x22;submit&#x22;&#x3E;
+  &#x3C;slot&#x3E;&#x3C;/slot&#x3E;
+&#x3C;/button&#x3E;
+
+            </code></pre>
+            <p>We might want the text &#x22;Submit&#x22; to be rendered inside the &#x3C;button&#x3E; most of the time.
+                To make &#x22;Submit&#x22; the fallback content, we can place it in between the &#x3C;slot&#x3E; tags:
+            </p>
+            <pre><code>
+&#x3C;button type=&#x22;submit&#x22;&#x3E;
+  &#x3C;slot&#x3E;Submit&#x3C;/slot&#x3E;
+&#x3C;/button&#x3E;
+
+            </code></pre>
+            <p>Now when we use &#x3C;submit-button&#x3E; in a parent component, providing no content for the slot:</p>
+            <pre><code>
+&#x3C;submit-button&#x3E;&#x3C;/submit-button&#x3E;
+
+            </code></pre>
+            <p>will render the fallback content, "Submit":</p>
+            <pre><code>
+&#x3C;button type=&#x22;submit&#x22;&#x3E;
+  Submit
+&#x3C;/button&#x3E;
+
+            </code></pre>
+            <p>But if we provide content:</p>
+            <pre><code>
+&lt;submit-button&gt;
+  Save
+&lt;/submit-button&gt;
+
+            </code></pre>
+            <p>Then the provided content will be rendered instead:</p>
+            <pre><code>
+&lt;button type=&quot;submit&quot;&gt;
+  Save
+&lt;/button&gt;
+
+            </code></pre>
+        </section>
+        <section id="named-slots">
+            <h2>named-slots</h2>
+            <p>There are times when it&apos;s useful to have multiple slots. For example, in a &lt;base-layout&gt;
+                component with the following template:</p>
+            <pre><code>
+&lt;div class=&quot;container&quot;&gt;
+  &lt;header&gt;
+    &lt;!-- We want header content here --&gt;
+  &lt;/header&gt;
+  &lt;main&gt;
+    &lt;!-- We want main content here --&gt;
+  &lt;/main&gt;
+  &lt;footer&gt;
+    &lt;!-- We want footer content here --&gt;
+  &lt;/footer&gt;
+&lt;/div&gt;
+
+            </code></pre>
+            <p>For these cases, the &lt;slot&gt; element has a special attribute, name, which can be used to assign a
+                unique ID to different slots so you can determine where content should be rendered:</p>
+            <pre><code>
+&lt;div class=&quot;container&quot;&gt;
+  &lt;header&gt;
+    &lt;slot name=&quot;header&quot;&gt;&lt;/slot&gt;
+  &lt;/header&gt;
+  &lt;main&gt;
+    &lt;slot&gt;&lt;/slot&gt;
+  &lt;/main&gt;
+  &lt;footer&gt;
+    &lt;slot name=&quot;footer&quot;&gt;&lt;/slot&gt;
+  &lt;/footer&gt;
+&lt;/div&gt;
+
+            </code></pre>
+            <p>A &lt;slot&gt; outlet without name implicitly has the name &quot;default&quot;.</p>
+            <p>A &lt;slot&gt; outlet without name iaTo provide content to named slots, we need to use the v-slot
+                directive on a &lt;template&gt; element, providing the name of the slot as v-slot&apos;s
+                argument:mplicitly has the name &quot;default&quot;.</p>
+            <pre><code>
+&lt;base-layout&gt;
+  &lt;template v-slot:header&gt;
+    &lt;h1&gt;Here might be a page title&lt;/h1&gt;
+  &lt;/template&gt;
+
+  &lt;template v-slot:default&gt;
+    &lt;p&gt;A paragraph for the main content.&lt;/p&gt;
+    &lt;p&gt;And another one.&lt;/p&gt;
+  &lt;/template&gt;
+
+  &lt;template v-slot:footer&gt;
+    &lt;p&gt;Here&apos;s some contact info&lt;/p&gt;
+  &lt;/template&gt;
+&lt;/base-layout&gt;
+
+            </code></pre>
+            <p>Now everything inside the &lt;template&gt; elements will be passed to the corresponding slots.</p>
+            <p>The rendered HTML will be:</p>
+            <pre><code>
+&lt;div class=&quot;container&quot;&gt;
+  &lt;header&gt;
+    &lt;h1&gt;Here might be a page title&lt;/h1&gt;
+  &lt;/header&gt;
+  &lt;main&gt;
+    &lt;p&gt;A paragraph for the main content.&lt;/p&gt;
+    &lt;p&gt;And another one.&lt;/p&gt;
+  &lt;/main&gt;
+  &lt;footer&gt;
+    &lt;p&gt;Here&apos;s some contact info&lt;/p&gt;
+  &lt;/footer&gt;
+&lt;/div&gt;
+
+            </code></pre>
+            <p>Note that v-slot can only be added to a &lt;template&gt; (with one exception)</p>
+        </section>
+        <section id="scoped-slots">
+            <h2>scoped-slots</h2>
+            <p>Sometimes, it's useful for slot content to have access to data only available in the child component.
+                It's a common case when a component is used to render an array of items, and we want to be able to
+                customize the way each item is rendered.</p>
+            <p>For example, we have a component, containing a list of todo-items.</p>
+            <pre><code>
+app.component(&apos;todo-list&apos;, {
+    data() {
+        return {
+        items: [&apos;Feed a cat&apos;, &apos;Buy milk&apos;]
+        }
+    },
+    template: &grave;
+        &lt;ul&gt;
+        &lt;li v-for=&quot;(item, index) in items&quot;&gt;
+            {{ item }}
+        &lt;/li&gt;
+        &lt;/ul&gt;
+    &grave;
+    })
+            </code></pre>
+            <p>We might want to replace the slot to customize it on parent component:</p>
+            <pre><code>
+&lt;todo-list&gt;
+  &lt;i class=&quot;fas fa-check&quot;&gt;&lt;/i&gt;
+  &lt;span class=&quot;green&quot;&gt;{{ item }}&lt;span&gt;
+&lt;/todo-list&gt;
+
+            </code></pre>
+            <p>That won&apos;t work, however, because only the &lt;todo-list&gt; component has access to the item and we
+                are providing the slot content from its parent.</p>
+            <p>To make item available to the slot content provided by the parent, we can add a &lt;slot&gt; element and
+                bind it as an attribute:</p>
+            <pre><code>
+&lt;ul&gt;
+  &lt;li v-for=&quot;( item, index ) in items&quot;&gt;
+    &lt;slot v-bind:item=&quot;item&quot;&gt;&lt;/slot&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+            </code></pre>
+            <p>Attributes bound to a &lt;slot&gt; element are called slot props. Now, in the parent scope, we can use
+                v-slot with a value to define a name for the slot props we&apos;ve been provided:</p>
+            <pre><code>
+&lt;todo-list&gt;
+  &lt;template v-slot:default=&quot;slotProps&quot;&gt;
+    &lt;i class=&quot;fas fa-check&quot;&gt;&lt;/i&gt;
+    &lt;span class=&quot;green&quot;&gt;{{ slotProps.item }}&lt;span&gt;
+  &lt;/template&gt;
+&lt;/todo-list&gt;
+
+            </code></pre>
+            <picture>
+                <source srcset="https://v3.vuejs.org/images/scoped-slot.png" media="(min-width: 800px)"
+                    type="image/png">
+                <img src="https://v3.vuejs.org/images/scoped-slot.png" alt="https://v3.vuejs.org/images/scoped-slot.png"
+                    srcset="">
+            </picture>
+            <p>In this example, we've chosen to name the object containing all our slot props slotProps, but you can use
+                any name you like.</p>
+        </section>
+        <section id="abbreviated-syntax-for-lone-default-slots">
+            <h3>abbreviated-syntax-for-lone-default-slots</h3>
+            <p>In cases like above, when only the default slot is provided content, the component's tags can be used as
+                the slot's template. This allows us to use v-slot directly on the component:</p>
+            <pre><code>
+&lt;todo-list v-slot:default=&quot;slotProps&quot;&gt;
+  &lt;i class=&quot;fas fa-check&quot;&gt;&lt;/i&gt;
+  &lt;span class=&quot;green&quot;&gt;{{ slotProps.item }}&lt;span&gt;
+&lt;/todo-list&gt;
+
+            </code></pre>
+            <p>This can be shortened even further. Just as non-specified content is assumed to be for the default slot,
+                v-slot without an argument is assumed to refer to the default slot:</p>
+            <pre><code>
+&lt;todo-list v-slot=&quot;slotProps&quot;&gt;
+  &lt;i class=&quot;fas fa-check&quot;&gt;&lt;/i&gt;
+  &lt;span class=&quot;green&quot;&gt;{{ slotProps.item }}&lt;span&gt;
+&lt;/todo-list&gt;
+
+            </code></pre>
+            <p>Note that the abbreviated syntax for default slot cannot be mixed with named slots, as it would lead to
+                scope ambiguity:</p>
+            <pre><code>
+&lt;!-- INVALID, will result in warning --&gt;
+&lt;todo-list v-slot=&quot;slotProps&quot;&gt;
+  &lt;todo-list v-slot:default=&quot;slotProps&quot;&gt;
+    &lt;i class=&quot;fas fa-check&quot;&gt;&lt;/i&gt;
+    &lt;span class=&quot;green&quot;&gt;{{ slotProps.item }}&lt;span&gt;
+  &lt;/todo-list&gt;
+  &lt;template v-slot:other=&quot;otherSlotProps&quot;&gt;
+    slotProps is NOT available here
+  &lt;/template&gt;
+&lt;/todo-list&gt;
+
+            </code></pre>
+            <p>Whenever there are multiple slots, use the full &lt;template&gt; based syntax for all slots:</p>
+            <pre><code>
+&lt;todo-list&gt;
+  &lt;template v-slot:default=&quot;slotProps&quot;&gt;
+    &lt;i class=&quot;fas fa-check&quot;&gt;&lt;/i&gt;
+    &lt;span class=&quot;green&quot;&gt;{{ slotProps.item }}&lt;span&gt;
+  &lt;/template&gt;
+
+  &lt;template v-slot:other=&quot;otherSlotProps&quot;&gt;
+    ...
+  &lt;/template&gt;
+&lt;/current-user&gt;
+
+            </code></pre>
+        </section>
+        <section id="destructuring-slot-props">
+            <h3>destructuring-slot-props</h3>
+            <p>Internally, scoped slots work by wrapping your slot content in a function passed a single argument:</p>
+            <pre><code>
+function (slotProps) {
+// ... slot content ...
+}
+                  
+            </code></pre>
+            <p>That means the value of v-slot can actually accept any valid JavaScript expression that can appear in the
+                argument position of a function definition. So you can also use ES2015 destructuring to pull out
+                specific slot props, like so:</p>
+            <pre><code>
+&lt;todo-list v-slot=&quot;{ item }&quot;&gt;
+  &lt;i class=&quot;fas fa-check&quot;&gt;&lt;/i&gt;
+  &lt;span class=&quot;green&quot;&gt;{{ item }}&lt;span&gt;
+&lt;/todo-list&gt;
+
+            </code></pre>
+            <p>This can make the template much cleaner, especially when the slot provides many props. It also opens
+                other possibilities, such as renaming props, e.g. item to todo:</p>
+            <pre><code>
+&lt;todo-list v-slot=&quot;{ item: todo }&quot;&gt;
+  &lt;i class=&quot;fas fa-check&quot;&gt;&lt;/i&gt;
+  &lt;span class=&quot;green&quot;&gt;{{ todo }}&lt;span&gt;
+&lt;/todo-list&gt;
+
+            </code></pre>
+            <p>You can even define fallbacks, to be used in case a slot prop is undefined:</p>
+            <pre><code>
+&lt;todo-list v-slot=&quot;{ item = &apos;Placeholder&apos; }&quot;&gt;
+  &lt;i class=&quot;fas fa-check&quot;&gt;&lt;/i&gt;
+  &lt;span class=&quot;green&quot;&gt;{{ item }}&lt;span&gt;
+&lt;/todo-list&gt;
+
+            </code></pre>
+        </section>
+        <section id="dynamic-slot-names">
+            <h2>dynamic-slot-names</h2>
+            <p>Dynamic directive arguments also work on v-slot, allowing the definition of dynamic slot names:</p>
+            <pre><code>
+&lt;base-layout&gt;
+  &lt;template v-slot:[dynamicSlotName]&gt;
+    ...
+  &lt;/template&gt;
+&lt;/base-layout&gt;
+
+            </code></pre>
+            <p class="question">
+                what does "dynamicSlotName" do here?
+            </p>
+        </section>
+        <section id="named-slots-shorthand">
+            <h2>named-slots-shorthand</h2>
+            <p>Similar to v-on and v-bind, v-slot also has a shorthand, replacing everything before the argument (v-slot:) with the special symbol #. For example, v-slot:header can be rewritten as #header:</p>
+            <pre><code>
+&lt;base-layout&gt;
+  &lt;template #header&gt;
+    &lt;h1&gt;Here might be a page title&lt;/h1&gt;
+  &lt;/template&gt;
+
+  &lt;template #default&gt;
+    &lt;p&gt;A paragraph for the main content.&lt;/p&gt;
+    &lt;p&gt;And another one.&lt;/p&gt;
+  &lt;/template&gt;
+
+  &lt;template #footer&gt;
+    &lt;p&gt;Here&apos;s some contact info&lt;/p&gt;
+  &lt;/template&gt;
+&lt;/base-layout&gt;
+
+            </code></pre>
+            <p>However, just as with other directives, the shorthand is only available when an argument is provided. That means the following syntax is invalid:</p>
+            <pre><code>
+&lt;!-- This will trigger a warning --&gt;
+
+&lt;todo-list #=&quot;{ item }&quot;&gt;
+  &lt;i class=&quot;fas fa-check&quot;&gt;&lt;/i&gt;
+  &lt;span class=&quot;green&quot;&gt;{{ item }}&lt;span&gt;
+&lt;/todo-list&gt;
+
+            </code></pre>
+            <p>Instead, you must always specify the name of the slot if you wish to use the shorthand:</p>
+            <pre><code>
+&lt;todo-list #default=&quot;{ item }&quot;&gt;
+  &lt;i class=&quot;fas fa-check&quot;&gt;&lt;/i&gt;
+  &lt;span class=&quot;green&quot;&gt;{{ item }}&lt;span&gt;
+&lt;/todo-list&gt;
+
+            </code></pre>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [{
+                        text: '#slot-content',
+                        href: '#slot-content',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#render-scope',
+                        href: '#render-scope',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#fallback-content',
+                        href: '#fallback-content',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#named-slots',
+                        href: '#named-slots',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#scoped-slots',
+                        href: '#scoped-slots',
+                        subItems: [{
+                                text: '#abbreviated-syntax-for-lone-default-slots',
+                                href: '#abbreviated-syntax-for-lone-default-slots'
+                            },
+                            {
+                                text: '#destructuring-slot-props',
+                                href: '#destructuring-slot-props'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#dynamic-slot-names',
+                        href: '#dynamic-slot-names',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#named-slots-shorthand',
+                        href: '#named-slots-shorthand',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <div id="slot-content">
+        <hr>
+        <discarded-content action="slots.renderScope">
+            <!-- Following text won't be rendered -->
+            html: discarded content;
+            {{action}}
+        </discarded-content>
+        <simple-string>
+            html: simple string;
+        </simple-string>
+        <other-component>
+            <font-awesome-icon name="plus"></font-awesome-icon>
+            Your profile
+        </other-component>
+    </div>
+    <hr>
+    <div id="render-scope">
+        <data-inside-slot action="slots.renderScope">
+            Delete a {{slots.renderScope}}
+            <br>
+            Clicking here will {{ action }} an item
+            <!--
+  The `action` will be undefined, because this content is passed
+  _to_ <data-inside-slot>, rather than defined _inside_ the
+  <data-inside-slot> component.
+  -->
+        </data-inside-slot>
+    </div>
+    <hr>
+    <div id="render-scope-abbreviated-syntax-for-lone-default-slots">
+
+    </div>
+    <hr>
+    <div id="fallback-content">
+        <fallback-content-no-content></fallback-content-no-content>
+        <fallback-content-content-provided>
+            content-provided
+        </fallback-content-content-provided>
+    </div>
+    <hr>
+    <div id="named-slots">
+        <named-slots>
+            <template v-slot:header>
+                <details>
+                    <summary>v-slot:header</summary>
+                    <p>Here might be a page title</p>
+                </details>
+            </template>
+
+            <template v-slot:default>
+                <details>
+                    <summary>v-slot:default</summary>
+                    <p>A paragraph for the main content.</p>
+                    <p>And another one.</p>
+                </details>
+            </template>
+
+            <template v-slot:footer>
+                <details>
+                    <summary>v-slot:footer</summary>
+                    <p>Here's some contact info</p>
+                </details>
+            </template>
+        </named-slots>
+    </div>
+    <div id="scoped-slots">
+        <scoped-slots-failed>
+            <i class="fas fa-check"></i>
+            <span>{{ item }}</span>
+        </scoped-slots-failed>
+        <scoped-slots-succeed>
+            <template v-slot:default="slotProps">
+                <!-- <template v-slot="slotProps"> -->
+                <i class="fas fa-check"></i>
+                <span>{{ slotProps.item }}</span>
+            </template>
+        </scoped-slots-succeed>
+    </div>
+    <hr>
+    <div id="scoped-slots-abbreviated-syntax-for-lone-default-slot">
+        <scoped-slots-abbreviated-syntax-for-lone-default-slot>
+            <template v-slot:default="slotProps">
+                <span>{{ slotProps.item }}</span>
+            </template>
+            <template v-slot:other="slotProps">
+                <i class="fas fa-check"></i>
+                <span>{{ slotProps.item }}</span>
+            </template>
+        </scoped-slots-abbreviated-syntax-for-lone-default-slot>
+    </div>
+    <hr>
+    <div id="scoped-slots-destructuring-slot-props">
+        <!-- v1 -->
+        <!-- <scoped-slots-destructuring-slot-props v-slot="{ item }">
+            <i class="fas fa-check"></i>
+            <span>{{ item }}</span>
+        </scoped-slots-destructuring-slot-props> -->
+        <!-- v2 renaming props -->
+        <!-- <scoped-slots-destructuring-slot-props v-slot="{ item: renamedItem }">
+            <i class="fas fa-check"></i>
+            <span>{{ renamedItem }}</span>
+        </scoped-slots-destructuring-slot-props> -->
+        <!-- v3 fallbacks -->
+        <scoped-slots-destructuring-slot-props v-slot="{ item = 'define', fallback = 'fallback placeholder' }">
+            <i class="fas fa-check"></i>
+            <span>item: {{ item }} - <br> fallback: {{fallback}}</span>
+        </scoped-slots-destructuring-slot-props>
+    </div>
+    <hr>
+    <div id="dynamic-slot-names">
+        <!-- v1 -->
+        <dynamic-slot-names>
+            <template v-slot:[dynamicSlotName]="{d, a, b}">
+                <span>why is ignored: {{dynamicSlotName}} {{d}}?</span>
+            </template>
+        </dynamic-slot-names>
+    </div>
+    <hr>
+    <div id="named-slots-shorthand">
+        <named-slots-shorthand>
+            <template #default="{ defaultSlotValuePassFromTemplateScopeToParentScope }">
+                <span>default - {{defaultSlotValuePassFromTemplateScopeToParentScope}} - </span>
+            </template>
+            <template #a>
+                <span>a</span>
+            </template>
+            <template #b>
+                <span>b</span>
+            </template>
+        </named-slots-shorthand>
+    </div>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [{
+                id: 1,
+                title: 'Learn React',
+                content: 'React is sky blue!'
+            },
+            {
+                id: 2,
+                title: 'Learn Vue',
+                content: 'Vue is mood Green!'
+            }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+                slots: {
+                    renderScope: 'render scope',
+                },
+                dynamicSlotName: 'b'
+            }
+        },
+        computed: {},
+        beforeCreate() {},
+        created() {
+            console.info(
+                "this.$data", this.$data,
+                "this.$props", this.$props,
+                "this.$el", this.$el,
+                "this.$options", this.$options,
+                "this.$parent", this.$parent,
+                "this.$root", this.$root,
+                "this.$slots", this.$slots,
+                "this.$refs", this.$refs,
+                "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() {},
+        mounted() {},
+        beforeUpdate() {},
+        updated() {},
+        beforeUnmount() {},
+        unmounted() {},
+        errorCaptured: (err, vm, info) => {},
+        renderTracked() {},
+        renderTriggered() {}
+    }
+    const vueInstance = Vue.createApp(options)
+    // slot content
+    vueInstance.component('discarded-content', {
+        template: `
+            <summary>
+                discarded-content - template content;
+            </summary>
+        `
+    })
+    vueInstance.component('simple-string', {
+        template: `
+            <summary>
+                simple-string - template content;
+                <slot></slot>
+            </summary>
+        `
+    })
+    vueInstance.component('font-awesome-icon', {
+        template: `
+        <i>font-awesome-icon</i>
+        `
+    })
+    vueInstance.component('other-component', {
+        template: `
+            <button class="btn-primary">
+                <slot></slot>
+            </button>
+        `
+    })
+    // render scope
+    vueInstance.component('data-inside-slot', {
+        template: `
+            <button class="btn-primary">
+                <slot></slot>
+            </button>
+        `
+    })
+    // fallback content
+    vueInstance.component('fallback-content-no-content', {
+        template: `
+            <button type="submit">
+                <slot>fallback content</slot>
+            </button>
+        `
+    })
+    vueInstance.component('fallback-content-content-provided', {
+        template: `
+            <button type="submit">
+                <slot>fallback content: submit</slot>
+            </button>
+        `
+    })
+    // named slots
+    vueInstance.component('named-slots', {
+        template: `
+        <div>
+            <div>
+                <slot name="header"></slot>
+            </div>
+            <div>
+                <slot></slot>
+            </div>
+            <div>
+                <slot name="footer"></slot>
+            </div>
+        </div>
+        `
+    })
+    // scoped slots
+    vueInstance.component('scoped-slots-failed', {
+        data() {
+            return {
+                items: [
+                    'learn slots - abbreviated syntax for lone default slots',
+                    'learn slots - destructuring slot props'
+                ]
+            }
+        },
+        template: `
+        <ul>
+            <li v-for="(item, index) in items">
+                {{ item }}
+            </li>
+        </ul>
+        `
+    })
+    vueInstance.component('scoped-slots-succeed', {
+        data() {
+            return {
+                items: [
+                    'attribute bound to a slot element are called slot props',
+                    'in the parent scope, we can use v-slot with a value to define a name for the slot props'
+                ]
+            }
+        },
+        template: `
+        <ul>
+            <li v-for="(item, index) in items">
+                <slot v-bind:item="item"></slot>
+            </li>
+        </ul>
+  
+        `
+    })
+    vueInstance.component('scoped-slots-abbreviated-syntax-for-lone-default-slot', {
+        data() {
+            return {
+                items: [
+                    'attribute bound to a slot element are called slot props',
+                    'in the parent scope, we can use v-slot with a value to define a name for the slot props'
+                ]
+            }
+        },
+        template: `
+        <ul>
+            <li v-for="(item, index) in items">
+                <slot v-bind:item="index" name="default"></slot>
+                <slot v-bind:item="item" name="other"></slot>
+            </li>
+        </ul>
+  
+        `
+    })
+    vueInstance.component('scoped-slots-destructuring-slot-props', {
+        data() {
+            return {
+                items: [
+                    'the value of v-slot can actually accept any valid JavaScript expression that can appear in the argument position of a function definition.',
+                    'So you can also use ES2015 destructuring to pull out specific slot props'
+                ]
+            }
+        },
+        template: `
+        <ul>
+            <li v-for="(item, index) in items">
+                <slot v-bind:item="item" name="default"></slot>
+            </li>
+        </ul>
+  
+        `
+    })
+    // dynamic slot names
+    vueInstance.component('dynamic-slot-names', {
+        data() {
+            return {}
+        },
+        template: `
+            <details>
+                <summary>dynamic slot names</summary>
+                <slot name="default" v-bind:d="'d'">default...</slot>
+                <slot name="a" v-bind:d="'a'">a...</slot>
+                <slot name="b" v-bind:d="'b'">b...</slot>
+            </details>
+        `
+    })
+    // named slots shorthand
+    vueInstance.component('named-slots-shorthand', {
+        data() {
+            return {}
+        },
+        template: `
+            <details>
+                <summary>named-slots-shorthand</summary>
+                <slot name="default" v-bind:defaultSlotValuePassFromTemplateScopeToParentScope="'blah blah'">default...</slot>
+                <slot name="a">a...</slot>
+                <slot name="b">b...</slot>
+            </details>
+        `
+    })
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

@@ -1,0 +1,227 @@
+<section>
+    <h1>The Application Instance</h1>
+    <ul>
+        <li>Creating an Instance</li>
+        <li>Data and Methods</li>
+        <li>Instance Lifecycle Hooks</li>
+        <li>Lifecycle Diagram</li>
+    </ul>
+</section>
+<section>
+    <h2>Creating an Instance</h2>
+    <p>Every Vue application starts by creating a new application instance with the createApp function:</p>
+    <pre><code>
+Vue.createApp(/* options */)
+    </code></pre>
+    <p>After the instance is created, we can mount it, passing a container to mount method. For example, if we want to
+        mount a Vue application on &lt;div id="app"&gt;&lt;/div&gt;, we should pass #app:</p>
+    <pre><code>
+Vue.createApp(/* options */).mount('#app')
+    </code></pre>
+    <p>Although not strictly associated with the MVVM pattern, Vue's design was partly inspired by it. As a convention,
+        we often use the variable <abbr title="ViewModel" class="keyword">vm</abbr> (short for ViewModel) to refer to
+        our instance.</p>
+    <p>When you create an instance, you pass in an options object. The majority of this guide describes how you can use
+        these options to create your desired behavior. For reference, you can also browse the full list of options in
+        the API reference.</p>
+    <p>A Vue application consists of a root instance created with createApp, optionally organized into a tree of nested,
+        reusable components. For example, a todo app's component tree might look like this:</p>
+    <pre><code>
+Root Instance
+└─ TodoList
+   ├─ TodoItem
+   │  ├─ DeleteTodoButton
+   │  └─ EditTodoButton
+   └─ TodoListFooter
+      ├─ ClearTodosButton
+      └─ TodoListStatistics
+    </code></pre>
+    <p>We'll talk about the component system in detail later. For now, just know that all Vue components are also
+        instances, and so accept the same options object.</p>
+</section>
+<section>
+    <h2>Data and Methods</h2>
+    <p>When an instance is created, it adds all the properties found in its data to Vue's reactivity system. When the
+        values of those properties change, the view will "react", updating to match the new values.</p>
+    <p>When this data changes, the view will re-render. It should be noted that properties in data are only reactive if
+        they existed when the instance was created. That means if you add a new property, like:</p>
+    <p>Then changes to b will not trigger any view updates. If you know you'll need a property later, but it starts out
+        empty or non-existent, you'll need to set some initial value. For example:</p>
+    <p>The only exception to this being the use of Object.freeze(), which prevents existing properties from being
+        changed, which also means the reactivity system can't track changes.</p>
+    <p>In addition to data properties, instances expose a number of useful instance properties and methods. These are
+        prefixed with $ to differentiate them from user-defined properties. For example:</p>
+    <p>In the future, you can consult the API reference for a full list of instance properties and methods.</p>
+    <div id="app">
+        <code>g: {{ g }}</code>
+        <code>b: {{ b }}</code>
+        <!-- this will no longer update `foo`! -->
+        <button v-on:click="g = 'baz'">Change it</button>
+    </div>
+    <script>
+        console.log("window.Vue", window.Vue)
+        // Our data object
+        // view!!!
+        const data = {
+            a: 1,
+            c: '',
+            d: 0,
+            e: false,
+            f: [],
+            e: null,
+            g: Symbol('Object.freeze()')
+        }
+
+        // Object.freeze(data)
+
+        // The object is added to the root instance
+        // viewModel
+        const vm = Vue.createApp({
+            data() {
+                // return data
+                return data
+            }
+        }).mount('#app')
+
+        // Getting the property on the instance
+        // returns the one from the original data
+        console.log(vm.a === data.a) // => true
+
+        // Setting the property on the instance
+        // also affects the original data
+        vm.a = 2
+        console.log(vm.a, data.a) // => 2
+
+        vm.b = 'hi'
+        console.log("vm.b", vm.b, "data.b", data.b)
+
+        data.b = 'bbb'
+        console.log("vm.b", vm.b, "data.b", data.b)
+
+        vm.c = 'vue'
+        console.log(vm.c, data.c)
+
+        Object.freeze(data)
+        try {
+            vm.g = 'freezed'
+        } catch (e) {
+            console.error(e)
+        }
+        console.log(vm.g, data.g)
+
+
+        console.log("vm.$data.g", vm.$data.g) 
+    </script>
+    <p class="note">
+        vm.g vs vm.$data.g
+        <br>
+        vm.g may refers to any property, not only data
+        <br>
+        vm.$data.g refer to data only
+    </p>
+    <p class="note">
+        <!-- Model - DOM --> ???
+        <br>
+        View  ---- data {}
+        <br>
+        ViewModel --- Vue.createApp().mount()
+        <br>
+    </p>
+
+</section>
+<section>
+    <h2>Instance Lifecycle Hooks</h2>
+    <p>Each instance goes through a series of initialization steps when it's created - for example, it needs to set up
+        data observation, compile the template, mount the instance to the DOM, and update the DOM when data changes.
+        Along the way, it also runs functions called lifecycle hooks, giving users the opportunity to add their own code
+        at specific stages.</p>
+    <p>For example, the created hook can be used to run code after an instance is created:</p>
+    <p>There are also other hooks which will be called at different stages of the instance's lifecycle, such as mounted,
+        updated, and unmounted. All lifecycle hooks are called with their this context pointing to the current active
+        instance invoking it.</p>
+    <p class="tip">Don't use arrow functions on an options property or callback, such as created: () =>
+        console.log(this.a) or vm.$watch('a', newValue => this.myMethod()). Since an arrow function doesn't have a this,
+        this will be treated as any other variable and lexically looked up through parent scopes until found, often
+        resulting in errors such as Uncaught TypeError: Cannot read property of undefined or Uncaught TypeError:
+        this.myMethod is not a function.</p>
+    <div id="app2"></div>
+    <script>
+        // const obj = {
+        //     fn: () => {
+        //         console.log("this", this)
+        //     },
+        //     fn2: function() {
+        //         console.log("this", this)
+        //     }
+        // }
+        // obj.fn()
+        // obj.fn2()
+
+        // const app = Vue.createApp({
+        //     data() {
+        //         return {
+        //             a: 1
+        //         }
+        //     },
+        //     beforeCreate() {
+        //         console.log('beforeCreate: Called synchronously immediately after the instance has been initialized, before data observation and event/watcher setup. ')
+        //     },
+        //     // bad practice
+        //     // created: () => console.log(this.a)
+        //     created() {
+        //         console.log('created: Called synchronously after the instance is created. At this stage, the instance has finished processing the options which means the following have been set up: data observation, computed properties, methods, watch/event callbacks. However, the mounting phase has not been started, and the $el property will not be available yet.')
+        //         // `this` points to the vm instance
+        //         console.log('a is: ' + this.a) // => "a is: 1"
+        //     }
+        // })
+        // .mount('#app2')
+        // console.log(app)
+        // console.log(app._component.beforeCreate())
+        // console.log(app._component.created())
+
+        // bad practice
+        // app.$watch('a', newValue => this.myMethod())
+    </script>
+    <p class="question">
+        when i do not mount the vue instance(Vue.createApp()) to DOM,
+        <br>
+        vue instance doesn't execute the lifecycle hooks "beforeCreate" and "created",
+        <br>
+        as the console api doesn't log anything?
+    </p>
+</section>
+<section>
+    <h2>Lifecycle Diagram</h2>
+    <p>Below is a diagram for the instance lifecycle. You don't need to fully understand everything going on right now,
+        but as you learn and build more, it will be a useful reference.</p>
+    <picture>
+        <source src="htttp://xutai.site:8083/resources/images/vuejs/lifecycle.png">
+        <img src="htttp://xutai.site:8083/resources/images/vuejs/lifecycle.png" alt="lifecycle">
+    </picture>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+        .color-preview {
+            display: inline-block;
+            /* why inline-block ? not block? */
+            width: 50px;
+            height: 50px
+        }
+    </style>
+    <script src="../../vue.js"></script>
+    <script src="./tween.js@16.3.4.js"></script>
+    <script src="./color-js@1.0.3.js"></script>
+    <!-- https://github.com/tweenjs/tween.js -->
+    <!-- https://github.com/brehaut/color-js -->
+</head>
+<body>
+<div id="demo">
+    <input
+            v-model="colorQuery"
+            v-on:keyup.enter="updateColor"
+            placeholder="Enter a color"
+    >
+    <button @click="updateColor">Update</button>
+    <p>Preview: </p>
+    <span
+            :style="{ backgroundColor: tweenedCSSColor }"
+            class="color-preview"></span>
+    <p>{{ tweenedCSSColor }}</p>
+
+</div>
+<script>
+    var Color = net.brehaut.Color
+    // color.js
+
+    var vm = new Vue({
+        el: '#demo',
+        data: {
+            colorQuery: '',
+            color: {
+                red: 0,
+                green: 0,
+                blue: 0,
+                alpha: 1
+            },
+            tweenedColor: {}
+        },
+        created: function() {
+            this.tweenedColor = Object.assign({}, this.color)
+            // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+            // why not using his.tweenedColor = this.color ??
+            // test if it works : object= object
+        },
+        watch: {
+            color: function() {
+                function animate() {
+                    if (TWEEN.update()) {
+                        // search "TWEEN.update" in tween.js
+                        requestAnimationFrame(animate)
+                        // https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+                    }
+                }
+                new TWEEN.Tween(this.tweenedColor)
+                    .to(this.color, 750)
+                    .start()
+
+                animate()
+            }
+        },
+        computed: {
+            tweenedCSSColor: function() {
+                return new Color({
+                    red: this.tweenedColor.red,
+                    green: this.tweenedColor.green,
+                    blue: this.tweenedColor.blue,
+                    alpha: this.tweenedColor.alpha
+                }).toCSS()
+                // toCSS()  - color.js
+            }
+        },
+        methods: {
+            updateColor: function () {
+                this.color = new Color(this.colorQuery).toRGB()
+                // toRGB() - color.js
+                // search Color(  in color.js,  however no "new: keyword
+                this.colorQuery = ''
+            }
+        },
+
+    })
+
+</script>
+</body>
+</html>

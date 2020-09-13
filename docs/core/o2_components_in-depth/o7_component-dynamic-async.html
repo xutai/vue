@@ -1,0 +1,243 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+            </h1>
+        </section>
+        <section>
+            <ul>
+                <li>dynamic-components-with-keep-alive</li>
+                <li>async-components</li>
+                <ul>
+                    <li>using-with-suspense</li>
+                </ul>
+            </ul>
+        </section>
+        <section id="">
+            <h2>dynamic-components-with-keep-alive</h2>
+            <p>Earlier, we used the is attribute to switch between components in a tabbed interface:</p>
+            <pre><code>
+&lt;component :is=&quot;currentTabComponent&quot;&gt;&lt;/component&gt;
+
+            </code></pre>
+            <p>When switching between these components though, you'll sometimes want to maintain their state or avoid re-rendering for performance reasons. For example, when expanding our tabbed interface a little:</p>
+            <mark>pretend here is an example</mark>
+            <p>You'll notice that if you select a post, switch to the Archive tab, then switch back to Posts, it's no longer showing the post you selected. That's because each time you switch to a new tab, Vue creates a new instance of the currentTabComponent.</p>
+            <p>Recreating dynamic components is normally useful behavior, but in this case, we&apos;d really like those tab component instances to be cached once they&apos;re created for the first time. To solve this problem, we can wrap our dynamic component with a &lt;keep-alive&gt; element:</p>
+            <pre><code>
+&lt;!-- Inactive components will be cached! --&gt;
+&lt;keep-alive&gt;
+  &lt;component :is=&quot;currentTabComponent&quot;&gt;&lt;/component&gt;
+&lt;/keep-alive&gt;
+
+            </code></pre>
+            <mark>pretend here is an example</mark>
+            <p>Now the Posts tab maintains its state (the selected post) even when it's not rendered.</p>
+            <p>Check out more details on &lt;keep-alive&gt; in the API reference</p>
+        </section>
+        <section id="">
+            <h2>async-components</h2>
+            <p>In large applications, we may need to divide the app into smaller chunks and only load a component from the server when it's needed. To make that possible, Vue has a defineAsyncComponent method:</p>
+            <pre><code>
+const app = Vue.createApp({})
+
+const AsyncComp = Vue.defineAsyncComponent(
+  () =&gt;
+    new Promise((resolve, reject) =&gt; {
+      resolve({
+        template: &apos;&lt;div&gt;I am async!&lt;/div&gt;&apos;
+      })
+    })
+)
+
+app.component(&apos;async-example&apos;, AsyncComp)
+
+            </code></pre>
+            <p>As you can see, this method accepts a factory function returning a Promise. Promise's resolve callback should be called when you have retrieved your component definition from the server. You can also call reject(reason) to indicate the load has failed.</p>
+            <p>You can also return a Promise in the factory function, so with Webpack 2 or later and ES2015 syntax you can do:</p>
+            <pre><code>
+import { defineAsyncComponent } from &apos;vue&apos;
+
+const AsyncComp = defineAsyncComponent(() =&gt;
+  import(&apos;./components/AsyncComponent.vue&apos;)
+)
+
+app.component(&apos;async-component&apos;, AsyncComp)
+
+            </code></pre>
+            <p>You can also use defineAsyncComponent when registering a component locally:</p>
+            <pre><code>
+import { createApp, defineAsyncComponent } from &apos;vue&apos;
+
+createApp({
+  // ...
+  components: {
+    AsyncComponent: defineAsyncComponent(() =&gt;
+      import(&apos;./components/AsyncComponent.vue&apos;)
+    )
+  }
+})
+
+            </code></pre>
+        </section>
+        <section id="">
+            <h3>using-with-suspense</h3>
+            <p>Async components are suspensible by default. This means if it has a &lt;Suspense&gt; in the parent chain, it will be treated as an async dependency of that &lt;Suspense&gt;. In this case, the loading state will be controlled by the &lt;Suspense&gt;, and the component&apos;s own loading, error, delay and timeout options will be ignored.</p>
+            <p>The async component can opt-out of Suspense control and let the component always control its own loading state by specifying suspensible: false in its options.</p>
+            <p>You can check the list of available options in the API Reference</p>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [
+                    {
+                        text: '#dynamic-components-with-keep-alive',
+                        href: '#dynamic-components-with-keep-alive',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#async-components',
+                        href: '#async-components',
+                        subItems: [
+                            {
+                                text: '#using-with-suspense',
+                                href: '#using-with-suspense'
+                            },
+                        ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [
+            { id: 1, title: 'Learn React', content: 'React is sky blue!' },
+            { id: 2, title: 'Learn Vue', content: 'Vue is mood Green!' }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        props: {},
+        computed: {},
+        methods: {},
+        watch: {},
+        emits: {},
+        template: '',
+        render(){}, // don't know what does this do
+        beforeCreate() { },
+        created() {
+            console.info(
+                "this.$data", this.$data,
+                "this.$props", this.$props,
+                "this.$el", this.$el,
+                "this.$options", this.$options,
+                "this.$parent", this.$parent,
+                "this.$root", this.$root,
+                "this.$slots", this.$slots,
+                "this.$refs", this.$refs,
+                "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() { },
+        mounted() { },
+        beforeUpdate() { },
+        updated() { },
+        activated(){},
+        deactivated(){},
+        beforeUnmount() { },
+        unmounted() { },
+        errorCaptured: (err, vm, info) => { },
+        renderTracked() { },
+        renderTriggered() { }
+    }
+    const vueInstance = Vue.createApp(options)
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

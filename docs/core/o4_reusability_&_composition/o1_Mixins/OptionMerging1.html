@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../vue.js"></script>
+
+</head>
+<body>
+<div id="demo">
+    <h1><a href="https://www.vuemastery.com/courses/next-level-vue/mixins/">
+        https://www.vuemastery.com/courses/next-level-vue/mixins/
+    </a></h1>
+
+
+</div>
+<script>
+    var mixin =  {
+        data : function(){
+          return {
+          }
+        },
+        created () {
+            console.log('mixin hook called')
+        },
+        methods: {
+        }
+    }
+
+    var vm = new Vue({
+        el: '#demo',
+        mixins: [mixin],
+        data : function() {
+            return {
+            }
+        },
+        created: function() {
+            console.log('component hook called')
+        },
+        watch: {
+
+        },
+        computed: {
+
+        },
+        methods: {
+
+        },
+
+    })
+
+</script>
+</body>
+</html>

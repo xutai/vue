@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue.js_v2.5.16.js"></script>
+
+</head>
+<body>
+
+<div id="app">
+    <default-slot-content></default-slot-content>
+</div>
+<script>
+    Vue.component('default-slot-content',{
+        template:`
+        <button type="submit">
+  <slot>Content in this slot can be changed in script component template</slot>
+</button>`
+    });
+    var app = new Vue({
+        el: '#app'
+    })
+</script>
+</body>
+</html>

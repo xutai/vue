@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+
+<h4>Non Prop Attributes </h4>
+<h5>Replacing/Merging with Existing Attributes</h5>
+<div id="app">
+    <bootstrap-date-input
+            data-date-picker="actived"
+            class="date-picker-theme-dark"
+    ></bootstrap-date-input>
+</div>
+<script>
+    Vue.component('bootstrap-date-input', {
+        template: '<input type="date" class="form-control">'
+    });
+    new Vue({
+        el: '#app'
+    })
+</script>
+
+
+<h5>Disabling Attribute Inheritance</h5>
+<div id="app2">
+<base-input
+    v-model="username"
+    required
+    placeholder="Enter your username"
+></base-input>
+</div>
+<script>
+    Vue.component('base-input', {
+        inheritAttrs: false,
+        props: ['label', 'value'],
+        template: `
+        <label>
+            {{label}} - {{$attrs}}
+            <input
+                v-bind="$attrs"
+                v-bind:value="value"
+                v-on:input="$emit('input', $event.target.value)"
+            >
+        </label>
+      `
+    });
+    var vm2 = new Vue({
+        el: '#app2',
+        data: {
+            username: ''
+
+        }
+    })
+</script>
+
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <link rel="stylesheet" href="Custom_Directives.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue.js_v2.5.16.js"></script>
+</head>
+<body>
+<section class="section-1">
+<h4>Intro</h4>
+<pre>
+    weird thing is priority : locally  > globally
+    that's why we see the send inpout focused
+</pre>
+<div id="app1">
+    <input type="text" v-focusglobally>
+    <input type="text" v-focuslocally>
+</div>
+
+<script>
+    Vue.directive('focusglobally', {
+        inserted: function (el) {
+            el.focus()
+        }
+    });
+    var app1 = new Vue({
+        el: '#app1',
+        directives: {
+            focuslocally: {
+                inserted: function (el) {
+                    el.focus()
+                }
+            }
+        }
+    });
+</script>
+</section>
+<section class="section-2">
+    <h4>Hook Functions</h4>
+    <pre>
+
+    </pre>
+    <div>
+
+    </div>
+    <script>
+
+    </script>
+</section>
+<section class="section-3">
+    <h4>Directive Hook Arguments</h4>
+    <pre>
+
+    </pre>
+    <div id="app3">
+        <div v-demo="message"></div>
+    </div>
+    <script>
+        Vue.directive('demo', {
+            bind: function (el, binding, vnode) {
+                var s = JSON.stringify
+                el.innerHTML =
+                    'name: ' + s(binding.name) + '<br>'+
+                    'value: ' + s(binding.value) + '<br>'+
+                    'expression' + s(binding.expression) + '<br>'+
+                    'argument: ' + s(binding.arg) + '<br>' +
+                    'modifiers: ' + s(binding.modifiers) + '<br>' +
+                    'vnode keys: ' + Object.keys(vnode).join(', ')
+            }
+        });
+        var app3 = new Vue({
+            el: '#app3',
+            data: {
+                message: 'this is message'
+            }
+        });
+    </script>
+</section>
+<section class="section-4">
+    <h4>Function Shorthand</h4>
+    <pre>
+        see the yellow bg? color string in single quote, then in duoble quote
+    </pre>
+    <div id="app4">
+        <p v-color-swatch="'yellow'">v-color-swatch</p>
+    </div>
+    <script>
+        Vue.directive('color-swatch', function (el, binding) {
+            console.log(binding);
+            el.style.backgroundColor = binding.value
+        });
+        var app4 = new Vue({
+            el: '#app4'
+        });
+    </script>
+</section>
+<section class="section-5">
+    <h4>Object Literals</h4>
+    <pre>
+        still no idea why directive needs multiple values
+        what is the pratical use
+    </pre>
+    <div id="app5">
+        <div v-demo="{ color: 'white', text: 'hello!' }">
+            v-demo="{ color: 'white', text: 'hello!' }"
+        </div>
+    </div>
+    <script>
+        Vue.directive('demo', function (el, binding) {
+            console.log(binding.value.color);
+            console.log(binding.value.text);
+        });
+        var app5 = new Vue({
+            el: '#app5'
+        })
+    </script>
+</section>
+</body>
+</html>

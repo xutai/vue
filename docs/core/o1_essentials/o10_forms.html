@@ -1,0 +1,641 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+                Form Input Bindings
+            </h1>
+        </section>
+        <section>
+        </section>
+        <section id="basic-usage">
+            <h2>basic-usage</h2>
+            <p>You can use the v-model directive to create two-way data bindings on form input, textarea, and select
+                elements. It automatically picks the correct way to update the element based on the input type. Although
+                a bit magical, v-model is essentially syntax sugar for updating data on user input events, plus special
+                care for some edge cases.</p>
+            <p class="info">v-model will ignore the initial value, checked or selected attributes found on any form
+                elements. It will always treat the current active instance data as the source of truth. You should
+                declare the initial value on the JavaScript side, inside the data option of your component.</p>
+            <p>v-model internally uses different properties and emits different events for different input elements:</p>
+            <ul>
+                <li>text and textarea elements use value property and input event;</li>
+                <li>checkboxes and radiobuttons use checked property and change event;</li>
+                <li>select fields use value as a prop and change as an event.</li>
+            </ul>
+            <p class="info">For languages that require an IME (Chinese, Japanese, Korean etc.), you'll notice that
+                v-model doesn't get updated during IME composition. If you want to cater for these updates as well, use
+                input event instead.</p>
+        </section>
+        <section id="text">
+            <h3>text</h3>
+            <pre><code>
+&lt;input v-model=&quot;message&quot; placeholder=&quot;edit me&quot; /&gt;
+&lt;p&gt;Message is: {{ message }}&lt;/p&gt;
+            </code></pre>
+        </section>
+        <section id="multiline-text">
+            <h3>multiline-text</h3>
+            <pre><code>
+&lt;span&gt;Multiline message is:&lt;/span&gt;
+&lt;p style=&quot;white-space: pre-line;&quot;&gt;{{ message }}&lt;/p&gt;
+&lt;br /&gt;
+&lt;textarea v-model=&quot;message&quot; placeholder=&quot;add multiple lines&quot;&gt;&lt;/textarea&gt;
+            </code></pre>
+            <p>Interpolation on textareas won't work. Use v-model instead.</p>
+            <pre><code>
+&lt;!-- bad --&gt;
+&lt;textarea&gt;{{ text }}&lt;/textarea&gt;
+
+&lt;!-- good --&gt;
+&lt;textarea v-model=&quot;text&quot;&gt;&lt;/textarea&gt;
+            </code></pre>
+        </section>
+        <section id="checkbox">
+            <h3>checkbox</h3>
+            <p>Single checkbox, boolean value:</p>
+            <pre><code>
+&lt;input type=&quot;checkbox&quot; id=&quot;checkbox&quot; v-model=&quot;checked&quot; /&gt;
+&lt;label for=&quot;checkbox&quot;&gt;{{ checked }}&lt;/label&gt;
+            </code></pre>
+            <p>Multiple checkboxes, bound to the same Array:</p>
+            <pre><code>
+&lt;div id=&quot;v-model-multiple-checkboxes&quot;&gt;
+  &lt;input type=&quot;checkbox&quot; id=&quot;jack&quot; value=&quot;Jack&quot; v-model=&quot;checkedNames&quot; /&gt;
+  &lt;label for=&quot;jack&quot;&gt;Jack&lt;/label&gt;
+  &lt;input type=&quot;checkbox&quot; id=&quot;john&quot; value=&quot;John&quot; v-model=&quot;checkedNames&quot; /&gt;
+  &lt;label for=&quot;john&quot;&gt;John&lt;/label&gt;
+  &lt;input type=&quot;checkbox&quot; id=&quot;mike&quot; value=&quot;Mike&quot; v-model=&quot;checkedNames&quot; /&gt;
+  &lt;label for=&quot;mike&quot;&gt;Mike&lt;/label&gt;
+  &lt;br /&gt;
+  &lt;span&gt;Checked names: {{ checkedNames }}&lt;/span&gt;
+&lt;/div&gt;
+            </code></pre>
+            <pre><code>
+Vue.createApp({
+    data() {
+        return {
+        checkedNames: []
+        }
+    }
+}).mount('#v-model-multiple-checkboxes')
+            </code></pre>
+        </section>
+        <section id="radio">
+            <h3>radio</h3>
+            <pre><code>
+&lt;div id=&quot;v-model-radiobutton&quot;&gt;
+  &lt;input type=&quot;radio&quot; id=&quot;one&quot; value=&quot;One&quot; v-model=&quot;picked&quot; /&gt;
+  &lt;label for=&quot;one&quot;&gt;One&lt;/label&gt;
+  &lt;br /&gt;
+  &lt;input type=&quot;radio&quot; id=&quot;two&quot; value=&quot;Two&quot; v-model=&quot;picked&quot; /&gt;
+  &lt;label for=&quot;two&quot;&gt;Two&lt;/label&gt;
+  &lt;br /&gt;
+  &lt;span&gt;Picked: {{ picked }}&lt;/span&gt;
+&lt;/div&gt;
+            </code></pre>
+            <pre><code>
+Vue.createApp({
+    data() {
+        return {
+        picked: ''
+        }
+    }
+}).mount('#v-model-radiobutton')
+            </code></pre>
+        </section>
+        <section id="select">
+            <h3>select</h3>
+            <p>Single select:</p>
+            <pre><code>
+&lt;div id=&quot;v-model-select&quot; class=&quot;demo&quot;&gt;
+  &lt;select v-model=&quot;selected&quot;&gt;
+    &lt;option disabled value=&quot;&quot;&gt;Please select one&lt;/option&gt;
+    &lt;option&gt;A&lt;/option&gt;
+    &lt;option&gt;B&lt;/option&gt;
+    &lt;option&gt;C&lt;/option&gt;
+  &lt;/select&gt;
+  &lt;span&gt;Selected: {{ selected }}&lt;/span&gt;
+&lt;/div&gt;
+            </code></pre>
+            <pre><code>
+Vue.createApp({
+    data() {
+        return {
+        selected: ''
+        }
+    }
+}).mount('#v-model-select')
+            </code></pre>
+            <p class="info">If the initial value of your v-model expression does not match any of the options, the
+                &lt;select&gt; element will render in an &quot;unselected&quot; state. On iOS this will cause the user
+                not being able to select the first item because iOS does not fire a change event in this case. It is
+                therefore recommended to provide a disabled option with an empty value, as demonstrated in the example
+                above.</p>
+            <p>Multiple select (bound to Array):</p>
+            <pre><code>
+&lt;select v-model=&quot;selected&quot; multiple&gt;
+  &lt;option&gt;A&lt;/option&gt;
+  &lt;option&gt;B&lt;/option&gt;
+  &lt;option&gt;C&lt;/option&gt;
+&lt;/select&gt;
+&lt;br /&gt;
+&lt;span&gt;Selected: {{ selected }}&lt;/span&gt;
+            </code></pre>
+            <p>Dynamic options rendered with v-for:</p>
+            <pre><code>
+&lt;div id=&quot;v-model-select-dynamic&quot; class=&quot;demo&quot;&gt;
+  &lt;select v-model=&quot;selected&quot;&gt;
+    &lt;option v-for=&quot;option in options&quot; :value=&quot;option.value&quot;&gt;
+      {{ option.text }}
+    &lt;/option&gt;
+  &lt;/select&gt;
+  &lt;span&gt;Selected: {{ selected }}&lt;/span&gt;
+&lt;/div&gt;
+            </code></pre>
+            <pre><code>
+Vue.createApp({
+    data() {
+        return {
+        selected: 'A',
+        options: [
+            { text: 'One', value: 'A' },
+            { text: 'Two', value: 'B' },
+            { text: 'Three', value: 'C' }
+        ]
+        }
+    }
+}).mount('#v-model-select-dynamic')
+            </code></pre>
+        </section>
+        <section id="value-bindings">
+            <h2>value-bindings</h2>
+            <p>For radio, checkbox and select options, the v-model binding values are usually static strings (or
+                booleans for checkbox):</p>
+            <pre><code>
+&lt;!-- &grave;picked&grave; is a string &quot;a&quot; when checked --&gt;
+&lt;input type=&quot;radio&quot; v-model=&quot;picked&quot; value=&quot;a&quot; /&gt;
+
+&lt;!-- &grave;toggle&grave; is either true or false --&gt;
+&lt;input type=&quot;checkbox&quot; v-model=&quot;toggle&quot; /&gt;
+
+&lt;!-- &grave;selected&grave; is a string &quot;abc&quot; when the first option is selected --&gt;
+&lt;select v-model=&quot;selected&quot;&gt;
+  &lt;option value=&quot;abc&quot;&gt;ABC&lt;/option&gt;
+&lt;/select&gt;
+            </code></pre>
+            <p>But sometimes we may want to bind the value to a dynamic property on the current active instance. We can
+                use v-bind to achieve that. In addition, using v-bind allows us to bind the input value to non-string
+                values.</p>
+        </section>
+        <section id="checkbox-2">
+            <h3>checkbox-2</h3>
+            <pre><code>
+&lt;input type=&quot;checkbox&quot; v-model=&quot;toggle&quot; true-value=&quot;yes&quot; false-value=&quot;no&quot; /&gt;
+            </code></pre>
+            <pre><code>
+// when checked:
+vm.toggle === 'yes'
+// when unchecked:
+vm.toggle === 'no'
+            </code></pre>
+            <p class="info">The true-value and false-value attributes don't affect the input's value attribute, because
+                browsers don't include unchecked boxes in form submissions. To guarantee that one of two values is
+                submitted in a form (e.g. "yes" or "no"), use radio inputs instead.</p>
+        </section>
+        <section id="radio-2">
+            <h3>radio-2</h3>
+            <p>&lt;input type=&quot;radio&quot; v-model=&quot;pick&quot; v-bind:value=&quot;a&quot; /&gt;</p>
+            <pre><code>
+// when checked:
+vm.pick === vm.a
+            </code></pre>
+        </section>
+        <section id="select-options">
+            <h3>select-options</h3>
+            <pre><code>
+&lt;select v-model=&quot;selected&quot;&gt;
+  &lt;!-- inline object literal --&gt;
+  &lt;option :value=&quot;{ number: 123 }&quot;&gt;123&lt;/option&gt;
+&lt;/select&gt;
+            </code></pre>
+            <pre><code>
+// when selected:
+typeof vm.selected // => 'object'
+vm.selected.number // => 123
+            </code></pre>
+        </section>
+        <section id="modifiers">
+            <h2>modifiers</h2>
+        </section>
+        <section id="lazy">
+            <h3>lazy</h3>
+            <p>By default, v-model syncs the input with the data after each input event (with the exception of IME
+                composition as stated above). You can add the lazy modifier to instead sync after change events:</p>
+            <pre><code>
+&lt;!-- synced after &quot;change&quot; instead of &quot;input&quot; --&gt;
+&lt;input v-model.lazy=&quot;msg&quot; /&gt;
+            </code></pre>
+        </section>
+        <section id="number">
+            <h3>number</h3>
+            <p>If you want user input to be automatically typecast as a number, you can add the number modifier to your
+                v-model managed inputs:</p>
+            <pre><code>
+&lt;input v-model.number=&quot;age&quot; type=&quot;number&quot; /&gt;
+            </code></pre>
+            <p>This is often useful, because even with type="number", the value of HTML input elements always returns a
+                string. If the value cannot be parsed with parseFloat(), then the original value is returned.</p>
+        </section>
+        <section id="trim">
+            <h3>trim</h3>
+            <p>If you want whitespace from user input to be trimmed automatically, you can add the trim modifier to your
+                v-model-managed inputs:</p>
+            <pre><code>
+&lt;input v-model.trim=&quot;msg&quot; /&gt;
+            </code></pre>
+        </section>
+        <section id="v-model-with-components">
+            <h2>v-model-with-components</h2>
+            <p>HTML's built-in input types won't always meet your needs. Fortunately, Vue components allow you to build
+                reusable inputs with completely customized behavior. These inputs even work with v-model! To learn more,
+                read about custom inputs in the Components guide.</p>
+        </section>
+
+        <section id="">
+            <h2></h2>
+        </section>
+        <section id="">
+            <h3></h3>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li>
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [
+                    {
+                        text: '#basic-usage',
+                        href: '#basic-usage',
+                        subItems: [
+                            {
+                                text: '#text',
+                                href: '#text'
+                            },
+                            {
+                                text: '#multiline-text',
+                                href: '#multiline-text'
+                            },
+                            {
+                                text: '#checkbox',
+                                href: '#checkbox'
+                            },
+                            {
+                                text: '#radio',
+                                href: '#radio'
+                            },
+                            {
+                                text: '#select',
+                                href: '#select'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#value-bindings',
+                        href: '#value-bindings',
+                        subItems: [
+                            {
+                                text: '#checkbox-2',
+                                href: '#checkbox-2'
+                            },
+                            {
+                                text: '#radio-2',
+                                href: '#radio-2'
+                            },
+                            {
+                                text: '#select-options',
+                                href: '#select-options'
+                            },
+
+                        ]
+                    },
+                    {
+                        text: '#modifiers',
+                        href: '#modifiers',
+                        subItems: [
+                            {
+                                text: '#lazy',
+                                href: '#lazy'
+                            },
+                            {
+                                text: '#number',
+                                href: '#number'
+                            },
+                            {
+                                text: '#trim',
+                                href: '#trim'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#v-model-with-components',
+                        href: '#v-model-with-components',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#',
+                        href: '#',
+                        subItems: [
+                            {
+                                text: '#',
+                                href: '#'
+                            },
+                        ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <div>
+        <div>
+            <h6>Text</h6>
+            <!-- <input type="text" :value="message.message" @input="handleInputText" placeholder="edit me"> -->
+            <input type="text" v-model="message.message" placeholder="edit me">
+            <p>you see what you input: {{ message.message }}</p>
+        </div>
+        <div>
+            <h6>Multiline text</h6>
+            <!-- <textarea :value="message.message" @input="handleInputTextarea" placeholder="add multiple lines" name="" id="" cols="30" rows="10"></textarea> -->
+            <textarea v-model="message.message" placeholder="add multiple lines" name="" id="" cols="30"
+                rows="10"></textarea>
+            <p style="white-space: pre-line">{{ message.message }}</p>
+        </div>
+        <div>
+            <h6>Checkbox</h6>
+            <!-- <input type="checkbox" id="checkbox" :checked="checkbox.checked" @change="handleCheckboxChange"> -->
+            <input type="checkbox" id="checkbox" v-model="checkbox.checked">
+            <label for="checkbox">{{ checkbox.checked }}</label>
+
+            <h6>Multiple checkboxes, bound to the same Array:</h6>
+            <div id="">
+                <input type="checkbox" id="jack1" value="react-basis" v-model="checkbox.checkedNames">
+                <label for="jack1">react basis</label>
+                <input type="checkbox" id="jack2" value="react-advanced" v-model="checkbox.checkedNames">
+                <label for="jack2">react advanced</label>
+                <input type="checkbox" id="jack3" value="react-hooks" v-model="checkbox.checkedNames">
+                <label for="jack3">react hooks</label>
+                <br>
+                <span>Checked names: {{ checkbox.checkedNames }}</span>
+            </div>
+        </div>
+        <div>
+            <h6>Radio</h6>
+            <div>
+                <!-- <input type="radio" id="one" value="One" :checked="radio.picked" @change="handleRadioChange"> -->
+                <input type="radio" id="one" value="One" v-model="radio.picked">
+                <label for="one">One</label>
+                <br>
+                <input type="radio" id="two" value="Two" v-model="radio.picked">
+                <label for="two">Two</label>
+                <br>
+                <span>Picked: {{ radio.picked }}</span>
+            </div>
+        </div>
+        <div>
+            <h6>select</h6>
+
+            <div>
+                <h6>Single select: </h6>
+                <!-- <select :value="select.selectedSingle" @change="handleSelectSingle"> -->
+                <select v-model="select.selectedSingle">
+                    <option disabled value="">Please select one</option>
+                    <option>A</option>
+                    <option>B</option>
+                    <option>C</option>
+                </select>
+                <span>Selected: {{ select.selectedSingle }}</span>
+            </div>
+
+            <!--Multiple select(bound to array)-->
+            <div>
+                <h6>Multiple select</h6>
+                <!-- <select :value="select.selectedMultiple" @change="handleSelectedMultiple" multiple> -->
+                <select v-model="select.selectedMultiple" multiple>
+                    <!--delete the value"" in option tag, or else it would go into trouble-->
+                    <option>A</option>
+                    <option>B</option>
+                    <option>C</option>
+                </select>
+                <br>
+                <span>Selected: {{ select.selectedMultiple }}</span>
+            </div>
+
+            <!--Dynamic options rendered with v-for:-->
+            <div>
+                <h6>Dynamic options rendered with v-for</h6>
+                <select name="" id="" v-model="select.selectedSingle">
+                    <option v-for="option in select.options" :value="option.value">
+                        {{ option.text }}
+                    </option>
+                </select>
+                <span>Selected: {{ select.selectedSingle }}</span>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div>
+            <hr>
+            <!-- `picked` is a string "a" when checked -->
+            <input type="radio" v-model="radio.picked" value="stringValue" />
+            radio.picked {{ radio.picked }}
+            <!-- `toggle` is either true or false -->
+            <input type="checkbox" v-model="checkbox.toggle" />
+            checkbox.toggleBoolean {{ checkbox.toggle }}
+
+            <!-- `selected` is a string "abc" when the first option is selected -->
+            <select v-model="select.selected">
+                <option value="react-advanced">react-advanced</option>
+            </select>
+            select.selected {{ select.selected }}
+            <hr>
+        </div>
+        <div>
+            <!--Checkbox-->
+            <input type="checkbox" v-model="checkbox.toggleBoolean" true-value="yes" false-value="no">
+            checkbox.toggle: {{checkbox.toggleBoolean}}
+        </div>
+        <p class="note">true-value="" false-value=""</p>
+        <div>
+            <h6>radio</h6>
+            <!--To guarantee that one of two values is submitted in a form (e.g. “yes” or “no”)-->
+            <input type="radio" v-model="radio.picked" :value="radio.unpicked">
+            radio.picked: {{radio.picked}} 
+            <br>
+            radio.unpicked: {{radio.unpicked}}
+        </div>
+        <div>
+            <h6>select options</h6>
+            <!--Select Options-->
+            <select name="" id="" v-model="select.selectedObj">
+                <!-- inline object literal -->
+                <option :value="{ 'react-basis': 'forms' }">{ 'react-basis': 'forms' }</option>
+            </select>
+            select.selected {{ select.selectedObj}} <br>
+            select.selected['react-basis'] {{ select.selectedObj['react-basis']}} 
+        </div>
+    </div>
+    <div>
+        <div>
+            <!-- synced after "change" instead of "input" -->
+            <h6>.lazy</h6>
+            <input type="text" v-model.lazy="message.aboutReact">
+            message.aboutReact: {{message.aboutReact}}
+            <mark> press <kbd>enter</kbd> to see the difference</mark>
+            <span>lose focus, press enter etc ???</span>
+
+            <h6>.number</h6>
+            <input v-model.number="react.reactVersion" type="number">
+            react.reactVersion  -  {{ react.reactVersion }}
+            
+            <h6>.trim</h6>
+            <input v-model.trim="message.trimedText">
+            message.trimedText: {{message.trimedText}}
+            <p class="question">not working??</p>
+        </div>
+    </div>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react"></section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [
+            { id: 1, title: 'Learn React', content: 'React is sky blue!' },
+            { id: 2, title: 'Learn Vue', content: 'Vue is mood Green!' }
+        ],
+        person: {
+            age: 20
+        },
+        message: {
+            message: '',
+            aboutReact: 'React is advaned so much!',
+            trimedText: 'whitespace whitespace? Is whitespace trimed?',
+        },
+        selected: {
+            selected1: '',
+            selected2: [],
+            selected3: 'A',
+            selected4: { number: 456 }
+        },
+        checkbox: {
+            checked: true,
+            checkedNames: [],
+            toggle: true,
+            toggleBoolean: 'fake boolean'
+        },
+        radio: {
+            picked: 'react-basis',
+            unpicked: 'react-hooks'
+        },
+        select: {
+            selectedSingle: '',
+            selectedMultiple: [],
+            selectedObj: {},
+            options: [
+                { text: 'react-basis', value: 'react-basis' },
+                { text: 'react-advanced', value: 'react-advanced' },
+                { text: 'react-hooks', value: 'react-hooks' }
+            ]
+        },
+        react: {
+            reactVersion: NaN
+        },
+        a: 'b'
+    }
+    // typeof vm.selected
+    // vm.selected.number
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        computed: {
+        }
+    }
+    const vueInstance = Vue.createApp(options)
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

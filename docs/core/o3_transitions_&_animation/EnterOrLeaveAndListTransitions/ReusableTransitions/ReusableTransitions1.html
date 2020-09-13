@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../../vue.js"></script>
+</head>
+<body>
+<div id="demo">
+
+    <h1>need an example. will check it in future!  </h1>
+    <my-special-transition></my-special-transition>
+</div>
+<script>
+    Vue.component('my-special-transition', {
+        functional: true,
+        render: function ( createElement, context ) {
+            var data = {
+                props: {
+                    name: 'very-special-transition',
+                    mode: 'out-in'
+                },
+                on: {
+                    beforeEnter: function ( el ) {
+
+                    },
+                    beforeLeave: function (el ) {
+
+                    }
+                }
+            }
+
+            return createElement('transition', data, context.children )
+        }
+    })
+    new Vue({
+        el: '#demo',
+        data: {
+
+        }
+
+    })
+
+</script>
+</body>
+</html>

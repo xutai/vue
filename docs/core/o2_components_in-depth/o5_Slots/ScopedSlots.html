@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../tools/font/fontawesome-free-5.8.2-web/css/all.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+
+<h4>Scoped Slots</h4>
+
+<div>
+    <ul>
+        <li>
+            <a href="./ScopedSlots/AbbreviatedSyntaxforLoneDefaultSlots.html">
+                Abbreviated Syntax for Lone Default Slots
+            </a>
+        </li>
+        <li>
+            <a href="./ScopedSlots/DestructuringSlotProps.html">
+                Destructuring Slot Props
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+<div id="app">
+<current-user>
+    {{user.firstName}}
+</current-user>
+</div>
+<script>
+    Vue.component('current-user', {
+        template: `
+        <span><slot>{{user.lastName}}</slot></span>`,
+        data: function(){
+            return {
+                user: {
+                    lastName: 'Van',
+                    firstName: 'Ethan'
+                }
+            }
+        }
+    })
+    new Vue({
+        el: '#app',
+        data (){
+            return {
+                user: {
+                    firstName: "Tyler",
+                    lastName: "Xu"
+                }
+            }
+        }
+    })
+</script>
+
+
+<hr>
+
+
+<div id="app2">
+    <current-user2>
+        <template v-slot:default="slotProps">
+            {{slotProps.thisuser.firstName}}
+        </template>
+    </current-user2>
+</div>
+<script>
+    Vue.component('current-user2', {
+        template: `
+        <span>
+        <slot v-bind:thisuser="user">
+        {{user.lastName}}
+        </slot>
+        </span>`,
+        data: function(){
+            return {
+                user: {
+                    lastName: 'Van',
+                    firstName: 'Ethan'
+                }
+            }
+        }
+    })
+    new Vue({
+        el: '#app2',
+        data (){
+            return {
+                user: {
+                    firstName: "Tyler",
+                    lastName: "Xu"
+                }
+            }
+        }
+    })
+</script>
+</body>
+</html>

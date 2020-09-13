@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <link rel="stylesheet" href="./animate.css">
+    <script src="../../vue.js"></script>
+</head>
+<body>
+<div id="demo">
+    <p><a href="https://daneden.github.io/animate.css/">animate.css</a></p>
+    <button @click="show = !show">Toggle render</button>
+    <transition
+        name="custom-classes-transition"
+        enter-active-class="animated tada"
+        leave-active-class="animated bounceOutRight"
+    >
+        <p v-if="show">hello</p>
+    </transition>
+</div>
+<script>
+
+    new Vue({
+        el: '#demo',
+        data: {
+            show: true
+        }
+    })
+
+</script>
+</body>
+</html>

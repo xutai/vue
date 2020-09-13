@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #demo {
+            padding: 30px;
+            margin: 30px;
+        }
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity .5s;
+        }
+        .fade-enter, .fade-leave-to {
+            opacity: 0;
+        }
+        .slide-fade-enter-active {
+            transition: all .3s ease;
+        }
+        .slide-fade-leave-active {
+            transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        }
+        .slide-fade-enter, .slide-fade-leave-to {
+            transform: translateX(10px);
+            opacity: 0;
+        }
+
+    </style>
+    <link rel="stylesheet" href="../../../tools/css/animate.css">
+    <script src="../../../tools/Vue/vue.js_v2.5.16.js"></script>
+</head>
+<body>
+
+<p>
+
+</p>
+
+<div id="demo">
+    <button v-on:click="show = !show">
+        Toggle
+    </button>
+    <transition
+            name="fade"
+            :duration="1000"
+            v-on:before-enter="beforeEnter"
+            v-on:enter="enter"
+            v-on:after-enter="afterEnter"
+            v-on:enter-cancelled="enterCancelled"
+
+            v-on:before-leave="beforeLeave"
+            v-on:leave="leave"
+            v-on:after-leave="afterLeave"
+            v-on:leave-cancelled="leaveCancelled"
+    >
+        <p v-if="show">Hello</p>
+    </transition>
+    <button v-on:click="show1 = !show1">
+        Toggle
+    </button>
+    <transition name="slide-fade" :duration="{ enter: 500, leave: 800 }">
+        <p v-if="show1">Hello</p>
+    </transition>
+
+
+</div>
+
+<script>
+
+    new Vue({
+        el: '#demo',
+        data: {
+            show: true,
+            show1: true
+
+        },
+        
+        methods: {
+            // ----
+            // ENTERING
+            // ---
+            
+            beforeEnter: function (el) {
+                console.log('beforeEnter');
+               // alert('beforeEnter');
+            },
+            
+            enter: function (el, done) {
+                console.log('enter');
+            },
+            
+            afterEnter: function (el) {
+                console.log('afterEnter');
+            },
+            
+            enterCancelled: function (el) {
+                console.log('enterCancelled');
+            },
+            
+            // ---
+            // LEAVING
+            // ---
+            
+            beforeLeave: function (el) {
+                console.log('beforeLeave');
+            },
+            
+            leave: function (el, done) {
+                console.log('Leave');
+                done()
+            },
+            
+            afterLeave: function (el) {
+                console.log('afterLeave');
+            },
+            
+            leaveCancelled: function (el) {
+                console.log('leaveCancelled');
+            }
+        }
+    })
+
+
+</script>
+
+
+</body>
+</html>

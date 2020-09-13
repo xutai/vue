@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../../tools/font/fontawesome-free-5.8.2-web/css/all.css">
+    <script src="../../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+
+<h4>Abbreviated Syntax for Lone Default Slots</h4>
+
+<div id="app">
+<current-user v-slot:default="slotProps">
+    {{ slotProps.user1.firstName }}
+</current-user>
+</div>
+<script>
+    Vue.component('current-user', {
+        template: `
+        <p><slot v-bind:user1="user"></slot></p>
+        `,
+        data(){
+            return {
+                user: {
+                    firstName: 'Tyler'
+                }
+            }
+        }
+    });
+    new Vue({
+        el: '#app',
+        data(){
+            return {
+                user: {
+                    firstName: 'fuck me'
+                }
+            }
+        }
+    })
+</script>
+
+<hr>
+
+<div id="app2">
+    <current-user2 v-slot="slotProps">
+        {{ slotProps.user1.firstName }}
+    </current-user2>
+</div>
+<script>
+    Vue.component('current-user2', {
+        template: `
+        <p><slot v-bind:user1="user"></slot></p>
+        `,
+        data(){
+            return {
+                user: {
+                    firstName: 'Tyler2'
+                }
+            }
+        }
+    });
+    new Vue({
+        el: '#app2',
+        data(){
+            return {
+                user: {
+                    firstName: 'fuck me'
+                }
+            }
+        }
+    })
+</script>
+
+<hr>
+
+<div id="app3">
+    <current-user3 v-slot="slotProps">
+        {{ slotProps.user1.firstName }}
+        <template v-slot:other>
+            something
+        </template>
+    </current-user3>
+</div>
+<script>
+    Vue.component('current-user3', {
+        template: `
+        <p>
+         <span><slot name="other"></slot></span>
+        <slot v-bind:user1="user"></slot>
+        </p>
+        `,
+        data(){
+            return {
+                user: {
+                    firstName: 'Tyler3'
+                }
+            }
+        }
+    });
+    new Vue({
+        el: '#app3',
+        data(){
+            return {
+                user: {
+                    firstName: 'fuck me'
+                }
+            }
+        }
+    })
+</script>
+
+
+<hr>
+
+<div id="app4">
+    <current-user4 v-slot="slotProps">
+        {{ slotProps.user1.firstName }}
+        <template v-slot:other="otherSlotProps">
+            slotProps is NOT available here
+        </template>
+    </current-user4>
+</div>
+<script>
+    Vue.component('current-user4', {
+        template: `
+        <p>
+         <span><slot name="other"></slot></span>
+        <slot v-bind:user1="user"></slot>
+        </p>
+        `,
+        data(){
+            return {
+                user: {
+                    firstName: 'Tyler4'
+                }
+            }
+        }
+    });
+    new Vue({
+        el: '#app4',
+        data(){
+            return {
+                user: {
+                    firstName: 'fuck me'
+                }
+            }
+        }
+    })
+</script>
+
+
+
+<hr>
+<h6>default can be omitted, otherSlotProps can be omitted</h6>
+<div id="app5">
+    <current-user5>
+        <template v-slot:default="slotProps">
+            {{ slotProps.user1.firstName }}
+        </template>
+        <template v-slot:other="otherSlotProps">
+            slotProps is NOT available here - {{ user.firstName}} -
+        </template>
+    </current-user5>
+</div>
+<script>
+    Vue.component('current-user5', {
+        template: `
+        <p>
+         <span><slot name="other"></slot></span>
+        <slot v-bind:user1="user"></slot>
+        </p>
+        `,
+        data(){
+            return {
+                user: {
+                    firstName: 'Tyler5'
+                }
+            }
+        }
+    });
+    new Vue({
+        el: '#app5',
+        data(){
+            return {
+                user: {
+                    firstName: 'fuck me'
+                }
+            }
+        }
+    })
+</script>
+
+
+</body>
+</html>

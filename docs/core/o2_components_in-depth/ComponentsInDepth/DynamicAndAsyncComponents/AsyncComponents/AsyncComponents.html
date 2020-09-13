@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../../../../frameworks/vue.js"></script>
+</head>
+<body>
+<div>
+    <p>Project dir: </p>
+    <p>url is: <a href="https://vuejs.org/v2/guide/components-dynamic-async.html">
+    vuejs.org </a></p>
+</div>    
+<div>
+    <p>Note: </p>
+    <p><a href="https://webpack.js.org/api/module-methods/">
+    require(xxx, xxx) </a><span>
+        - webpack - require[adm-version] - require(dependencies: String[], [callback: function(...)])
+    </span></p>
+</div>
+
+<div id="app">
+<async-example></async-example>
+</div>
+<script>
+    Vue.component('async-example', function(resolve, reject) {
+        setTimeout(function() {
+            let m = 2
+            if (m === 1){
+                resolve({
+                    template: '<div>I am async!</div>'
+                })
+            } else {
+               // reject(new Error('error alpha!'))
+                //reject('shit')
+            }
+
+        }, 1000)
+    })
+    new Vue({
+        el: '#app'
+    })
+</script>
+</body>
+</html>

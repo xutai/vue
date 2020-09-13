@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../../vue.js"></script>
+
+</head>
+<body>
+<div id="demo">
+
+   <!--  <h1>{{ blogTitle }}</h1> -->
+
+    <heading ></heading>
+
+</div>
+<script>
+
+    Vue.component('heading', {
+        data() {
+           return {
+               blogTitle: 'This is blog title'
+           }
+        },
+        render: function(createElement) {
+            return createElement(
+                'h1',
+               /*  this.$slots.default*/
+                this.blogTitle
+            )
+        }
+    })
+
+    var vm = new Vue({
+        el: '#demo',
+        /*
+        * data() {
+            return {
+                blogTitle: 'This is blog title'
+            }
+        },
+        *
+        * */
+        created: function() {
+
+        },
+        watch: {
+
+        },
+        computed: {
+
+        },
+        methods: {
+
+        },
+        directives: {
+
+        }
+
+    })
+
+</script>
+</body>
+</html>

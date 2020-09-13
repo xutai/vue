@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../../tools/font/fontawesome-free-5.8.2-web/css/all.css">
+    <script src="../../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+
+<h4>Destructuring Slot Props</h4>
+
+
+<div id="app">
+<current-user v-slot="otherProps">
+    {{otherProps.user0.firstName}}
+</current-user>
+</div>
+<script>
+    Vue.component('current-user', {
+        template: `<div><slot v-bind:user0="user"></slot></div>`,
+        data(){
+            return {
+                user: {
+                    firstName: 'sakulajiang'
+                }
+            }
+        }
+    })
+    new Vue({
+        el: '#app'
+    })
+</script>
+
+<hr>
+
+<div id="app2">
+    <current-user2 v-slot="{ user0 }">
+        {{user0.firstName}}
+    </current-user2>
+</div>
+<script>
+    Vue.component('current-user2', {
+        template: `<div><slot v-bind:user0="user"></slot></div>`,
+        data(){
+            return {
+                user: {
+                    firstName: 'sakulajiang'
+                }
+            }
+        }
+    })
+    new Vue({
+        el: '#app2'
+    })
+</script>
+
+<hr>
+<h6>renameing:
+    <a href="">https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Nested_object_and_array_destructuring</a>
+</h6>
+<div id="app3">
+    <current-user3 v-slot="{ user0: person }">
+        {{person.firstName}}
+    </current-user3>
+</div>
+<script>
+    Vue.component('current-user3', {
+        template: `<div><slot v-bind:user0="user"></slot></div>`,
+        data(){
+            return {
+                user: {
+                    firstName: 'sakulajiang'
+                }
+            }
+        }
+    })
+    new Vue({
+        el: '#app3'
+    })
+</script>
+
+<hr>
+
+<h6>fallbacks</h6>
+
+<div id="app4">
+    <current-user4 v-slot="{ user0 = { firstName: 'fallbacks'} }">
+        {{user0.firstName}}
+    </current-user4>
+</div>
+<script>
+    Vue.component('current-user4', {
+        template: `<div><slot v-bind:user0="user"></slot></div>`,
+        data(){
+            return {
+                user: {
+                    firstName: 'goland'
+                }
+            }
+        }
+    })
+    new Vue({
+        el: '#app4'
+    })
+</script>
+
+
+<hr>
+</body>
+</html>

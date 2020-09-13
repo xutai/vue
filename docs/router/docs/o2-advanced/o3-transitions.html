@@ -1,0 +1,73 @@
+<section>
+    <h1>transitions</h1>
+</section>
+
+<section>
+    <ul>
+        <li>
+            <a href="pre-route-transition">pre-route-transition</a>
+        </li>
+        <li>
+            <a href="route-based-dynamic-transition">route-based-dynamic-transition</a>
+        </li>
+    </ul>
+</section>
+
+
+<section>
+    <p>Since the &lt;router-view&gt; is essentially a dynamic component, we can apply transition effects to it the same way using the &lt;transition&gt; component:</p>
+    <pre><code>
+&lt;transition&gt;
+  &lt;router-view&gt;&lt;/router-view&gt;
+&lt;/transition&gt;
+    </code></pre>
+    <p>All transition APIs work the same here.</p>
+</section>
+
+
+
+<section>
+</section>
+<section>
+    <h2 id="pre-route-transition">pre-route-transition</h2>
+    <p>The above usage will apply the same transition for all routes. If you want each route&apos;s component to have different transitions, you can instead use &lt;transition&gt; with different names inside each route component:</p>
+    <pre><code>
+const Foo = {
+    template: &grave;
+        &lt;transition name=&quot;slide&quot;&gt;
+        &lt;div class=&quot;foo&quot;&gt;...&lt;/div&gt;
+        &lt;/transition&gt;
+    &grave;
+    }
+    
+    const Bar = {
+    template: &grave;
+        &lt;transition name=&quot;fade&quot;&gt;
+        &lt;div class=&quot;bar&quot;&gt;...&lt;/div&gt;
+        &lt;/transition&gt;
+    &grave;
+}
+    </code></pre>
+</section>
+<section>
+    <h2 id="route-based-dynamic-transition">route-based-dynamic-transition</h2>
+    <p>It is also possible to determine the transition to use dynamically based on the relationship between the target route and current route:</p>
+    <pre><code>
+&lt;!-- use a dynamic transition name --&gt;
+&lt;transition :name=&quot;transitionName&quot;&gt;
+  &lt;router-view&gt;&lt;/router-view&gt;
+&lt;/transition&gt;
+    </code></pre>
+    <pre><code>
+// then, in the parent component,
+// watch the &grave;$route&grave; to determine the transition to use
+watch: {
+  &apos;$route&apos; (to, from) {
+    const toDepth = to.path.split(&apos;/&apos;).length
+    const fromDepth = from.path.split(&apos;/&apos;).length
+    this.transitionName = toDepth &lt; fromDepth ? &apos;slide-right&apos; : &apos;slide-left&apos;
+  }
+}
+    </code></pre>
+    <p>See full example here.</p>
+</section>

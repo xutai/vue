@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+<h4>Dynamic Slot Names</h4>
+<div id="app">
+    <base-layout>
+        some slot content
+    </base-layout>
+</div>
+<script>
+    Vue.component('base-layout', {
+        template: `
+<div><slot></slot></div>
+        `
+    })
+    new Vue({
+        el: "#app"
+    })
+</script>
+
+<hr>
+
+<div id="app2">
+    <base-layout2>
+        <template v-slot:fuck>
+            some content
+        </template>
+    </base-layout2>
+</div>
+<script>
+    Vue.component('base-layout2', {
+        template: `
+<div><slot name="fuck"></slot></div>
+        `
+    })
+    new Vue({
+        el: "#app2"
+    })
+</script>
+
+<hr>
+<h6>1. it must be in lowercase or kebab-case, 2. parent scope </h6>
+<div id="app3">
+    <base-layout3>
+        <template v-slot:[dynamicSlotName0]>
+            v-slot:[dynamicSlotName0]
+        </template>
+        <template v-slot:[dynamicSlotName1]>
+            v-slot:[dynamicSlotName1]
+        </template>
+        <template v-slot:[dynamicSlotName2]>
+            v-slot:[dynamicSlotName2]  - fuck fuck
+        </template>
+    </base-layout3>
+</div>
+<script>
+    Vue.component('base-layout3', {
+        template: `
+<div>
+<slot name="fuck0"></slot>
+<slot name="fuck1"></slot>
+<slot name="fuck2"></slot>
+<slot name="fuck3"></slot>
+<slot name="fuck4"></slot>
+<p><slot name="fuck-fuck"></slot></p>
+<slot name="fuck6"></slot>
+</div>
+        `,
+        data(){
+            return {
+                dynamicSlotName0: 'fuck0',
+                dynamicslotname0: 'fuck1'
+            }
+        }
+    })
+    new Vue({
+        el: "#app3",
+        data(){
+            return {
+                dynamicSlotName1: 'fuck2',
+                dynamicslotname1: 'fuck3',
+                dynamicslotname2: 'fuck-fuck'
+            }
+        }
+    })
+</script>
+</body>
+</html>

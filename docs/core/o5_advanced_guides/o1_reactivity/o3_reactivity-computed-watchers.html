@@ -1,0 +1,642 @@
+<article role="article" class="doc">
+    <div class="content doc">
+        <section>
+            <h1>
+                <img src="htttp://xutai.site:8083/resources/images/vuejs/vue.png" class="vue-logo" alt="vue logo" srcset="">
+            </h1>
+        </section>
+        <section>
+            <ul>
+                <li>computed-values</li>
+                <li>watcheffect</li>
+                <ul>
+                    <li>stopping-the-watcher</li>
+                    <li>side-effect-invalidation</li>
+                    <li>effect-flush-timing</li>
+                    <li>watcher-debugging</li>
+                </ul>
+                <li>watch</li>
+                <ul>
+                    <li>watching-a-single-source</li>
+                    <li>watching-multiple-sources</li>
+                    <li>shared-behavior-with-watcheffect</li>
+                </ul>
+            </ul>
+        </section>
+        <section>
+            <p class="info">This section uses single-file component syntax for code examples</p>
+        </section>
+        <section id="computed-values">
+            <h2>computed-values</h2>
+            <p>Sometimes we need state that depends on other state - in Vue this is handled with component computed
+                properties. To directly create a computed value, we can use the computed method: it takes a getter
+                function and returns an immutable reactive ref object for the returned value from the getter.</p>
+            <pre><code>
+const count = ref(1)
+const plusOne = computed(() =&gt; count.value++)
+
+console.log(plusOne.value) // 2
+
+plusOne.value++ // error
+
+            </code></pre>
+            <p>Alternatively, it can take an object with get and set functions to create a writable ref object.</p>
+            <pre><code>
+const count = ref(1)
+const plusOne = computed({
+  get: () =&gt; count.value + 1,
+  set: val =&gt; {
+    count.value = val - 1
+  }
+})
+
+plusOne.value = 1
+console.log(count.value) // 0
+
+            </code></pre>
+        </section>
+        <section id="watcheffect">
+            <h2>watcheffect</h2>
+            <p>To apply and automatically re-apply a side effect based on reactive state, we can use the watchEffect
+                method. It runs a function immediately while reactively tracking its dependencies and re-runs it
+                whenever the dependencies are changed.</p>
+            <pre><code>
+const count = ref(0)
+
+watchEffect(() =&gt; console.log(count.value))
+// -&gt; logs 0
+
+setTimeout(() =&gt; {
+  count.value++
+  // -&gt; logs 1
+}, 100)
+
+            </code></pre>
+        </section>
+        <section id="stopping-the-watcher">
+            <h3>stopping-the-watcher</h3>
+            <p>When watchEffect is called during a component's setup() function or lifecycle hooks, the watcher is
+                linked to the component's lifecycle and will be automatically stopped when the component is unmounted.
+            </p>
+            <p>In other cases, it returns a stop handle which can be called to explicitly stop the watcher:</p>
+            <pre><code>
+const stop = watchEffect(() =&gt; {
+    /* ... */
+})
+    
+// later
+stop()
+                  
+            </code></pre>
+        </section>
+        <section id="side-effect-invalidation">
+            <h3>side-effect-invalidation</h3>
+            <p>Sometimes the watched effect function will perform asynchronous side effects that need to be cleaned up
+                when it is invalidated (i.e state changed before the effects can be completed). The effect function
+                receives an onInvalidate function that can be used to register an invalidation callback. This
+                invalidation callback is called when:</p>
+            <ul>
+                <li>the effect is about to re-run</li>
+                <li>the watcher is stopped (i.e. when the component is unmounted if watchEffect is used inside setup()
+                    or lifecycle hooks)</li>
+            </ul>
+            <pre><code>
+watchEffect(onInvalidate =&gt; {
+    const token = performAsyncOperation(id.value)
+    onInvalidate(() =&gt; {
+        // id has changed or watcher is stopped.
+        // invalidate previously pending async operation
+        token.cancel()
+    })
+})
+                
+            </code></pre>
+            <p>We are registering the invalidation callback via a passed-in function instead of returning it from the
+                callback because the return value is important for async error handling. It is very common for the
+                effect function to be an async function when performing data fetching:</p>
+            <pre><code>
+const data = ref(null)
+watchEffect(async onInvalidate =&gt; {
+  onInvalidate(() =&gt; {...}) // we register cleanup function before Promise resolves
+  data.value = await fetchData(props.id)
+})
+
+            </code></pre>
+            <p>An async function implicitly returns a Promise, but the cleanup function needs to be registered
+                immediately before the Promise resolves. In addition, Vue relies on the returned Promise to
+                automatically handle potential errors in the Promise chain.</p>
+        </section>
+        <section id="effect-flush-timing">
+            <h3>effect-flush-timing</h3>
+            <p>Vue's reactivity system buffers invalidated effects and flushes them asynchronously to avoid unnecessary
+                duplicate invocation when there are many state mutations happening in the same "tick". Internally, a
+                component's update function is also a watched effect. When a user effect is queued, it is always invoked
+                after all component update effects:</p>
+            <pre><code>
+&lt;template&gt;
+  &lt;div&gt;{{ count }}&lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+  export default {
+    setup() {
+      const count = ref(0)
+
+      watchEffect(() =&gt; {
+        console.log(count.value)
+      })
+
+      return {
+        count
+      }
+    }
+  }
+&lt;/script&gt;
+
+            </code></pre>
+            <p>In this example:</p>
+            <ul>
+                <li>The count will be logged synchronously on initial run.</li>
+                <li>When count is mutated, the callback will be called after the component has updated.</li>
+            </ul>
+            <p>Note the first run is executed before the component is mounted. So if you wish to access the DOM (or
+                template refs) in a watched effect, do it in the mounted hook:</p>
+            <pre><code>
+onMounted(() =&gt; {
+    watchEffect(() =&gt; {
+        // access the DOM or template refs
+    })
+})
+                  
+            </code></pre>
+            <p>In cases where a watcher effect needs to be re-run synchronously or before component updates, we can pass
+                an additional options object with the flush option (default is 'post'):</p>
+            <pre><code>
+// fire synchronously
+watchEffect(
+  () =&gt; {
+    /* ... */
+  },
+  {
+    flush: &apos;sync&apos;
+  }
+)
+
+// fire before component updates
+watchEffect(
+  () =&gt; {
+    /* ... */
+  },
+  {
+    flush: &apos;pre&apos;
+  }
+)
+
+            </code></pre>
+        </section>
+        <section id="watcher-debugging">
+            <h3>watcher-debugging</h3>
+            <p>The onTrack and onTrigger options can be used to debug a watcher's behavior.</p>
+            <ul>
+                <li>onTrack will be called when a reactive property or ref is tracked as a dependency</li>
+                <li>onTrigger will be called when the watcher callback is triggered by the mutation of a dependency</li>
+            </ul>
+            <p>Both callbacks will receive a debugger event which contains information on the dependency in question. It
+                is recommended to place a debugger statement in these callbacks to interactively inspect the dependency:
+            </p>
+            <pre><code>
+watchEffect(
+  () =&gt; {
+    /* side effect */
+  },
+  {
+    onTrigger(e) {
+      debugger
+    }
+  }
+)
+
+            </code></pre>
+            <p>onTrack and onTrigger only work in development mode.</p>
+        </section>
+        <section id="watch">
+            <h2>watch</h2>
+            <p>The watch API is the exact equivalent of the component watch property. watch requires watching a specific
+                data source and applies side effects in a separate callback function. It also is lazy by default - i.e.
+                the callback is only called when the watched source has changed.</p>
+            <p>Compared to watchEffect, watch allows us to:</p>
+            <ul>
+                <li>Perform the side effect lazily;</li>
+                <li>Be more specific about what state should trigger the watcher to re-run;</li>
+                <li>Access both the previous and current value of the watched state.</li>
+            </ul>
+        </section>
+        <section id="watching-a-single-source">
+            <h3>watching-a-single-source</h3>
+            <p>A watcher data source can either be a getter function that returns a value, or directly a ref:</p>
+            <pre><code>
+// watching a getter
+const state = reactive({ count: 0 })
+watch(
+  () =&gt; state.count,
+  (count, prevCount) =&gt; {
+    /* ... */
+  }
+)
+
+// directly watching a ref
+const count = ref(0)
+watch(count, (count, prevCount) =&gt; {
+  /* ... */
+})
+
+            </code></pre>
+        </section>
+        <section id="watching-multiple-sources">
+            <h3>watching-multiple-sources</h3>
+            <p>A watcher can also watch multiple sources at the same time using an array:</p>
+            <pre><code>
+watch([fooRef, barRef], ([foo, bar], [prevFoo, prevBar]) =&gt; {
+    /* ... */
+})
+            </code></pre>
+        </section>
+        <section id="shared-behavior-with-watcheffect">
+            <h3>shared-behavior-with-watcheffect</h3>
+            <p>watch shares behavior with watchEffect in terms of manual stoppage, side effect invalidation (with onInvalidate passed to the callback as the 3rd argument instead), flush timing and debugging.</p>
+        </section>
+        <section id="">
+            <h3></h3>
+        </section>
+    </div>
+    <aside class="extra doc">
+        <section id="list">
+            <ul class="vue">
+                <template v-for="item in headingsTitle">
+                    <li>
+                        <a :href="item.href">{{item.text}}</a>
+                        <ul>
+                            <template v-for="subItem in item.subItems">
+                                <li v-if="subItem.text !== '#'">
+                                    <a :href="subItem.href">{{subItem.text}}</a>
+                                </li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
+        </section>
+        <script>
+            const pageState = {
+                headingsTitle: [{
+                        text: '#computed-values',
+                        href: '#computed-values',
+                        subItems: [{
+                            text: '#',
+                            href: '#'
+                        }, ]
+                    },
+                    {
+                        text: '#watcheffect',
+                        href: '#watcheffect',
+                        subItems: [{
+                                text: '#stopping-the-watcher',
+                                href: '#stopping-the-watcher'
+                            },
+                            {
+                                text: '#side-effect-invalidation',
+                                href: '#side-effect-invalidation'
+                            },
+                            {
+                                text: '#effect-flush-timing',
+                                href: '#effect-flush-timing'
+                            },
+                            {
+                                text: '#watcher-debugging',
+                                href: '#watcher-debugging'
+                            },
+                        ]
+                    },
+                    {
+                        text: '#watch',
+                        href: '#watch',
+                        subItems: [{
+                                text: '#watching-a-single-source',
+                                href: '#watching-a-single-source'
+                            },
+                            {
+                                text: '#watching-multiple-sources',
+                                href: '#watching-multiple-sources'
+                            },
+                            {
+                                text: '#shared-behavior-with-watcheffect',
+                                href: '#shared-behavior-with-watcheffect'
+                            },
+                        ]
+                    },
+                ]
+            }
+            Vue.createApp({
+                data() {
+                    return {
+                        ...pageState
+                    }
+                }
+            }).mount('#list')
+        </script>
+    </aside>
+</article>
+<aside class="sidebar doc" role="complementary">
+</aside>
+
+
+
+<section id="plain-html">
+    <code>Vanilla JavaScript is yellow!</code>
+
+</section>
+<section id="vue">
+    <code>Today's mood is Vue's color!</code>
+    <div>count: {{ count }}</div>
+    <br>
+    <code>Today's Sky is React's color!</code>
+</section>
+<section id="react">
+</section>
+<script>
+    // common
+    const viewState = {
+        numbers: [1, 2, 3, 4, 5],
+        posts: [{
+                id: 1,
+                title: 'Learn React',
+                content: 'React is sky blue!'
+            },
+            {
+                id: 2,
+                title: 'Learn Vue',
+                content: 'Vue is mood Green!'
+            }
+        ]
+    }
+</script>
+<script>
+    // vanilla
+    const planHtml = document.querySelector('section[id$="plain-html"]')
+</script>
+<script>
+    // vue
+
+    // Computed values
+    // const count = window.Vue.ref(1)
+    // v1
+    // const plusOne = window.Vue.computed(() => count.value++)
+    // console.log("plusOne.value",plusOne.value) // 2
+    // plusOne.value++ // error
+    // v2
+    // const plusOne = window.Vue.computed({
+    //     get: () => count.value + 1,
+    //     set: val => {
+    //         count.value = val - 1
+    //     }
+    // })
+    // plusOne.value = 1
+    // console.log(count.value) // 0
+
+
+    // watcheffect
+    // const count = window.Vue.ref(0)
+
+    // window.Vue.watchEffect(() => console.log("count.value 2",count.value))
+    // // -> logs 0
+
+    // setTimeout(() => {
+    //     count.value++
+    //     // -> logs 1
+    //     console.info("count.value 1",count.value)
+    // }, 100)
+
+
+    // watcheffect - Stopping the Watcher
+    // const count = window.Vue.ref(0)
+    // const stop = window.Vue.watchEffect(() => {
+    //     /* ... */
+    // })
+    // // later
+    // stop()
+
+    // watcheffect - Side Effect Invalidation
+    // v1
+    // let id = {
+    //     value: 99
+    // }
+
+    // function performAsyncOperation(value) {
+    //     return new Promise((resolve, reject) => {
+    //         setTimeout(() => {
+    //             resolve(value)
+    //         }, 10000)
+    //     })
+    // }
+    // const stop  = this.Vue.watchEffect(onInvalidate => {
+    //     const token = performAsyncOperation(id.value)
+    //     onInvalidate(() => {
+    //         // id has changed or watcher is stopped.
+    //         // invalidate previously pending async operation
+    //         console.info("id has changed or watcher is stopped.")
+    //         console.info("invalidate previously pending async operation")
+    //         token.cancel()
+    //         // how to fake this .cancel()
+    //     })
+    // })
+    // setTimeout(() => {
+    //     id.value = 111
+    //     // stop()
+    // }, 2000)
+
+    // v2
+    // let props = {
+    //     id: 99
+    // }
+
+    // function fetchData(value) {
+    //     return new Promise((resolve, reject) => {
+    //         setTimeout(() => {
+    //             resolve(value)
+    //         }, 5000)
+    //     })
+    // }
+    // const data = window.Vue.ref(null)
+    // const stop = this.Vue.watchEffect(async onInvalidate => {
+    //     onInvalidate(() => {
+    //         console.info("we register cleanup function before Promise resolves")
+    //     }) // we register cleanup function before Promise resolves
+    //     data.value = await fetchData(props.id)
+    // })
+    // setTimeout(() => {
+    //     stop()
+    // }, 2000)
+
+
+    // watcheffect -  Effect Flush Timing
+
+
+
+
+    // watch - Watching a Single Source
+
+    // watching a getter
+    // const state = this.Vue.reactive({
+    //     count: 0
+    // })
+    // this.Vue.watch(
+    //     () => state.count,
+    //     (count, prevCount) => {
+    //         /* ... */
+    //         console.info("count, prevCount",count, prevCount)
+    //     }
+    // )
+    // state.count = 123
+
+    // directly watching a ref
+    // const count = window.Vue.ref(0)
+    // this.Vue.watch(count, (count, prevCount) => {
+    //     console.info("count, prevCount",count, prevCount)
+    // })
+    // count.value = 123
+
+
+    // watch - Watching Multiple Sources
+    // const fooRef = window.Vue.ref(33)
+    // const barRef = window.Vue.ref(55)
+    // this.Vue.watch([fooRef, barRef], ([foo, bar], [prevFoo, prevBar]) => {
+    //     console.info(fooRef, barRef, foo, bar, prevFoo, prevBar)
+    // })
+    // fooRef.value = 333
+    // barRef.value = 333
+
+
+
+
+    const options = {
+        data() {
+            return {
+                ...viewState,
+            }
+        },
+        props: {},
+        computed: {},
+        methods: {},
+        watch: {},
+        emits: {},
+        template: '',
+        directives: {
+
+        },
+        provide() {
+            return {}
+        },
+        // reactivity fundamentals - Ref Unwrapping
+        setup() {
+            // //  Effect Flush Timing
+            // const count = window.Vue.ref(0)
+
+            // // v1
+            // window.Vue.watchEffect(() => {
+            //     console.log("count.value", count.value)
+            // }, {
+            //     // watcheffect -  Watcher Debugging
+
+            //     onTrack(e) {
+            //         debugger
+            //     },
+            //     onTrigger(e) {
+            //         debugger
+            //     }
+            // })
+
+            // return {
+            //     count
+            // }
+        },
+        // render(){}, // don't know what does this do
+        beforeCreate() {},
+        created() {
+            console.info(
+                "this.$data", this.$data,
+                "this.$props", this.$props,
+                "this.$el", this.$el,
+                "this.$options", this.$options,
+                "this.$parent", this.$parent,
+                "this.$root", this.$root,
+                "this.$slots", this.$slots,
+                "this.$refs", this.$refs,
+                "this.$attrs", this.$attrs
+            )
+        },
+        beforeMount() {},
+        mounted() {
+            // //  Effect Flush Timing
+            // setTimeout(() => {
+            //     this.count = 11
+            // }, 1000)
+            // // v2
+            // window.Vue.watchEffect(() => {
+            //     // access the DOM or template refs
+            //     console.log("this.count", this.count)
+            // }, {
+            //     // // fire synchronously
+            //     // flush: 'sync' ,
+            //     // fire before component updates
+            //     // flush: 'pre'
+
+            //     // watcheffect -  Watcher Debugging
+
+            //     onTrack(e) {
+            //         debugger
+            //     },
+            //     onTrigger(e) {
+            //         debugger
+            //     }
+            // })
+        },
+        beforeUpdate() {},
+        updated() {},
+        activated() {},
+        deactivated() {},
+        beforeUnmount() {},
+        unmounted() {},
+        errorCaptured: (err, vm, info) => {},
+        renderTracked() {},
+        renderTriggered() {}
+    }
+    const vueInstance = Vue.createApp(options)
+    const viewModel = vueInstance.mount('#vue')
+</script>
+<script type="text/babel">
+    // react
+    ReactDOM.render(
+        <div>
+        </div>,
+        document.getElementById('react'),
+        () => console.log(new Date().getUTCSeconds())
+    )
+</script>
+
+
+
+<section>
+    <h1></h1>
+</section>
+<section>
+    <h2></h2>
+</section>
+<section>
+    <h3></h3>
+</section>
+<section>
+    <h4></h4>
+</section>
+<section>
+    <h5></h5>
+</section>

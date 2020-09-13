@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <link rel="stylesheet" href="../../../tools/font/fontawesome-free-5.8.2-web/css/all.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue_v2.6.10.js"></script>
+</head>
+<body>
+
+<div id="app">
+    <todo-list></todo-list>
+</div>
+<script>
+    Vue.component('todo-list', {
+        template: `
+        <ul><li
+        v-for="todo in filteredTodos"
+        v-bind:key="todo.id"
+        >
+        {{todo.text}}
+</li></ul>`,
+        data(){
+            return {
+                filteredTodos: [
+                    {text: 'ok', id: 1},
+                    {text: 'i like it', id: 2}
+                ]
+            }
+        }
+
+    });
+    new Vue({
+        el: '#app',
+       data(){
+            return {
+                filteredTodos: [
+                    {text: 'hello', id: 1},
+                    {text: 'yes', id: 2}
+                ]
+            }
+       }
+    })
+</script>
+
+<hr>
+
+<div id="app2">
+    <todo-list></todo-list>
+</div>
+<script>
+    Vue.component('todo-list', {
+        template: `
+        <ul><li
+        v-for="todo in filteredTodos"
+        v-bind:key="todo.id"
+        >
+        {{todo.text}}
+</li></ul>`,
+        data(){
+            return {
+                filteredTodos: [
+                    {text: 'shut', id: 1},
+                    {text: 'the fuck', id: 2}
+                ]
+            }
+        }
+
+    });
+    new Vue({
+        el: '#app2',
+        data(){
+            return {
+                filteredTodos: [
+                    {text: 'hello', id: 1},
+                    {text: 'yes', id: 2}
+                ],
+                todos: [
+                    {text: 'shut123123', id: 1, isComplete: true},
+                    {text: 'the fuck12312321', id: 2, isComplete: false}
+                ]
+            }
+        }
+    })
+</script>
+
+<hr>
+
+<div id="app3">
+    <todo-list v-bind:todos="todos">
+        <template v-slot:todooo="{todov}">
+            <span v-if="todov.isComplete">success: </span>
+            {{ todov.text }}
+        </template>
+    </todo-list>
+</div>
+<script>
+    Vue.component('todo-list', {
+        template: `
+        <ul><li
+        v-for="todo in filteredTodos"
+        v-bind:key="todo.id"
+        >
+        <slot name="todooo" v-bind:todov="todo">
+        {{todo.text}}
+</slot>
+</li></ul>`,
+        data(){
+            return {
+                filteredTodos: [
+                    {text: '1', id: 1, isComplete: true},
+                    {text: '2', id: 2, isComplete: false}
+                ],
+                todos: [
+                    {text: '3', id: 1, isComplete: true},
+                    {text: '4', id: 2, isComplete: false}
+                ]
+            }
+        }
+    });
+    new Vue({
+        el: '#app3',
+        data(){
+            return {
+                filteredTodos: [
+                    {text: '5', id: 1, isComplete: true},
+                    {text: '6', id: 2, isComplete: false}
+                ],
+                todos: [
+                    {text: '7', id: 1, isComplete: true},
+                    {text: '8', id: 8, isComplete: false}
+                ]
+            }
+        }
+    })
+</script>
+
+<hr>
+
+<div id="app4">
+    <todo-list v-bind:todos="todos">
+        <template v-slot:todom="{todov}">
+            <span v-if="todov.isComplete">success: </span>
+            {{ todov.text }}
+        </template>
+    </todo-list>
+</div>
+<script>
+    Vue.component('todo-list', {
+        template: `
+        <ul><li
+        v-for="todo in filteredTodos"
+        v-bind:key="todo.id"
+        >
+        <slot name="todom" v-bind:todov="todo">
+        {{todo.text}}
+</slot>
+</li></ul>`,
+        data(){
+            return {
+                filteredTodos: [
+                    {text: '1', id: 1, isComplete: true},
+                    {text: '2', id: 2, isComplete: false}
+                ],
+                todos: [
+                    {text: '3', id: 1, isComplete: true},
+                    {text: '4', id: 2, isComplete: false}
+                ]
+            }
+        }
+
+    });
+    new Vue({
+        el: '#app4',
+        data(){
+            return {
+                filteredTodos: [
+                    {text: '5', id: 1, isComplete: true},
+                    {text: '6', id: 2, isComplete: false}
+                ],
+                todos: [
+                    {text: '7', id: 1, isComplete: true},
+                    {text: '8', id: 8, isComplete: false}
+                ]
+            }
+        }
+    })
+</script>
+
+<hr>
+
+<div id="app5">
+    <todo-list v-bind:todos="todos">
+        <template v-slot:todom="{todov}">
+            <span v-if="todov.isComplete">success: </span>
+            {{ todov.text }}
+        </template>
+    </todo-list>
+</div>
+<script>
+    Vue.component('todo-list', {
+        props: [
+            'todos'
+        ],
+        template: `
+        <ul><li
+        v-for="todo in filteredTodos"
+        v-bind:key="todo.id"
+        >
+        <slot name="todom" v-bind:todov="todo">
+        {{todo.text}} - fallbacks - nothing to display
+</slot>
+</li></ul>`,
+        computed: {
+            filteredTodos(){
+                let m = this.todos.filter(function(todo){
+                    return todo.text === '7'
+                });
+                console.log(m);
+                return m;
+            }
+        }
+
+    });
+    new Vue({
+        el: '#app5',
+        data(){
+            return {
+                todos: [
+                    {text: '7', id: 1, isComplete: true},
+                    {text: '8', id: 8, isComplete: false}
+                ]
+            }
+        }
+    })
+</script>
+</body>
+</html>

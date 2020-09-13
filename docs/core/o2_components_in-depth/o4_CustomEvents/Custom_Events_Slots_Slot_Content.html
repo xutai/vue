@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> </title>
+
+    <style>
+        .code {
+            background: #faffbd;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../../tools/bootstrap/4.1.3_compiled_css_and_js/css/bootstrap.css">
+    <script src="../../../tools/jquery-3.3.1.js"></script>
+    <script src="../../../tools/bootstrap/4.1.3_compiled_css_and_js/js/bootstrap.js"></script>
+    <script src="../../../tools/Vue/vue.js_v2.5.16.js"></script>
+</head>
+<body>
+
+
+
+
+<h3>Code: </h3>
+<section id="app1"  class="code">
+    <pre><code>
+        {{rawhtml}}
+    </code></pre>
+</section>
+
+<script>
+    var app1 = new Vue({
+        el: '#app1',
+        data:  {
+            rawhtml:
+                `
+
+code...
+            `
+        }
+    })
+</script>
+
+
+
+<h3>Instance:</h3>
+
+<section id="app" class="code">
+
+    <navigation-link url="/profile">
+        <span>code in this navigation-link element will be rendered in slot element</span>
+        <!-- Add a Font Awesome icon -->
+        <span class="fa fa-user"></span>
+        Your Profile
+    </navigation-link>
+
+    <navigation-link1>
+        <navigation-link2></navigation-link2>
+    </navigation-link1>
+
+</section>
+
+
+<script>
+    Vue.component('navigation-link',{
+        template: '<a\n' +
+            '  v-bind:href="url"\n' +
+            '  class="nav-link"\n' +
+            '>\n' +
+            '  <slot></slot>\n' +
+            '</a>'
+    });
+
+    Vue.component('navigation-link1',{
+       template: '<span>navigation-link1</span>'
+    });
+    Vue.component('navigation-link2',{
+        template: '<span>navigation-link2</span>'
+    });
+
+    var app = new Vue({
+        el: '#app'
+    })
+
+</script>
+
+
+
+</body>
+</html>

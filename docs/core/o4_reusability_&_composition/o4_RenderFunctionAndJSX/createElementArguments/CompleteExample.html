@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title</title>
+    <style>
+
+    </style>
+    <script src="../../vue.js"></script>
+
+</head>
+<body>
+<div id="demo">
+
+    <anchored-heading :level="1">-what goes here- <p>pppppa</p></anchored-heading>
+
+</div>
+<script>
+
+    var getChildrenTextContent = function(children) {
+        return children.map(function (node) {
+            return node.children ?
+                getChildrenTextContent(node.children)
+                : node.text
+        }).join('')
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map
+    }
+
+    Vue.component('anchored-heading', {
+        render: function(createElement) {
+            var headingId = getChildrenTextContent(this.$slots.default)
+                .toLowerCase()
+                .replace(/\W+/g, '-')
+                // https://www.w3schools.com/JSREF/jsref_obj_regexp.asp
+            //  \W	Find a non-word character
+            // n+	Matches any string that contains at least one n
+                    .replace(/(^-|-$)/g, '')
+            // (x|y)	Find any of the alternatives specified
+                    // ^n	Matches any string with n at the beginning of it
+            // n$	Matches any string with n at the end of it
+
+            return createElement(
+                'h' + this.level,
+                [
+                    createElement('a', {
+                        attrs: {
+                            name: headingId,
+                            href: '#' + headingId
+                        }
+                    }, this.$slots.default )
+                ]
+            )
+        },
+        props: {
+            level: {
+                type: Number,
+                required: true
+            }
+        }
+    })
+
+    var vm = new Vue({
+        el: '#demo',
+
+        created: function() {
+
+        },
+        watch: {
+
+        },
+        computed: {
+
+        },
+        methods: {
+
+        },
+        directives: {
+
+        }
+
+    })
+
+</script>
+</body>
+</html>
